@@ -1,0 +1,8 @@
+# Cấu hình deploy NewsHub trên Netlify (site tĩnh Astro)
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Pin Node để Astro build ổn định (Netlify mặc định có thể cũ hơn yêu cầu)
+  NODE_VERSION = "22"
