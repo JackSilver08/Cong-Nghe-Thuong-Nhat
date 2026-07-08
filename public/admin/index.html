@@ -710,7 +710,8 @@
 
       document.getElementById('postForm').addEventListener('submit', async function (event) {
         event.preventDefault();
-        var data = new FormData(event.currentTarget);
+        var postForm = event.currentTarget;
+        var data = new FormData(postForm);
         var title = String(data.get('title') || '').trim();
         var slug = slugify(String(data.get('slug') || '').trim() || title);
         var status = String(data.get('status') || 'draft');
@@ -748,7 +749,7 @@
             createdAt: new Date().toISOString(),
           };
           setDrafts([draft].concat(getDrafts()).slice(0, 12));
-          event.currentTarget.reset();
+          postForm.reset();
           showNotice('Chưa cấu hình Supabase. Bài đã lưu local để test form.', 'error');
           renderDrafts();
           return;
@@ -762,7 +763,7 @@
           var insert = await supabaseClient.from('posts').insert(post).select('id').single();
           if (insert.error) throw insert.error;
 
-          event.currentTarget.reset();
+          postForm.reset();
           showNotice('Đã lưu bài vào Supabase.', 'success');
           await loadPosts();
         } catch (error) {

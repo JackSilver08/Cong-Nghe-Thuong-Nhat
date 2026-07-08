@@ -2,6 +2,8 @@
 
 Static news portal về công nghệ / AI, xây bằng **Astro + Content Collections + Decap CMS**, deploy trên **Vercel**. Không cần backend/database ở v1 — tất cả bài viết là file Markdown trong repo.
 
+> Runbook hiện tại của dự án: xem `docs/runbook.md`.
+
 ## Tính năng
 
 - Trang chủ render bài viết từ Markdown (Hero, Breaking ticker, Cập nhật mới nhất, Xu hướng, Đọc nhiều, AI Daily Brief).

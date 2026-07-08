@@ -1,7 +1,35 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { SectionSlug } from './sections';
+import { supabase } from './supabase';
 
-export type Post = CollectionEntry<'posts'>;
+export type LocalPost = CollectionEntry<'posts'>;
+
+export interface SupabasePost {
+  id: string;
+  source: 'supabase';
+  body: string;
+  data: {
+    title: string;
+    slug: string;
+    excerpt: string;
+    category: string;
+    tags: string[];
+    author: string;
+    publishedAt: Date;
+    updatedAt?: Date;
+    readingTime?: number;
+    image?: string;
+    imageAlt: string;
+    featured: boolean;
+    trending: boolean;
+    sections: SectionSlug[];
+    sectionPriority: number;
+    popularScore: number;
+    draft: boolean;
+  };
+}
+
+export type Post = LocalPost | SupabasePost;
 
 const isProd = import.meta.env.PROD;
 
@@ -17,12 +45,103 @@ export function postSlug(post: Post): string {
   return post.data.slug?.trim() || post.id;
 }
 
+export function isSupabasePost(post: Post): post is SupabasePost {
+  return 'source' in post && post.source === 'supabase';
+}
+
+function normalizeSectionSlugs(value: unknown): SectionSlug[] {
+  return Array.isArray(value) ? (value.filter(Boolean) as SectionSlug[]) : [];
+}
+
+function toDate(value: unknown, fallback = new Date()): Date {
+  return value ? new Date(String(value)) : fallback;
+}
+
+async function getSupabasePublishedPosts(): Promise<SupabasePost[]> {
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('posts')
+    .select(
+      [
+        'id',
+        'title',
+        'slug',
+        'excerpt',
+        'content',
+        'category',
+        'tags',
+        'author',
+        'status',
+        'image_url',
+        'image_alt',
+        'sections',
+        'section_priority',
+        'popular_score',
+        'featured',
+        'trending',
+        'published_at',
+        'updated_at',
+        'created_at',
+      ].join(','),
+    )
+    .eq('status', 'published')
+    .order('published_at', { ascending: false, nullsFirst: false });
+
+  if (error || !data) {
+    if (error) console.warn('Supabase posts unavailable:', error.message);
+    return [];
+  }
+
+  return data.map((row: any) => {
+    const publishedAt = toDate(row.published_at, toDate(row.created_at));
+    const body = String(row.content || '');
+
+    return {
+      id: row.slug || row.id,
+      source: 'supabase',
+      body,
+      data: {
+        title: String(row.title || ''),
+        slug: String(row.slug || row.id),
+        excerpt: String(row.excerpt || ''),
+        category: String(row.category || 'ai'),
+        tags: Array.isArray(row.tags) ? row.tags : [],
+        author: String(row.author || 'NewsHub Admin'),
+        publishedAt,
+        updatedAt: row.updated_at ? toDate(row.updated_at) : undefined,
+        readingTime: estimateReadingTime(body),
+        image: row.image_url || undefined,
+        imageAlt: String(row.image_alt || ''),
+        featured: Boolean(row.featured),
+        trending: Boolean(row.trending),
+        sections: normalizeSectionSlugs(row.sections),
+        sectionPriority: Number(row.section_priority || 0),
+        popularScore: Number(row.popular_score || 0),
+        draft: false,
+      },
+    };
+  });
+}
+
 /** All publishable posts, newest first. Drafts are hidden in production. */
 export async function getPublishedPosts(): Promise<Post[]> {
-  const posts = await getCollection('posts', ({ data }) => {
+  const localPosts = await getCollection('posts', ({ data }) => {
     return isProd ? data.draft !== true : true;
   });
-  return posts.sort(
+  const supabasePosts = await getSupabasePublishedPosts();
+  const merged: Post[] = [];
+  const used = new Set<string>();
+
+  for (const post of [...supabasePosts, ...localPosts]) {
+    const slug = postSlug(post);
+    if (!used.has(slug)) {
+      merged.push(post);
+      used.add(slug);
+    }
+  }
+
+  return merged.sort(
     (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
   );
 }
