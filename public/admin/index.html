@@ -24,6 +24,7 @@
         }
       })();
     </script>
+    <script src="/admin/supabase-config.js"></script>
     <style>
       :root {
         --dark: #0b1020;
@@ -259,6 +260,29 @@
         display: grid;
         gap: 14px;
       }
+      .field-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .checkbox-grid {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface-low);
+      }
+      .checkbox-grid label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+        font-weight: 600;
+      }
+      .checkbox-grid input {
+        width: auto;
+      }
       label {
         display: grid;
         gap: 7px;
@@ -297,6 +321,15 @@
         border-radius: 8px;
         padding: 10px 12px;
         font-size: 0.88rem;
+      }
+      .notice.error {
+        color: #b91c1c;
+        background: #fee2e2;
+      }
+      .muted-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.84rem;
       }
       .draft-list {
         display: grid;
@@ -374,7 +407,7 @@
               <strong id="postCount">0</strong>
             </article>
             <article class="stat">
-              <span>Nháp demo</span>
+              <span>Nháp</span>
               <strong id="draftCount">0</strong>
             </article>
             <article class="stat">
@@ -383,7 +416,7 @@
             </article>
             <article class="stat">
               <span>Trạng thái</span>
-              <strong>Live</strong>
+              <strong id="storageStatus">Local</strong>
             </article>
           </div>
 
@@ -412,31 +445,77 @@
 
             <section class="panel">
               <div class="panel-head">
-                <h2>Tạo nháp nhanh</h2>
+                <h2>Đăng bài</h2>
               </div>
-              <form class="quick-form" id="draftForm">
+              <form class="quick-form" id="postForm">
                 <label>
                   Tiêu đề
                   <input name="title" placeholder="Nhập tiêu đề bài viết" required />
                 </label>
                 <label>
-                  Chuyên mục
-                  <select name="category">
-                    <option>AI</option>
-                    <option>Thiết bị</option>
-                    <option>Startup</option>
-                    <option>An ninh mạng</option>
-                    <option>Lập trình</option>
-                    <option>Cloud</option>
-                    <option>Đánh giá</option>
-                  </select>
+                  Slug
+                  <input name="slug" placeholder="tu-dong-tao-tu-tieu-de" />
                 </label>
                 <label>
-                  Ghi chú
-                  <textarea name="note" placeholder="Ý chính, nguồn, deadline..."></textarea>
+                  Tóm tắt
+                  <textarea name="excerpt" placeholder="Mô tả ngắn hiển thị ở card bài viết" required></textarea>
                 </label>
-                <p class="notice" id="draftNotice" hidden>Đã lưu nháp vào trình duyệt.</p>
-                <button class="primary" type="submit">Lưu nháp</button>
+                <label>
+                  Chuyên mục
+                  <select name="category">
+                    <option value="ai">AI</option>
+                    <option value="thiet-bi">Thiết bị</option>
+                    <option value="startup">Startup</option>
+                    <option value="an-ninh-mang">An ninh mạng</option>
+                    <option value="lap-trinh">Lập trình</option>
+                    <option value="cloud">Cloud</option>
+                    <option value="danh-gia">Đánh giá</option>
+                  </select>
+                </label>
+                <div class="field-row">
+                  <label>
+                    Trạng thái
+                    <select name="status">
+                      <option value="draft">Nháp</option>
+                      <option value="published">Đăng ngay</option>
+                    </select>
+                  </label>
+                  <label>
+                    Ưu tiên
+                    <input name="sectionPriority" type="number" value="0" />
+                  </label>
+                </div>
+                <label>
+                  Tags
+                  <input name="tags" placeholder="AI, Startup, Cloud" />
+                </label>
+                <label>
+                  Ảnh đại diện
+                  <input name="image" type="file" accept="image/*" />
+                </label>
+                <label>
+                  Alt ảnh
+                  <input name="imageAlt" placeholder="Mô tả ảnh cho SEO và accessibility" />
+                </label>
+                <label>
+                  Vị trí hiển thị trang chủ
+                  <span class="checkbox-grid">
+                    <label><input type="checkbox" name="sections" value="home-hero" /> Hero chính</label>
+                    <label><input type="checkbox" name="sections" value="home-side" /> Cột tin bên phải hero</label>
+                    <label><input type="checkbox" name="sections" value="breaking-news" /> Tin nóng</label>
+                    <label><input type="checkbox" name="sections" value="latest-news" /> Cập nhật mới nhất</label>
+                    <label><input type="checkbox" name="sections" value="popular-sidebar" /> Đọc nhiều</label>
+                    <label><input type="checkbox" name="sections" value="ai-daily-brief" /> AI Daily Brief</label>
+                    <label><input type="checkbox" name="sections" value="tech-trends" /> Xu hướng công nghệ</label>
+                  </span>
+                </label>
+                <label>
+                  Nội dung
+                  <textarea name="content" placeholder="Viết nội dung bài bằng Markdown hoặc văn bản thường..." required></textarea>
+                </label>
+                <p class="muted-note">Nếu chưa điền Supabase config, bài sẽ được lưu local để test form.</p>
+                <p class="notice" id="postNotice" hidden></p>
+                <button class="primary" type="submit">Lưu bài</button>
               </form>
               <div class="draft-list" id="draftList"></div>
             </section>
@@ -445,10 +524,27 @@
       </main>
     </div>
 
-    <script>
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
       var auth = JSON.parse(localStorage.getItem('newshubAuth') || 'null');
       document.documentElement.classList.remove('checking-auth');
       document.getElementById('adminEmail').textContent = auth && auth.email ? auth.email : 'admin@newshub.com';
+      var supabaseConfig = window.NEWSHUB_SUPABASE || {};
+      var supabaseReady = Boolean(supabaseConfig.url && supabaseConfig.anonKey);
+      var supabaseClient = supabaseReady
+        ? createClient(supabaseConfig.url, supabaseConfig.anonKey)
+        : null;
+      var imageBucket = supabaseConfig.imageBucket || 'post-images';
+      var categoryLabels = {
+        'ai': 'AI',
+        'thiet-bi': 'Thiết bị',
+        'startup': 'Startup',
+        'an-ninh-mang': 'An ninh mạng',
+        'lap-trinh': 'Lập trình',
+        'cloud': 'Cloud',
+        'danh-gia': 'Đánh giá',
+      };
 
       document.getElementById('logoutButton').addEventListener('click', function () {
         localStorage.removeItem('newshubAuth');
@@ -463,6 +559,33 @@
         localStorage.setItem('newshubDrafts', JSON.stringify(drafts));
       }
 
+      function slugify(value) {
+        return value
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/đ/g, 'd')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 90);
+      }
+
+      function parseTags(value) {
+        return String(value || '')
+          .split(',')
+          .map(function (tag) {
+            return tag.trim();
+          })
+          .filter(Boolean);
+      }
+
+      function showNotice(text, type) {
+        var notice = document.getElementById('postNotice');
+        notice.textContent = text;
+        notice.className = type === 'error' ? 'notice error' : 'notice';
+        notice.hidden = false;
+      }
+
       function renderDrafts() {
         var drafts = getDrafts();
         var list = document.getElementById('draftList');
@@ -475,7 +598,10 @@
           var title = document.createElement('strong');
           title.textContent = draft.title;
           var meta = document.createElement('span');
-          meta.textContent = draft.category + ' - ' + new Date(draft.createdAt).toLocaleDateString('vi-VN');
+          meta.textContent =
+            (categoryLabels[draft.category] || draft.category) +
+            ' - ' +
+            new Date(draft.createdAt).toLocaleDateString('vi-VN');
           item.append(title, meta);
           list.append(item);
         });
@@ -484,7 +610,16 @@
       function renderPosts(items) {
         var table = document.getElementById('postTable');
         table.innerHTML = '';
-        document.getElementById('postCount').textContent = String(items.length);
+        document.getElementById('postCount').textContent = String(
+          items.filter(function (item) {
+            return item.status !== 'draft';
+          }).length || items.length,
+        );
+        document.getElementById('draftCount').textContent = String(
+          items.filter(function (item) {
+            return item.status === 'draft';
+          }).length,
+        );
 
         items.slice(0, 8).forEach(function (item) {
           var row = document.createElement('tr');
@@ -496,10 +631,10 @@
 
           title.className = 'title-cell';
           title.textContent = item.title;
-          category.textContent = item.category || 'NewsHub';
+          category.textContent = categoryLabels[item.category] || item.category || 'NewsHub';
           date.textContent = item.date || '-';
           pill.className = 'pill';
-          pill.textContent = 'Đã đăng';
+          pill.textContent = item.status === 'draft' ? 'Nháp' : 'Đã đăng';
           status.append(pill);
           row.append(title, category, date, status);
           table.append(row);
@@ -507,6 +642,34 @@
       }
 
       async function loadPosts() {
+        document.getElementById('storageStatus').textContent = supabaseReady ? 'Supabase' : 'Local';
+
+        if (supabaseClient) {
+          var result = await supabaseClient
+            .from('posts')
+            .select('id,title,category,status,published_at,created_at')
+            .order('created_at', { ascending: false })
+            .limit(30);
+
+          if (!result.error) {
+            renderPosts(
+              result.data.map(function (item) {
+                return {
+                  title: item.title,
+                  category: item.category,
+                  status: item.status,
+                  date: item.published_at || item.created_at
+                    ? new Date(item.published_at || item.created_at).toLocaleDateString('vi-VN')
+                    : '',
+                };
+              }),
+            );
+            return;
+          }
+
+          showNotice('Không tải được dữ liệu Supabase: ' + result.error.message, 'error');
+        }
+
         try {
           var response = await fetch('/rss.xml', { cache: 'no-store' });
           var xml = await response.text();
@@ -515,6 +678,7 @@
             return {
               title: item.querySelector('title')?.textContent || 'Bài viết NewsHub',
               category: item.querySelector('category')?.textContent || 'NewsHub',
+              status: 'published',
               date: item.querySelector('pubDate')?.textContent
                 ? new Date(item.querySelector('pubDate').textContent).toLocaleDateString('vi-VN')
                 : '',
@@ -523,32 +687,105 @@
           renderPosts(items);
         } catch (error) {
           renderPosts([
-            { title: 'Mô hình AI thế hệ mới đẩy khả năng suy luận lên tầm cao mới', category: 'AI', date: '07/07/2026' },
-            { title: 'AI agent: khi trợ lý biết tự lên kế hoạch và hành động', category: 'AI', date: '06/07/2026' },
-            { title: 'Cuộc đua chip AI: khi phần cứng quyết định tốc độ đổi mới', category: 'AI', date: '05/07/2026' },
+            { title: 'Mô hình AI thế hệ mới đẩy khả năng suy luận lên tầm cao mới', category: 'ai', status: 'published', date: '07/07/2026' },
+            { title: 'AI agent: khi trợ lý biết tự lên kế hoạch và hành động', category: 'ai', status: 'published', date: '06/07/2026' },
+            { title: 'Cuộc đua chip AI: khi phần cứng quyết định tốc độ đổi mới', category: 'ai', status: 'published', date: '05/07/2026' },
           ]);
         }
       }
 
-      document.getElementById('draftForm').addEventListener('submit', function (event) {
+      async function uploadImage(file, slug) {
+        if (!file || !supabaseClient) return '';
+        var extension = file.name.split('.').pop() || 'png';
+        var path = new Date().toISOString().slice(0, 10) + '/' + slug + '-' + Date.now() + '.' + extension;
+        var upload = await supabaseClient.storage.from(imageBucket).upload(path, file, {
+          cacheControl: '31536000',
+          upsert: false,
+        });
+        if (upload.error) {
+          throw upload.error;
+        }
+        return supabaseClient.storage.from(imageBucket).getPublicUrl(path).data.publicUrl;
+      }
+
+      document.getElementById('postForm').addEventListener('submit', async function (event) {
         event.preventDefault();
         var data = new FormData(event.currentTarget);
-        var draft = {
-          title: String(data.get('title') || '').trim(),
-          category: String(data.get('category') || 'NewsHub'),
-          note: String(data.get('note') || '').trim(),
-          createdAt: new Date().toISOString(),
+        var title = String(data.get('title') || '').trim();
+        var slug = slugify(String(data.get('slug') || '').trim() || title);
+        var status = String(data.get('status') || 'draft');
+        var sections = data.getAll('sections').map(String);
+        var file = data.get('image');
+        var post = {
+          title: title,
+          slug: slug,
+          excerpt: String(data.get('excerpt') || '').trim(),
+          content: String(data.get('content') || '').trim(),
+          category: String(data.get('category') || 'ai'),
+          tags: parseTags(data.get('tags')),
+          author: 'NewsHub Admin',
+          status: status,
+          image_url: '',
+          image_alt: String(data.get('imageAlt') || '').trim(),
+          sections: sections,
+          section_priority: Number(data.get('sectionPriority') || 0),
+          popular_score: sections.includes('popular-sidebar') ? Number(data.get('sectionPriority') || 0) : 0,
+          featured: sections.includes('home-hero'),
+          trending: sections.includes('tech-trends'),
+          published_at: status === 'published' ? new Date().toISOString() : null,
         };
-        if (!draft.title) return;
-        setDrafts([draft].concat(getDrafts()).slice(0, 12));
-        event.currentTarget.reset();
-        document.getElementById('draftNotice').hidden = false;
-        renderDrafts();
+
+        if (!post.title || !post.slug || !post.excerpt || !post.content) {
+          showNotice('Vui lòng nhập tiêu đề, tóm tắt và nội dung bài viết.', 'error');
+          return;
+        }
+
+        if (!supabaseClient) {
+          var draft = {
+            title: post.title,
+            category: post.category,
+            status: post.status,
+            createdAt: new Date().toISOString(),
+          };
+          setDrafts([draft].concat(getDrafts()).slice(0, 12));
+          event.currentTarget.reset();
+          showNotice('Chưa cấu hình Supabase. Bài đã lưu local để test form.', 'error');
+          renderDrafts();
+          return;
+        }
+
+        try {
+          if (file && file.size) {
+            post.image_url = await uploadImage(file, post.slug);
+          }
+
+          var insert = await supabaseClient.from('posts').insert(post).select('id').single();
+          if (insert.error) throw insert.error;
+
+          event.currentTarget.reset();
+          showNotice('Đã lưu bài vào Supabase.', 'success');
+          await loadPosts();
+        } catch (error) {
+          showNotice('Không lưu được bài: ' + error.message, 'error');
+        }
+      });
+
+      document.querySelector('input[name="title"]').addEventListener('input', function (event) {
+        var slugInput = document.querySelector('input[name="slug"]');
+        if (slugInput && !slugInput.dataset.touched) {
+          slugInput.value = slugify(event.target.value);
+        }
+      });
+
+      document.querySelector('input[name="slug"]').addEventListener('input', function (event) {
+        event.target.dataset.touched = 'true';
       });
 
       var users = JSON.parse(localStorage.getItem('newshubUsers') || '[]');
       document.getElementById('userCount').textContent = String(users.length + 1);
-      renderDrafts();
+      if (!supabaseReady) {
+        renderDrafts();
+      }
       loadPosts();
     </script>
   </body>
