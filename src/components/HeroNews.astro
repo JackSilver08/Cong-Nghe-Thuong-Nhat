@@ -264,14 +264,40 @@ const url = `/article/${postSlug(post)}`;
       font-size: clamp(1.9rem, 11vw, 2.65rem);
     }
     .hero-side-item {
-      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      min-height: 84px;
+      padding: 6px;
     }
     .hero-side-media {
-      flex-basis: auto;
-      min-height: 170px;
+      flex: 0 0 104px;
+      width: 104px;
+      height: 78px;
+      min-height: 0;
+      border-radius: 7px;
     }
     .hero-side-body {
-      padding: 16px;
+      min-width: 0;
+      padding: 0 4px 0 0;
+    }
+    .hero-side-title {
+      font-size: 1rem;
+      line-height: 1.35;
+      -webkit-line-clamp: 3;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .hero-side-item {
+      gap: 10px;
+    }
+    .hero-side-media {
+      flex-basis: 92px;
+      width: 92px;
+      height: 69px;
+    }
+    .hero-side-title {
+      font-size: 0.94rem;
     }
   }
 
