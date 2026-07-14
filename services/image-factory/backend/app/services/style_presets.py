@@ -7,12 +7,12 @@ STYLE_PRESETS: dict[str, dict] = {
     "editorial-tech": {
         "label": "Editorial công nghệ",
         "description": "Ảnh kiểu tạp chí, sạch, hiện đại và có khoảng thở cho tiêu đề.",
-        "render_style": "premium editorial technology photography",
+        "render_style": "photorealistic premium contemporary editorial technology photography, authentic materials, natural human detail",
         "palette": ["cyan", "clean white", "charcoal", "natural skin tones"],
         "lighting": "soft directional daylight with controlled contrast",
         "mood": "modern, intelligent, trustworthy",
-        "camera": "editorial medium-wide photograph, eye-level, realistic 35mm lens",
-        "layout": "spacious editorial composition",
+        "camera": "professional editorial medium-wide photograph, eye-level, realistic 35mm lens, natural perspective, crisp focal subject",
+        "layout": "balanced full-frame editorial composition with one clear focal subject",
     },
     "human-story": {
         "label": "Câu chuyện con người",
@@ -76,4 +76,3 @@ def public_styles() -> list[dict]:
         {"id": style_id, "label": data["label"], "description": data["description"]}
         for style_id, data in STYLE_PRESETS.items()
     ]
-

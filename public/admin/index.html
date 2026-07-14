@@ -1396,8 +1396,10 @@
                 aspect_ratio: '16:9',
                 style_preset: 'editorial-tech',
                 title_position: 'left',
-                quality_profile: 'publish',
-                apply_layout: true,
+                // Generate a clean photographic thumbnail. The article title
+                // remains page content and is not burned into the image.
+                quality_profile: 'standard',
+                apply_layout: false,
               },
             }),
           });

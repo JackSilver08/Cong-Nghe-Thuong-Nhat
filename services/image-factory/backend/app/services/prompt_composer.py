@@ -22,6 +22,24 @@ BASE_NEGATIVE = [
     "cropped face",
     "low contrast",
     "cluttered composition",
+    "illustration",
+    "cartoon",
+    "3d render",
+    "plastic skin",
+    "overprocessed HDR",
+    "uncanny face",
+    "asymmetrical eyes",
+    "extra fingers",
+    "missing fingers",
+    "fused fingers",
+    "extra limbs",
+    "deformed body",
+    "duplicate people",
+    "warped objects",
+    "impossible reflections",
+    "blurry subject",
+    "low resolution",
+    "compression artifacts",
 ]
 
 
@@ -36,7 +54,7 @@ def compile_prompt(brief: VisualBrief, style_preset: str) -> str:
         f"{brief.primary_subject}, {brief.action}",
         f"in {brief.environment}",
         f"supporting objects: {supporting}" if supporting else "",
-        f"composition: {brief.composition}; reserve {brief.text_safe_area} as clean negative space",
+        f"composition: {brief.composition}; balanced full-frame scene with no text panel or title area",
         f"camera: {brief.camera}",
         f"lighting: {brief.lighting}",
         f"style: {brief.render_style}; {style['layout']}",
@@ -44,6 +62,8 @@ def compile_prompt(brief: VisualBrief, style_preset: str) -> str:
         f"mood: {brief.mood}",
         f"keep every required element clearly visible and recognizable: {required}" if required else "",
         "one coherent real scene, tangible subject, strong focal point, professional art direction",
+        "photorealistic contemporary editorial photograph, authentic materials and natural proportions",
+        "realistic hands and faces, physically plausible objects, subtle natural detail, clean modern finish",
         "no typography or graphic text inside the generated image",
     ]
     return ". ".join(segment.strip(" .") for segment in segments if segment).strip() + "."

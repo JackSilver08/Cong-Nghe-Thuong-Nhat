@@ -261,7 +261,10 @@ def canvas_profile(aspect_ratio: str, quality_profile: str, model: str) -> tuple
         steps = 6 if quality_profile == "draft" else 8
         cfg = 1.0
     elif "turbo" in model_name:
-        steps = 2 if quality_profile == "draft" else 4
+        # SD-Turbo reaches its useful quality range quickly. Two steps keeps
+        # 768px editorial thumbnails fast on CPU; publish gets one refinement
+        # step without doubling generation time.
+        steps = 3 if quality_profile == "publish" else 2
         cfg = 1.0
     else:
         steps = {"draft": 18, "standard": 25, "publish": 30}[quality_profile]
