@@ -308,6 +308,41 @@
       .form-actions .primary {
         flex: 1;
       }
+      .thumbnail-generator {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface-low);
+      }
+      .thumbnail-generator-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .thumbnail-generator-head strong {
+        font-family: var(--font-head);
+        font-size: 0.9rem;
+      }
+      .thumbnail-preview {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+      }
+      .thumbnail-preview[hidden] {
+        display: none;
+      }
+      .thumbnail-status {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+        line-height: 1.5;
+      }
       .user-role-select {
         min-width: 150px;
       }
@@ -770,6 +805,14 @@
                     Ảnh đại diện
                     <input name="image" type="file" accept="image/*" />
                   </label>
+                  <div class="thumbnail-generator">
+                    <div class="thumbnail-generator-head">
+                      <strong>Tạo thumbnail bằng AI</strong>
+                      <button class="action-button" id="generateThumbnailButton" type="button">Tạo ảnh</button>
+                    </div>
+                    <p class="thumbnail-status" id="thumbnailStatus">Tự đọc tiêu đề và nội dung bài viết để tạo duy nhất một ảnh 16:9.</p>
+                    <img class="thumbnail-preview" id="thumbnailPreview" alt="Thumbnail vừa tạo" hidden />
+                  </div>
                   <label>
                     Alt ảnh
                     <input name="imageAlt" placeholder="Mô tả ảnh cho SEO và accessibility" />
@@ -910,6 +953,9 @@
         ? createClient(supabaseConfig.url, supabaseConfig.anonKey)
         : null;
       var imageBucket = supabaseConfig.imageBucket || 'post-images';
+      var imageToolConfig = window.NEWSHUB_IMAGE_TOOL || {};
+      var imageToolUrl = String(imageToolConfig.url || 'http://127.0.0.1:8000').replace(/\/$/, '');
+      var generatedThumbnailUrl = '';
 
       function goToLogin() {
         window.location.replace('/login?next=/admin/index.html');
@@ -1272,6 +1318,117 @@
         notice.hidden = false;
       }
 
+      function setThumbnailStatus(text, isError) {
+        var status = document.getElementById('thumbnailStatus');
+        status.textContent = text;
+        status.style.color = isError ? '#b91c1c' : '';
+      }
+
+      function clearGeneratedThumbnail() {
+        if (generatedThumbnailUrl) URL.revokeObjectURL(generatedThumbnailUrl);
+        generatedThumbnailUrl = '';
+        var preview = document.getElementById('thumbnailPreview');
+        preview.removeAttribute('src');
+        preview.hidden = true;
+        setThumbnailStatus('Tự đọc tiêu đề và nội dung bài viết để tạo duy nhất một ảnh 16:9.', false);
+      }
+
+      async function imageToolRequest(path, options) {
+        var response = await fetch(imageToolUrl + path, options || {});
+        if (!response.ok) {
+          var message = response.statusText || 'Yêu cầu thất bại';
+          try {
+            var body = await response.json();
+            message = body.detail || message;
+          } catch (error) {}
+          throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+        }
+        return response;
+      }
+
+      async function waitForImageJob(jobId) {
+        var deadline = Date.now() + 15 * 60 * 1000;
+        while (Date.now() < deadline) {
+          var job = await (await imageToolRequest('/api/jobs/' + encodeURIComponent(jobId))).json();
+          setThumbnailStatus('Đang tạo thumbnail… ' + Math.round(Number(job.progress || 0) * 100) + '%', false);
+          if (job.status === 'completed') return;
+          if (job.status === 'failed' || job.status === 'cancelled') {
+            throw new Error(job.error_message || 'Job tạo ảnh không hoàn thành.');
+          }
+          await new Promise(function (resolve) { window.setTimeout(resolve, 1500); });
+        }
+        throw new Error('Quá thời gian chờ tạo ảnh.');
+      }
+
+      async function generateThumbnail() {
+        var postForm = document.getElementById('postForm');
+        var title = String(postForm.elements.title.value || '').trim();
+        var excerpt = String(postForm.elements.excerpt.value || '').trim();
+        var articleContent = easyMDE
+          ? String(easyMDE.value() || '').trim()
+          : String(postForm.elements.content.value || '').trim();
+        if (!title) {
+          setThumbnailStatus('Hãy nhập tiêu đề bài viết trước.', true);
+          postForm.elements.title.focus();
+          return;
+        }
+
+        var button = document.getElementById('generateThumbnailButton');
+        button.disabled = true;
+        button.textContent = 'Đang tạo…';
+        setThumbnailStatus('Đang kết nối AI Image Factory…', false);
+        try {
+          var createResponse = await imageToolRequest('/api/jobs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              prompt: '',
+              quantity: 1,
+              params: { width: 1024, height: 576 },
+              creative: {
+                title_text: title,
+                topic: postForm.elements.category.options[postForm.elements.category.selectedIndex].text,
+                content_summary: [excerpt, articleContent]
+                  .filter(Boolean)
+                  .join('\n\n')
+                  .slice(0, 12000),
+                purpose: 'thumbnail',
+                aspect_ratio: '16:9',
+                style_preset: 'editorial-tech',
+                title_position: 'left',
+                quality_profile: 'publish',
+                apply_layout: true,
+              },
+            }),
+          });
+          var job = await createResponse.json();
+          await waitForImageJob(job.id);
+          var images = await (await imageToolRequest('/api/images?job_id=' + encodeURIComponent(job.id))).json();
+          if (!images.length) throw new Error('Tool không trả về ảnh hoàn chỉnh.');
+
+          var imageResponse = await imageToolRequest('/api/images/' + encodeURIComponent(images[0].id) + '/file');
+          var blob = await imageResponse.blob();
+          var filename = (slugify(title) || 'thumbnail') + '-ai.png';
+          var file = new File([blob], filename, { type: blob.type || 'image/png' });
+          var transfer = new DataTransfer();
+          transfer.items.add(file);
+          postForm.elements.image.files = transfer.files;
+
+          if (generatedThumbnailUrl) URL.revokeObjectURL(generatedThumbnailUrl);
+          generatedThumbnailUrl = URL.createObjectURL(blob);
+          var preview = document.getElementById('thumbnailPreview');
+          preview.src = generatedThumbnailUrl;
+          preview.hidden = false;
+          if (!postForm.elements.imageAlt.value.trim()) postForm.elements.imageAlt.value = title;
+          setThumbnailStatus('Đã tạo ảnh và chọn làm ảnh đại diện. Ảnh sẽ được tải lên khi bạn lưu bài.', false);
+        } catch (error) {
+          setThumbnailStatus('Không tạo được ảnh: ' + error.message + ' Hãy kiểm tra AI Image Factory đang chạy ở ' + imageToolUrl + '.', true);
+        } finally {
+          button.disabled = false;
+          button.textContent = 'Tạo lại';
+        }
+      }
+
       function renderDrafts() {
         var drafts = getDrafts();
         var list = document.getElementById('draftList');
@@ -1358,6 +1515,7 @@
         postForm.querySelector('input[name="slug"]').dataset.touched = '';
         document.getElementById('savePostButton').textContent = 'Lưu bài';
         document.getElementById('cancelEditButton').hidden = true;
+        clearGeneratedThumbnail();
       }
 
       function startEditPost(id) {
@@ -1553,6 +1711,8 @@
       document.getElementById('cancelEditButton').addEventListener('click', function () {
         resetPostForm();
       });
+
+      document.getElementById('generateThumbnailButton').addEventListener('click', generateThumbnail);
 
       document.querySelector('input[name="title"]').addEventListener('input', function (event) {
         var slugInput = document.querySelector('input[name="slug"]');
