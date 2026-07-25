@@ -107,8 +107,12 @@ const { slug } = Astro.props;
   .comments .composer-as strong {
     color: var(--text);
   }
-  .comments .comment-composer > button,
+  .comments .comment-composer .composer-actions button,
   .comments .comment-reply button {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     justify-self: start;
     border: 0;
     border-radius: 9px;
@@ -117,17 +121,31 @@ const { slug } = Astro.props;
     font-family: var(--font-head);
     font-weight: 800;
     font-size: 0.86rem;
-    padding: 9px 18px;
+    line-height: 1;
+    padding: 0 20px;
+    box-shadow: 0 8px 20px rgba(70, 72, 212, 0.2);
     cursor: pointer;
-    transition: opacity 0.15s ease;
+    appearance: none;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      opacity 0.15s ease;
   }
-  .comments .comment-composer > button:hover,
+  .comments .comment-composer .composer-actions button:hover,
   .comments .comment-reply button:hover {
-    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(70, 72, 212, 0.28);
+  }
+  .comments .comment-composer .composer-actions button:focus-visible,
+  .comments .comment-reply button:focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
   }
   .comments button[disabled] {
     opacity: 0.55;
     cursor: default;
+    transform: none;
+    box-shadow: none;
   }
 
   /* Nhắc đăng nhập */
@@ -275,6 +293,16 @@ const { slug } = Astro.props;
     display: grid;
     gap: 8px;
     margin-top: 12px;
+  }
+
+  @media (max-width: 520px) {
+    .comments .composer-actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .comments .comment-composer .composer-actions button {
+      width: 100%;
+    }
   }
 </style>
 
