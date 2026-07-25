@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Giới thiệu Công Nghệ Thường Nhật</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #dfe5ef; color: #111827; font-family: Arial, "Segoe UI", sans-serif; }
+    .page { position: relative; width: 210mm; height: 297mm; overflow: hidden; background: #fff; page-break-after: always; }
+    .page:last-child { page-break-after: auto; }
+    .pad { padding: 19mm 18mm 16mm; }
+    .dark { background: #0b1328; color: #fff; }
+    .blue { color: #2447f9; }
+    .eyebrow { margin: 0 0 8px; color: #4764ff; font-size: 10px; line-height: 1.2; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; }
+    .dark .eyebrow { color: #84a0ff; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 165mm; margin-bottom: 8mm; font-size: 36px; line-height: 1.08; letter-spacing: -1.2px; }
+    h2 { margin-bottom: 7mm; font-size: 29px; line-height: 1.1; letter-spacing: -0.8px; }
+    h3 { margin-bottom: 3mm; font-size: 15px; line-height: 1.25; }
+    p { font-size: 12px; line-height: 1.58; color: #4b5563; }
+    .dark p { color: #c5cede; }
+    .lead { max-width: 152mm; font-size: 16px; line-height: 1.55; color: #344054; }
+    .dark .lead { color: #e6ebf5; }
+    .logo { width: 66mm; height: auto; object-fit: contain; }
+    .logo-white { filter: brightness(0) invert(1); }
+    .topline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 19mm; }
+    .page-no { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #7d8798; }
+    .dark .page-no { color: #8f9bb1; }
+    .cover-orb { position: absolute; width: 132mm; height: 132mm; right: -35mm; top: 68mm; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #6f85ff, #2348fb 40%, #111d4c 68%, transparent 70%); opacity: .95; }
+    .cover-grid { position: absolute; inset: 0; opacity: .22; background-image: linear-gradient(rgba(113,139,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(113,139,255,.18) 1px, transparent 1px); background-size: 12mm 12mm; mask-image: linear-gradient(to bottom, transparent, black 28%, transparent 88%); }
+    .cover-content { position: relative; z-index: 2; padding: 22mm 18mm; }
+    .cover h1 { width: 145mm; margin-top: 35mm; font-size: 46px; }
+    .cover .tagline { width: 105mm; font-size: 18px; line-height: 1.55; color: #dbe3f3; }
+    .cover .meta { position: absolute; left: 18mm; bottom: 18mm; color: #8290aa; font-size: 10px; letter-spacing: .8px; text-transform: uppercase; }
+    .rule { width: 22mm; height: 2px; margin: 0 0 8mm; background: #3154ff; }
+    .quote { margin-top: 16mm; padding: 9mm 10mm; border-left: 3px solid #3154ff; background: #f5f7ff; font-size: 20px; line-height: 1.45; font-weight: 700; color: #17213a; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-top: 12mm; }
+    .stat { min-height: 29mm; padding: 6mm; border: 1px solid #e3e7ef; border-radius: 4mm; }
+    .stat strong { display: block; margin-bottom: 2mm; color: #2447f9; font-size: 25px; }
+    .stat span { color: #4b5563; font-size: 10.5px; line-height: 1.4; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+    .card { min-height: 45mm; padding: 7mm; border: 1px solid #e3e7ef; border-radius: 4mm; background: #fff; }
+    .card .num { display: inline-flex; align-items: center; justify-content: center; width: 9mm; height: 9mm; margin-bottom: 5mm; border-radius: 3mm; color: #fff; background: #2447f9; font-size: 10px; font-weight: 700; }
+    .card p { margin-bottom: 0; font-size: 10.5px; }
+    .web-crops { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 8mm; }
+    .web-crop { position: relative; overflow: hidden; border: 1px solid #dce1ea; border-radius: 4mm; box-shadow: 0 4mm 11mm rgba(12, 25, 54, .11); background-color: #f3f5f9; background-image: url("website-homepage-2026.png"); background-repeat: no-repeat; }
+    .web-crop::after { position: absolute; left: 4mm; bottom: 3mm; padding: 1.8mm 3mm; border-radius: 99px; color: #fff; background: rgba(11,19,40,.86); font-size: 8px; font-weight: 700; letter-spacing: .3px; }
+    .web-crop.hero { grid-column: 1 / -1; height: 68mm; background-size: 100% auto; background-position: center top; }
+    .web-crop.hero::after { content: "Điểm tin nổi bật"; }
+    .web-crop.latest { height: 64mm; background-size: 205% auto; background-position: 2% 22%; }
+    .web-crop.latest::after { content: "Cập nhật mới nhất"; }
+    .web-crop.brief { height: 64mm; background-size: 205% auto; background-position: 98% 61%; }
+    .web-crop.brief::after { content: "AI Daily Brief"; }
+    .chips { display: flex; flex-wrap: wrap; gap: 2.5mm; margin-top: 8mm; }
+    .chip { padding: 2.5mm 4mm; border: 1px solid #dce2ed; border-radius: 99px; font-size: 9.5px; font-weight: 700; color: #334155; background: #fff; }
+    .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4mm; margin-top: 10mm; }
+    .feature { min-height: 37mm; padding: 6mm; border-radius: 4mm; background: #162039; border: 1px solid #2c3a5a; }
+    .feature .dot { width: 7mm; height: 7mm; margin-bottom: 4mm; border-radius: 2mm; background: #3a5bff; }
+    .feature h3 { color: #fff; }
+    .feature p { margin: 0; color: #abb7cb; font-size: 10px; }
+    .journey { margin-top: 10mm; }
+    .journey-row { display: grid; grid-template-columns: 15mm 1fr; gap: 4mm; padding: 5mm 0; border-bottom: 1px solid #e6e9ef; }
+    .journey-row:last-child { border-bottom: 0; }
+    .journey-row b { color: #2447f9; font-size: 17px; }
+    .journey-row p { margin: 0; font-size: 11px; }
+    .tech { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin-top: 12mm; }
+    .tech-item { padding: 6mm; border-radius: 4mm; background: #f3f6ff; }
+    .tech-item p { margin-bottom: 0; font-size: 10.5px; }
+    .closing { padding: 22mm 18mm; }
+    .closing h2 { width: 150mm; margin-top: 35mm; font-size: 42px; }
+    .closing .cta { width: 128mm; margin-top: 13mm; font-size: 17px; color: #dbe3f3; }
+    .contact { position: absolute; left: 18mm; right: 18mm; bottom: 25mm; display: grid; grid-template-columns: 1.2fr 1fr; gap: 15mm; padding-top: 8mm; border-top: 1px solid #32405d; }
+    .contact small { display: block; margin-bottom: 2mm; color: #7f90ae; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+    .contact strong { font-size: 13px; color: #fff; }
+    .accent-line { position: absolute; top: 0; left: 0; width: 100%; height: 3mm; background: linear-gradient(90deg, #2348fb, #6c83ff, #20d3a2); }
+    @media screen { .page { margin: 10mm auto; box-shadow: 0 5mm 20mm rgba(15,23,42,.18); } }
+    @media print { html, body { background: #fff; } }
+  </style>
+</head>
+<body>
+  <section class="page dark cover">
+    <div class="cover-grid"></div><div class="cover-orb"></div>
+    <div class="cover-content">
+      <img class="logo logo-white" src="../public/assets/cong-nghe-thuong-nhat-logo.png" alt="Công Nghệ Thường Nhật">
+      <p class="eyebrow" style="margin-top:28mm">Hồ sơ giới thiệu</p>
+      <h1>Công nghệ rõ ràng.<br>Giá trị mỗi ngày.</h1>
+      <p class="tagline">Trang thông tin độc lập giúp độc giả Việt Nam hiểu công nghệ mới bằng ngôn ngữ gần gũi, có bối cảnh và hữu ích trong đời sống.</p>
+      <div class="meta">Công Nghệ Thường Nhật · 2026</div>
+    </div>
+  </section>
+
+  <section class="page pad">
+    <div class="accent-line"></div>
+    <div class="topline"><img class="logo" src="../public/assets/cong-nghe-thuong-nhat-logo.png" alt=""><span class="page-no">01 / VỀ CHÚNG TÔI</span></div>
+    <p class="eyebrow">Một điểm đến cho người yêu công nghệ</p>
+    <h2>Đưa những thay đổi phức tạp<br>về đúng bối cảnh đời sống.</h2>
+    <p class="lead">Công Nghệ Thường Nhật là trang thông tin độc lập về công nghệ, trí tuệ nhân tạo, thiết bị, startup, lập trình, điện toán đám mây và an toàn số.</p>
+    <div class="quote">“Không chỉ kể điều gì vừa xảy ra — chúng tôi giúp độc giả hiểu vì sao điều đó đáng quan tâm.”</div>
+    <div class="stats">
+      <div class="stat"><strong>07</strong><span>chuyên mục nội dung cốt lõi</span></div>
+      <div class="stat"><strong>3 lớp</strong><span>tin tức, giải thích và phân tích</span></div>
+      <div class="stat"><strong>01</strong><span>cam kết: rõ ràng và hữu ích</span></div>
+    </div>
+  </section>
+
+  <section class="page pad">
+    <div class="topline"><img class="logo" src="../public/assets/cong-nghe-thuong-nhat-logo.png" alt=""><span class="page-no">02 / NỘI DUNG</span></div>
+    <p class="eyebrow">Phạm vi biên tập</p>
+    <h2>Những chủ đề đang định hình<br>thế giới số.</h2>
+    <div class="cards">
+      <div class="card"><span class="num">AI</span><h3>Trí tuệ nhân tạo</h3><p>Mô hình ngôn ngữ, AI tạo sinh, agent và ứng dụng thực tế.</p></div>
+      <div class="card"><span class="num">01</span><h3>Thiết bị & Đánh giá</h3><p>Laptop, điện thoại, phần cứng, gadget và trải nghiệm sản phẩm.</p></div>
+      <div class="card"><span class="num">02</span><h3>Startup</h3><p>Khởi nghiệp công nghệ, gọi vốn, mô hình kinh doanh và đổi mới.</p></div>
+      <div class="card"><span class="num">03</span><h3>An ninh mạng</h3><p>Bảo mật, mã độc, quyền riêng tư và kỹ năng an toàn số.</p></div>
+      <div class="card"><span class="num">04</span><h3>Lập trình</h3><p>Ngôn ngữ, framework, công cụ và xu hướng dành cho developer.</p></div>
+      <div class="card"><span class="num">05</span><h3>Cloud & DevOps</h3><p>Hạ tầng số, điện toán đám mây và tự động hóa triển khai.</p></div>
+    </div>
+    <div class="chips"><span class="chip">Tin đáng chú ý</span><span class="chip">Bài giải thích</span><span class="chip">Đánh giá</span><span class="chip">Hướng dẫn</span><span class="chip">Phân tích xu hướng</span></div>
+  </section>
+
+  <section class="page pad">
+    <div class="topline"><img class="logo" src="../public/assets/cong-nghe-thuong-nhat-logo.png" alt=""><span class="page-no">03 / TRẢI NGHIỆM</span></div>
+    <p class="eyebrow">Thiết kế ưu tiên việc đọc</p>
+    <h2>Một trang tin hiện đại,<br>nhanh và dễ khám phá.</h2>
+    <p class="lead">Trang chủ tổ chức thông tin theo nhịp đọc tự nhiên: điểm tin nổi bật, cập nhật mới, nội dung được quan tâm và chuyên mục phân tích sâu.</p>
+    <div class="web-crops" aria-label="Các khu vực nổi bật trên giao diện website Công Nghệ Thường Nhật">
+      <div class="web-crop hero"></div>
+      <div class="web-crop latest"></div>
+      <div class="web-crop brief"></div>
+    </div>
+  </section>
+
+  <section class="page dark pad">
+    <div class="topline"><img class="logo logo-white" src="../public/assets/cong-nghe-thuong-nhat-logo.png" alt=""><span class="page-no">04 / GIÁ TRỊ</span></div>
+    <p class="eyebrow">Dành cho độc giả Việt Nam</p>
+    <h2>Đọc nhanh để nắm bắt.<br>Đọc sâu để hiểu đúng.</h2>
+    <div class="feature-grid">
+      <div class="feature"><div class="dot"></div><h3>Rõ ràng</h3><p>Giải thích thuật ngữ và công nghệ mới bằng ngôn ngữ dễ tiếp cận.</p></div>
+      <div class="feature"><div class="dot" style="background:#20d3a2"></div><h3>Có bối cảnh</h3><p>Kết nối sự kiện với xu hướng, tác động và câu chuyện phía sau.</p></div>
+      <div class="feature"><div class="dot" style="background:#8b74ff"></div><h3>Hữu ích</h3><p>Ưu tiên kiến thức có thể áp dụng vào công việc và đời sống số.</p></div>
+      <div class="feature"><div class="dot" style="background:#f5a524"></div><h3>Đáng tin cậy</h3><p>Đề cao độ chính xác, nguồn tin và sự minh bạch trong biên tập.</p></div>
+    </div>
+    <div class="journey">
+      <div class="journey-row"><b>01</b><p><strong style="color:#fff">Khám phá:</strong> Tin nóng, hero và chuyên mục giúp nhìn nhanh toàn cảnh.</p></div>
+      <div class="journey-row"><b>02</b><p><strong style="color:#fff">Đào sâu:</strong> Bài liên quan, tag và tìm kiếm đưa người đọc đến đúng chủ đề.</p></div>
+      <div class="journey-row"><b>03</b><p><strong style="color:#fff">Quay lại:</strong> Lưu bài, RSS và bản tin tạo thói quen cập nhật hằng ngày.</p></div>
+    </div>
+  </section>
+
+  <section class="page pad">
+    <div class="topline"><img class="logo" src="../public/assets/cong-nghe-thuong-nhat-logo.png" alt=""><span class="page-no">05 / NỀN TẢNG</span></div>
+    <p class="eyebrow">Sẵn sàng để phát triển</p>
+    <h2>Nền tảng nội dung gọn nhẹ,<br>tối ưu cho xuất bản số.</h2>
+    <p class="lead">Website được xây dựng theo hướng hiệu năng, quản trị thuận tiện và dễ mở rộng khi nhu cầu nội dung tăng lên.</p>
+    <div class="tech">
+      <div class="tech-item"><h3>Astro</h3><p>Xuất trang nhanh, tối ưu trải nghiệm đọc và hiệu năng.</p></div>
+      <div class="tech-item"><h3>Quản trị nội dung</h3><p>Quy trình biên tập và xuất bản qua giao diện CMS.</p></div>
+      <div class="tech-item"><h3>Tìm kiếm & phân loại</h3><p>Chuyên mục, tag và tìm kiếm không dấu giúp khám phá thuận tiện.</p></div>
+      <div class="tech-item"><h3>SEO & phân phối</h3><p>Metadata, Open Graph, dữ liệu có cấu trúc, sitemap và RSS.</p></div>
+      <div class="tech-item"><h3>Tài khoản & tương tác</h3><p>Đăng nhập, lưu bài, bình luận và quản lý trải nghiệm cá nhân.</p></div>
+      <div class="tech-item"><h3>Responsive</h3><p>Thiết kế thích ứng mượt mà trên máy tính và thiết bị di động.</p></div>
+    </div>
+    <div class="quote" style="margin-top:14mm">Một nền tảng đủ nhẹ để vận hành hiệu quả, đủ linh hoạt để mở rộng thành hệ sinh thái nội dung công nghệ.</div>
+  </section>
+
+  <section class="page dark closing">
+    <div class="cover-grid"></div><div class="accent-line"></div>
+    <img class="logo logo-white" src="../public/assets/cong-nghe-thuong-nhat-logo.png" alt="">
+    <p class="eyebrow" style="margin-top:33mm">Cùng kết nối</p>
+    <h2>Công nghệ thay đổi mỗi ngày.<br>Hiểu đúng tạo nên khác biệt.</h2>
+    <p class="cta">Công Nghệ Thường Nhật hướng tới trở thành người bạn đồng hành đáng tin cậy của độc giả Việt trên hành trình khám phá thế giới số.</p>
+    <div class="contact">
+      <div><small>Thương hiệu</small><strong>Công Nghệ Thường Nhật</strong></div>
+      <div><small>Kênh liên hệ</small><strong>Trang “Liên hệ” trên website</strong></div>
+    </div>
+  </section>
+</body>
+</html>
