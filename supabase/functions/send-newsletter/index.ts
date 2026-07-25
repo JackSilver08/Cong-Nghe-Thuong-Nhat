@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
   if (!rssRes.ok) return json({ error: `Không tải được RSS (${rssRes.status})` }, 502);
   const xml = await rssRes.text();
   const all = parseRssItems(xml, SITE_URL);
-  let items = recentItems(all, days);
+  let items = recentItems(all, days).slice(0, 5);
 
   // Khi gọi tay để test mà cửa sổ không có bài nào → lấy tạm 5 bài mới nhất
   // để bạn vẫn xem được email mẫu.

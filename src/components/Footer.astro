@@ -41,7 +41,7 @@ const year = new Date().getFullYear();
 
     <div class="footer-col footer-newsletter">
       <h2>Bản tin định kỳ</h2>
-      <p>Nhận tóm tắt tin tức công nghệ hàng đầu trực tiếp vào email của bạn mỗi sáng.</p>
+      <p>Nhận ngay 5 bài mới nhất và bản tin công nghệ vào sáng Thứ Hai hàng tuần.</p>
       <form data-newsletter novalidate>
         <label class="visually-hidden" for="footer-email">Thư điện tử của bạn</label>
         <input
@@ -210,24 +210,25 @@ const year = new Date().getFullYear();
       button.disabled = true;
       status.hidden = true;
 
-      const { error } = await supabaseBrowser
-        .from('newsletter_subscribers')
-        .insert({ email, source: 'footer' });
+      const { data, error } = await supabaseBrowser.functions.invoke('subscribe-newsletter', {
+        body: { email },
+      });
 
       button.disabled = false;
 
       if (error) {
-        // 23505 = trùng khóa (email đã đăng ký trước đó).
-        if (error.code === '23505') {
-          show('Địa chỉ thư điện tử này đã đăng ký rồi — cảm ơn bạn!', true);
-          form.reset();
-        } else {
-          show('Đăng ký chưa được, bạn thử lại sau nhé.', false);
-        }
+        show('Đăng ký chưa được, bạn thử lại sau nhé.', false);
         return;
       }
 
-      show('Đã đăng ký! Kiểm tra hộp thư mỗi sáng nhé. 📬', true);
+      show(
+        data?.alreadySubscribed
+          ? 'Email này đã đăng ký bản tin rồi — cảm ơn bạn!'
+          : data?.emailSent
+            ? 'Đã đăng ký! 5 bài mới nhất đang được gửi tới hộp thư của bạn. 📬'
+            : 'Đã đăng ký! Email đầu tiên có thể đến chậm một chút.',
+        true,
+      );
       form.reset();
     });
   });
