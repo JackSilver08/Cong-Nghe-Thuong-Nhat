@@ -42,7 +42,7 @@ collections:
       - { name: "title", label: "Tiêu đề", widget: "string" }
       - {
           name: "slug",
-          label: "Slug (đường dẫn)",
+          label: "Đường dẫn bài viết",
           widget: "string",
           hint: "Chữ thường, không dấu, dùng gạch ngang. Ví dụ: ai-agent-moi",
           pattern: ["^[a-z0-9]+(?:-[a-z0-9]+)*$", "Chỉ dùng a-z, 0-9 và dấu gạch ngang"],
@@ -61,16 +61,16 @@ collections:
             [
               { label: "AI", value: "ai" },
               { label: "Thiết bị", value: "thiet-bi" },
-              { label: "Startup", value: "startup" },
+              { label: "Khởi nghiệp", value: "startup" },
               { label: "An ninh mạng", value: "an-ninh-mang" },
               { label: "Lập trình", value: "lap-trinh" },
-              { label: "Cloud", value: "cloud" },
+              { label: "Điện toán đám mây", value: "cloud" },
               { label: "Đánh giá", value: "danh-gia" },
             ],
         }
       - {
           name: "tags",
-          label: "Thẻ (tags)",
+          label: "Thẻ",
           widget: "list",
           default: [],
           hint: "Nhấn Enter sau mỗi thẻ.",
@@ -120,7 +120,7 @@ collections:
           required: false,
           default: "",
         }
-      - { name: "featured", label: "Tin nổi bật (Hero)", widget: "boolean", default: false }
+      - { name: "featured", label: "Tin nổi bật chính", widget: "boolean", default: false }
       - { name: "trending", label: "Xu hướng", widget: "boolean", default: false }
       - {
           name: "sections",
@@ -132,12 +132,12 @@ collections:
           hint: "Chọn nơi bài này xuất hiện trên trang chủ. Nếu để trống, hệ thống sẽ tự dùng fallback theo ngày đăng/chuyên mục.",
           options:
             [
-              { label: "Trang chủ - Hero chính", value: "home-hero" },
-              { label: "Trang chủ - Cột tin bên phải hero", value: "home-side" },
+              { label: "Trang chủ - Tin nổi bật chính", value: "home-hero" },
+              { label: "Trang chủ - Cột tin bên phải tin nổi bật", value: "home-side" },
               { label: "Trang chủ - Tin nóng", value: "breaking-news" },
               { label: "Trang chủ - Cập nhật mới nhất", value: "latest-news" },
               { label: "Trang chủ - Đọc nhiều", value: "popular-sidebar" },
-              { label: "Trang chủ - AI Daily Brief", value: "ai-daily-brief" },
+              { label: "Trang chủ - Bản tin AI hằng ngày", value: "ai-daily-brief" },
               { label: "Trang chủ - Xu hướng công nghệ", value: "tech-trends" },
             ],
         }

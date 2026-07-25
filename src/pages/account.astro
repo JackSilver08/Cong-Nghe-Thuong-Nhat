@@ -257,8 +257,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const adminLink = document.querySelector<HTMLAnchorElement>('[data-admin-link]');
 
   function roleLabel(role: string) {
-    if (role === 'admin') return 'Admin';
-    if (role === 'moderator') return 'Moderator';
+    if (role === 'admin') return 'Quản trị viên';
+    if (role === 'moderator') return 'Điều hành viên';
     return 'Người dùng';
   }
 

@@ -14,17 +14,17 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
 
       <form class="auth-card" id="loginForm" data-auth-panel="login" novalidate>
         <div class="form-head">
-          <span>Thường Nhật Admin</span>
+          <span>Quản trị Công Nghệ Thường Nhật</span>
           <h2>Chào mừng trở lại</h2>
         </div>
 
         <label>
-          Email
+          Thư điện tử
           <input
             type="email"
             name="email"
             autocomplete="email"
-            placeholder="Nhập email"
+            placeholder="Nhập địa chỉ thư điện tử"
             required
           />
         </label>
@@ -40,7 +40,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
           />
         </label>
 
-        <p class="form-error" id="loginError" hidden>Email hoặc mật khẩu chưa đúng.</p>
+        <p class="form-error" id="loginError" hidden>Thư điện tử hoặc mật khẩu chưa đúng.</p>
 
         <button type="submit">Đăng nhập</button>
         <p class="form-note">Chưa có tài khoản ? <a href="?mode=signup" data-show-signup>Đăng kí</a></p>
@@ -64,12 +64,12 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
         </label>
 
         <label>
-          Email
+          Thư điện tử
           <input
             type="email"
             name="email"
             autocomplete="email"
-            placeholder="Nhập email"
+            placeholder="Nhập địa chỉ thư điện tử"
             required
           />
         </label>
@@ -322,7 +322,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     setBusy(loginForm, false);
 
     if (signInError) {
-      showLoginError('Email hoặc mật khẩu chưa đúng.');
+      showLoginError('Thư điện tử hoặc mật khẩu chưa đúng.');
       return;
     }
 
@@ -354,7 +354,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
 
     if (signUpError) {
       const msg = /already registered|exists/i.test(signUpError.message)
-        ? 'Email này đã có tài khoản. Bạn hãy đăng nhập.'
+        ? 'Địa chỉ thư điện tử này đã có tài khoản. Bạn hãy đăng nhập.'
         : 'Không tạo được tài khoản: ' + signUpError.message;
       showSignupMessage(msg, 'error');
       return;
@@ -366,7 +366,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
       redirectAfterAuth(user?.role || 'user');
     } else {
       // Xác nhận email đang bật → cần bấm link trong email.
-      showSignupMessage('Đăng ký thành công. Vui lòng kiểm tra email để xác nhận rồi đăng nhập.', 'success');
+      showSignupMessage('Đăng ký thành công. Vui lòng kiểm tra thư điện tử để xác nhận rồi đăng nhập.', 'success');
       signupForm.reset();
     }
   });

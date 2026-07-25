@@ -1,5 +1,5 @@
 ---
-title: "Fintech Việt gọi vốn trở lại: nhà đầu tư tìm mô hình bền vững"
+title: "Công nghệ tài chính Việt gọi vốn trở lại: nhà đầu tư tìm mô hình bền vững"
 slug: "startup-fintech-goi-von"
 excerpt: "Sau giai đoạn thận trọng, dòng vốn đang quay lại với các startup fintech Việt, nhưng nhà đầu tư nay ưu tiên mô hình có lãi và tuân thủ pháp lý rõ ràng."
 category: "startup"

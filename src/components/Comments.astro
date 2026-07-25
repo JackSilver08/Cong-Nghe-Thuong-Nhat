@@ -383,7 +383,7 @@ const { slug } = Astro.props;
       if (c.author_role === 'admin' || c.author_role === 'moderator') {
         const badge = document.createElement('span');
         badge.className = 'comment-badge';
-        badge.textContent = c.author_role === 'admin' ? 'Admin' : 'Mod';
+        badge.textContent = c.author_role === 'admin' ? 'Quản trị viên' : 'Điều hành viên';
         head.appendChild(badge);
       }
       const time = document.createElement('span');

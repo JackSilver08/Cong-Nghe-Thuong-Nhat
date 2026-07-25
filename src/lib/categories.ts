@@ -7,11 +7,11 @@ export interface Category {
 // Ordered list used for the main navigation and category pages.
 export const CATEGORIES: Category[] = [
   { slug: 'ai', label: 'AI', description: 'Trí tuệ nhân tạo, mô hình ngôn ngữ, ứng dụng AI' },
-  { slug: 'thiet-bi', label: 'Thiết bị', description: 'Laptop, điện thoại, phần cứng và gadget' },
-  { slug: 'startup', label: 'Startup', description: 'Khởi nghiệp công nghệ, gọi vốn, mô hình mới' },
+  { slug: 'thiet-bi', label: 'Thiết bị', description: 'Máy tính xách tay, điện thoại, phần cứng và thiết bị thông minh' },
+  { slug: 'startup', label: 'Khởi nghiệp', description: 'Khởi nghiệp công nghệ, gọi vốn, mô hình mới' },
   { slug: 'an-ninh-mang', label: 'An ninh mạng', description: 'Bảo mật, mã độc, quyền riêng tư dữ liệu' },
   { slug: 'lap-trinh', label: 'Lập trình', description: 'Ngôn ngữ, framework, công cụ cho developer' },
-  { slug: 'cloud', label: 'Cloud', description: 'Điện toán đám mây, hạ tầng và DevOps' },
+  { slug: 'cloud', label: 'Điện toán đám mây', description: 'Điện toán đám mây, hạ tầng và vận hành phát triển' },
   { slug: 'danh-gia', label: 'Đánh giá', description: 'Trải nghiệm và đánh giá sản phẩm công nghệ' },
 ];
 

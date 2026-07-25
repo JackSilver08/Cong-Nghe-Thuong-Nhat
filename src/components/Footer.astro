@@ -43,13 +43,13 @@ const year = new Date().getFullYear();
       <h2>Bản tin định kỳ</h2>
       <p>Nhận tóm tắt tin tức công nghệ hàng đầu trực tiếp vào email của bạn mỗi sáng.</p>
       <form data-newsletter novalidate>
-        <label class="visually-hidden" for="footer-email">Email của bạn</label>
+        <label class="visually-hidden" for="footer-email">Thư điện tử của bạn</label>
         <input
           id="footer-email"
           name="email"
           type="email"
           autocomplete="email"
-          placeholder="Email của bạn"
+          placeholder="Thư điện tử của bạn"
           required
         />
         <button type="submit" data-submit>Gửi</button>
@@ -197,7 +197,7 @@ const year = new Date().getFullYear();
 
       const email = input.value.trim();
       if (!EMAIL_RE.test(email)) {
-        show('Email chưa hợp lệ, bạn kiểm tra lại nhé.', false);
+        show('Địa chỉ thư điện tử chưa hợp lệ, bạn kiểm tra lại nhé.', false);
         input.focus();
         return;
       }
@@ -219,7 +219,7 @@ const year = new Date().getFullYear();
       if (error) {
         // 23505 = trùng khóa (email đã đăng ký trước đó).
         if (error.code === '23505') {
-          show('Email này đã đăng ký rồi — cảm ơn bạn!', true);
+          show('Địa chỉ thư điện tử này đã đăng ký rồi — cảm ơn bạn!', true);
           form.reset();
         } else {
           show('Đăng ký chưa được, bạn thử lại sau nhé.', false);

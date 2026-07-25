@@ -7,7 +7,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: 'Công Nghệ Thường Nhật — Tin công nghệ và AI',
     description:
-      'Cập nhật tin tức công nghệ, AI, startup, thiết bị và an ninh mạng mới nhất.',
+      'Cập nhật tin tức công nghệ, AI, khởi nghiệp, thiết bị và an ninh mạng mới nhất.',
     site: context.site ?? 'https://newshub.vercel.app',
     items: posts.map((post) => ({
       title: post.data.title,

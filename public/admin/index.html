@@ -814,21 +814,21 @@
           />
           <span>Bảng điều khiển quản trị</span>
         </a>
-        <nav class="nav" aria-label="Admin">
-          <a href="#dashboard" class="active" data-admin-tab="dashboard">Dashboard</a>
+        <nav class="nav" aria-label="Quản trị">
+          <a href="#dashboard" class="active" data-admin-tab="dashboard">Bảng điều khiển</a>
           <a href="#users" data-admin-tab="users" data-admin-only>Quản lý người dùng</a>
           <a href="#comments" data-admin-tab="comments">Kiểm duyệt bình luận</a>
-          <a href="/">Xem website</a>
+          <a href="/">Xem trang web</a>
           <a href="/search">Tìm bài viết</a>
         </nav>
       </aside>
 
       <main class="main">
         <header class="topbar">
-          <h1>Dashboard</h1>
+          <h1>Bảng điều khiển</h1>
           <div class="admin-user">
             <span id="adminEmail">admin@newshub.com</span>
-            <span class="role-badge" id="roleBadge">Admin</span>
+            <span class="role-badge" id="roleBadge">Quản trị viên</span>
             <span class="avatar" aria-hidden="true">A</span>
             <button
               class="header-logout"
@@ -863,7 +863,7 @@
               </article>
               <article class="stat">
                 <span>Trạng thái</span>
-                <strong id="storageStatus">Local</strong>
+                <strong id="storageStatus">Cục bộ</strong>
               </article>
             </div>
 
@@ -913,7 +913,7 @@
                     <input name="title" placeholder="Nhập tiêu đề bài viết" required />
                   </label>
                   <label>
-                    Slug
+                    Đường dẫn bài viết
                     <input name="slug" placeholder="tu-dong-tao-tu-tieu-de" />
                   </label>
                   <label>
@@ -925,10 +925,10 @@
                     <select name="category">
                       <option value="ai">AI</option>
                       <option value="thiet-bi">Thiết bị</option>
-                      <option value="startup">Startup</option>
+                      <option value="startup">Khởi nghiệp</option>
                       <option value="an-ninh-mang">An ninh mạng</option>
                       <option value="lap-trinh">Lập trình</option>
-                      <option value="cloud">Cloud</option>
+                      <option value="cloud">Điện toán đám mây</option>
                       <option value="danh-gia">Đánh giá</option>
                     </select>
                   </label>
@@ -946,8 +946,8 @@
                     </label>
                   </div>
                   <label>
-                    Tags
-                    <input name="tags" placeholder="AI, Startup, Cloud" />
+                    Thẻ
+                    <input name="tags" placeholder="AI, Khởi nghiệp, Điện toán đám mây" />
                   </label>
                   <div class="cover-picker">
                     <span>Ảnh đại diện</span>
@@ -968,11 +968,11 @@
                   </div>
                   <div class="thumbnail-generator">
                     <div class="thumbnail-generator-head">
-                      <strong>Tạo thumbnail bằng AI</strong>
+                      <strong>Tạo ảnh thu nhỏ bằng AI</strong>
                       <button class="action-button" id="generateThumbnailButton" type="button">Tạo ảnh</button>
                     </div>
                     <p class="thumbnail-status" id="thumbnailStatus">Tự đọc tiêu đề và nội dung bài viết để tạo duy nhất một ảnh 16:9.</p>
-                    <img class="thumbnail-preview" id="thumbnailPreview" alt="Thumbnail vừa tạo" hidden />
+                    <img class="thumbnail-preview" id="thumbnailPreview" alt="Ảnh thu nhỏ vừa tạo" hidden />
                   </div>
                   <label>
                     Alt ảnh
@@ -981,12 +981,12 @@
                   <label>
                     Vị trí hiển thị trang chủ
                     <span class="checkbox-grid">
-                      <label><input type="checkbox" name="sections" value="home-hero" /> Hero chính</label>
+                      <label><input type="checkbox" name="sections" value="home-hero" /> Tin nổi bật chính</label>
                       <label><input type="checkbox" name="sections" value="home-side" /> Cột tin bên phải hero</label>
                       <label><input type="checkbox" name="sections" value="breaking-news" /> Tin nóng</label>
                       <label><input type="checkbox" name="sections" value="latest-news" /> Cập nhật mới nhất</label>
                       <label><input type="checkbox" name="sections" value="popular-sidebar" /> Đọc nhiều</label>
-                      <label><input type="checkbox" name="sections" value="ai-daily-brief" /> AI Daily Brief</label>
+                      <label><input type="checkbox" name="sections" value="ai-daily-brief" /> Bản tin AI hằng ngày</label>
                       <label><input type="checkbox" name="sections" value="tech-trends" /> Xu hướng công nghệ</label>
                     </span>
                   </label>
@@ -994,9 +994,9 @@
                   <div class="compose-side">
                   <label class="content-label">
                     Nội dung
-                    <textarea name="content" placeholder="Viết nội dung bài bằng Markdown hoặc văn bản thường..."></textarea>
+                    <textarea name="content" placeholder="Viết nội dung bài bằng định dạng văn bản hoặc văn bản thường..."></textarea>
                   </label>
-                  <p class="muted-note">Nếu chưa điền Supabase config, bài sẽ được lưu local để test form.</p>
+                  <p class="muted-note">Nếu chưa cấu hình Supabase, bài sẽ được lưu cục bộ để kiểm thử biểu mẫu.</p>
                   <p class="notice" id="postNotice" hidden></p>
                   <div class="form-actions">
                     <button class="primary" type="submit" id="savePostButton">Lưu bài</button>
@@ -1074,7 +1074,7 @@
             <input name="userId" type="hidden" />
             <div class="detail-grid">
               <div class="detail-item">
-                <span class="detail-label">Email</span>
+                <span class="detail-label">Thư điện tử</span>
                 <span class="detail-value" id="editCurrentEmail">-</span>
               </div>
               <div class="detail-item">
@@ -1202,12 +1202,12 @@
       }
       document.documentElement.classList.remove('checking-auth');
       document.getElementById('adminEmail').textContent = currentUser.email;
-      document.getElementById('roleBadge').textContent = currentRole === 'moderator' ? 'Moderator' : 'Admin';
+      document.getElementById('roleBadge').textContent = currentRole === 'moderator' ? 'Điều hành viên' : 'Quản trị viên';
       document.querySelectorAll('[data-admin-only]').forEach(function (element) {
         element.hidden = !isAdmin;
       });
 
-      var tabTitles = { users: 'Quản lý người dùng', comments: 'Kiểm duyệt bình luận', dashboard: 'Dashboard' };
+      var tabTitles = { users: 'Quản lý người dùng', comments: 'Kiểm duyệt bình luận', dashboard: 'Bảng điều khiển' };
 
       function setAdminTab(tab) {
         var nextTab = tab === 'users' && isAdmin ? 'users' : tab === 'comments' ? 'comments' : 'dashboard';
@@ -1217,7 +1217,7 @@
         document.querySelectorAll('[data-admin-tab]').forEach(function (link) {
           link.classList.toggle('active', link.dataset.adminTab === nextTab);
         });
-        document.querySelector('.topbar h1').textContent = tabTitles[nextTab] || 'Dashboard';
+        document.querySelector('.topbar h1').textContent = tabTitles[nextTab] || 'Bảng điều khiển';
         if (window.location.hash !== '#' + nextTab) {
           window.history.replaceState(null, '', '#' + nextTab);
         }
@@ -1237,10 +1237,10 @@
       var categoryLabels = {
         'ai': 'AI',
         'thiet-bi': 'Thiết bị',
-        'startup': 'Startup',
+        'startup': 'Khởi nghiệp',
         'an-ninh-mang': 'An ninh mạng',
         'lap-trinh': 'Lập trình',
-        'cloud': 'Cloud',
+        'cloud': 'Điện toán đám mây',
         'danh-gia': 'Đánh giá',
       };
 
@@ -1266,8 +1266,8 @@
       }
 
       function roleLabel(role) {
-        if (role === 'admin') return 'Admin';
-        if (role === 'moderator') return 'Moderator';
+        if (role === 'admin') return 'Quản trị viên';
+        if (role === 'moderator') return 'Điều hành viên';
         return 'Người dùng';
       }
 
@@ -1380,7 +1380,7 @@
           var strong = document.createElement('strong');
           strong.textContent = row.author_name || 'Người dùng';
           var small = document.createElement('span');
-          small.textContent = row.author_role === 'admin' ? 'Admin' : row.author_role === 'moderator' ? 'Moderator' : 'Người dùng';
+          small.textContent = row.author_role === 'admin' ? 'Quản trị viên' : row.author_role === 'moderator' ? 'Điều hành viên' : 'Người dùng';
           whoWrap.append(strong, small);
           who.append(whoWrap);
 
@@ -1776,7 +1776,7 @@
         var deadline = Date.now() + 15 * 60 * 1000;
         while (Date.now() < deadline) {
           var job = await (await imageToolRequest('/api/jobs/' + encodeURIComponent(jobId))).json();
-          setThumbnailStatus('Đang tạo thumbnail… ' + Math.round(Number(job.progress || 0) * 100) + '%', false);
+          setThumbnailStatus('Đang tạo ảnh thu nhỏ… ' + Math.round(Number(job.progress || 0) * 100) + '%', false);
           if (job.status === 'completed') return;
           if (job.status === 'failed' || job.status === 'cancelled') {
             throw new Error(job.error_message || 'Job tạo ảnh không hoàn thành.');
@@ -1906,7 +1906,7 @@
 
           title.className = 'title-cell';
           title.textContent = item.title;
-          category.textContent = categoryLabels[item.category] || item.category || 'NewsHub';
+          category.textContent = categoryLabels[item.category] || item.category || 'Công Nghệ Thường Nhật';
           date.textContent = item.date || '-';
           pill.className = 'pill';
           pill.textContent = item.status === 'draft' ? 'Nháp' : 'Đăng';
@@ -1997,7 +1997,7 @@
       }
 
       async function loadPosts() {
-        document.getElementById('storageStatus').textContent = supabaseReady ? 'Supabase' : 'Local';
+        document.getElementById('storageStatus').textContent = supabaseReady ? 'Supabase' : 'Cục bộ';
 
         if (supabaseClient) {
           var result = await supabaseClient
@@ -2041,8 +2041,8 @@
           var doc = new DOMParser().parseFromString(xml, 'application/xml');
           var items = Array.from(doc.querySelectorAll('item')).map(function (item) {
             return {
-              title: item.querySelector('title')?.textContent || 'Bài viết NewsHub',
-              category: item.querySelector('category')?.textContent || 'NewsHub',
+              title: item.querySelector('title')?.textContent || 'Bài viết Công Nghệ Thường Nhật',
+              category: item.querySelector('category')?.textContent || 'Công Nghệ Thường Nhật',
               status: 'published',
               date: item.querySelector('pubDate')?.textContent
                 ? new Date(item.querySelector('pubDate').textContent).toLocaleDateString('vi-VN')
@@ -2092,7 +2092,7 @@
           content: String(data.get('content') || '').trim(),
           category: String(data.get('category') || 'ai'),
           tags: parseTags(data.get('tags')),
-          author: auth && auth.name ? auth.name : 'NewsHub Admin',
+          author: auth && auth.name ? auth.name : 'Quản trị viên Công Nghệ Thường Nhật',
           status: status,
           image_url: existingImageUrl,
           image_alt: String(data.get('imageAlt') || '').trim(),
@@ -2118,7 +2118,7 @@
           };
           setDrafts([draft].concat(getDrafts()).slice(0, 12));
           resetPostForm();
-          showNotice('Chưa cấu hình Supabase. Bài đã lưu local để test form.', 'error');
+          showNotice('Chưa cấu hình Supabase. Bài đã được lưu cục bộ để kiểm thử biểu mẫu.', 'error');
           renderDrafts();
           return;
         }
@@ -2193,8 +2193,8 @@
           element: contentTextarea,
           spellChecker: false,
           autoDownloadFontAwesome: true,
-          placeholder: 'Viết nội dung bài bằng Markdown…',
-          status: ['lines', 'words'],
+          placeholder: 'Viết nội dung bài bằng định dạng văn bản…',
+          status: false,
           toolbar: [
             'bold', 'italic', 'heading', '|',
             'quote', 'unordered-list', 'ordered-list', '|',

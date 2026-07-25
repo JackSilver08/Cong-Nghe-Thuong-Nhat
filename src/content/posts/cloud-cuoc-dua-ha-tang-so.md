@@ -1,5 +1,5 @@
 ---
-title: "Cloud và cuộc đua hạ tầng số cho thời đại AI"
+title: "Điện toán đám mây và cuộc đua hạ tầng số cho thời đại AI"
 slug: "cloud-cuoc-dua-ha-tang-so"
 excerpt: "Nhu cầu tính toán cho AI đang định hình lại thị trường điện toán đám mây, buộc các nhà cung cấp chạy đua về năng lực, khu vực và chi phí."
 category: "cloud"

@@ -579,7 +579,7 @@ import SearchBox from './SearchBox.astro';
     // Nút ở header (desktop)
     if (loginLink && signupLink) {
       loginLink.href = accountHref;
-      loginLink.textContent = isStaff ? 'Admin' : 'Tài khoản';
+      loginLink.textContent = isStaff ? 'Quản trị' : 'Tài khoản';
       signupLink.href = '#logout';
       signupLink.textContent = 'Đăng xuất';
       signupLink.addEventListener('click', doLogout);

@@ -1,5 +1,5 @@
 ---
-title: "Startup Việt ứng dụng AI vào nông nghiệp thông minh"
+title: "Doanh nghiệp khởi nghiệp Việt ứng dụng AI vào nông nghiệp thông minh"
 slug: "startup-viet-ai-nong-nghiep"
 excerpt: "Một thế hệ startup Việt đang dùng cảm biến, dữ liệu và AI để giúp nông dân dự báo mùa vụ, tiết kiệm nước và nâng cao chất lượng nông sản."
 category: "startup"

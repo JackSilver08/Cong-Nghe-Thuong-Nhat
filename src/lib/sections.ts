@@ -1,7 +1,7 @@
 export const SECTION_OPTIONS = [
   {
     slug: 'home-hero',
-    label: 'Trang chủ - Hero chính',
+    label: 'Trang chủ - Tin nổi bật chính',
     description: 'Bài lớn nhất ở đầu trang chủ.',
   },
   {
@@ -26,13 +26,13 @@ export const SECTION_OPTIONS = [
   },
   {
     slug: 'ai-daily-brief',
-    label: 'Trang chủ - AI Daily Brief',
+    label: 'Trang chủ - Bản tin AI hằng ngày',
     description: 'Khối tóm tắt AI nổi bật.',
   },
   {
     slug: 'tech-trends',
     label: 'Trang chủ - Xu hướng công nghệ',
-    description: 'Lưới xu hướng phía dưới AI Daily Brief.',
+    description: 'Lưới xu hướng phía dưới bản tin AI hằng ngày.',
   },
 ] as const;
 
