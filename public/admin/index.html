@@ -427,7 +427,14 @@
         position: absolute; left: 13px; top: 50%; width: 17px; height: 17px;
         transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 2;
       }
-      .media-upload-button { white-space: nowrap; }
+      .media-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        line-height: 1;
+        white-space: nowrap;
+      }
       .media-content { min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) 290px; }
       .media-browser { min-width: 0; overflow: auto; padding: 18px; }
       .media-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(145px,1fr)); gap: 12px; }
