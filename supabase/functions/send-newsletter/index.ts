@@ -22,9 +22,10 @@ import { parseRssItems, recentItems, renderDigestHtml, renderDigestText } from '
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
+const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') ?? '';
 const CRON_SECRET = Deno.env.get('CRON_SECRET') ?? '';
-const FROM = Deno.env.get('NEWSLETTER_FROM') ?? 'NewsHub <onboarding@resend.dev>';
+const FROM_EMAIL = Deno.env.get('BREVO_FROM_EMAIL') ?? '';
+const FROM_NAME = Deno.env.get('BREVO_FROM_NAME') ?? 'Công Nghệ Thường Nhật';
 const SITE_URL = (Deno.env.get('SITE_URL') ?? 'https://newshub-jack.netlify.app').replace(/\/$/, '');
 const DEFAULT_DAYS = Number(Deno.env.get('DIGEST_DAYS') ?? '7');
 
@@ -42,21 +43,27 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function sendResendBatch(
-  emails: Array<Record<string, unknown>>,
+async function sendBrevoBatch(
+  emails: Array<Record<string, any>>,
 ): Promise<{ ok: number; error: number; detail: unknown }> {
-  const res = await fetch('https://api.resend.com/emails/batch', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify(emails),
-  });
-  const detail = await res.json().catch(() => ({}));
-  if (!res.ok) return { ok: 0, error: emails.length, detail };
-  const sent = Array.isArray((detail as any)?.data) ? (detail as any).data.length : emails.length;
-  return { ok: sent, error: emails.length - sent, detail };
+  let ok = 0;
+  let error = 0;
+  let detail: unknown = null;
+  for (const email of emails) {
+    const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'api-key': BREVO_API_KEY,
+        accept: 'application/json',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(email),
+    });
+    detail = await res.json().catch(() => ({}));
+    if (res.ok) ok += 1;
+    else error += 1;
+  }
+  return { ok, error, detail };
 }
 
 Deno.serve(async (req) => {
@@ -66,7 +73,7 @@ Deno.serve(async (req) => {
   if (!CRON_SECRET || req.headers.get('x-cron-secret') !== CRON_SECRET) {
     return json({ error: 'Không được phép' }, 401);
   }
-  if (!RESEND_API_KEY) return json({ error: 'Thiếu RESEND_API_KEY' }, 500);
+  if (!BREVO_API_KEY || !FROM_EMAIL) return json({ error: 'Thiếu cấu hình Brevo' }, 500);
 
   const body = await req.json().catch(() => ({} as any));
   const days = Number(body.days ?? DEFAULT_DAYS);
@@ -132,18 +139,18 @@ Deno.serve(async (req) => {
     const emails = chunk.map((r) => {
       const unsubscribeUrl = `${UNSUB_BASE}?token=${r.token}`;
       return {
-        from: FROM,
-        to: r.email,
+        sender: { name: FROM_NAME, email: FROM_EMAIL },
+        to: [{ email: r.email }],
         subject,
-        html: renderDigestHtml({ items, siteUrl: SITE_URL, unsubscribeUrl }),
-        text: renderDigestText({ items, siteUrl: SITE_URL, unsubscribeUrl }),
+        htmlContent: renderDigestHtml({ items, siteUrl: SITE_URL, unsubscribeUrl }),
+        textContent: renderDigestText({ items, siteUrl: SITE_URL, unsubscribeUrl }),
         headers: {
           'List-Unsubscribe': `<${unsubscribeUrl}>`,
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         },
       };
     });
-    const r = await sendResendBatch(emails);
+    const r = await sendBrevoBatch(emails);
     ok += r.ok;
     error += r.error;
     lastDetail = r.detail;
@@ -160,6 +167,21 @@ Deno.serve(async (req) => {
       window_end: new Date().toISOString(),
       detail: error > 0 ? lastDetail : null,
     });
+  }
+
+  if (ok === 0 && error > 0) {
+    console.error('Brevo rejected newsletter send:', lastDetail);
+    return json(
+      {
+        sent: false,
+        subject,
+        articleCount: items.length,
+        ok,
+        error,
+        reason: 'Nhà cung cấp email từ chối yêu cầu gửi',
+      },
+      502,
+    );
   }
 
   return json({ sent: true, subject, articleCount: items.length, ok, error });

@@ -7,8 +7,9 @@ import {
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
-const FROM = Deno.env.get('NEWSLETTER_FROM') ?? 'NewsHub <onboarding@resend.dev>';
+const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY') ?? '';
+const FROM_EMAIL = Deno.env.get('BREVO_FROM_EMAIL') ?? '';
+const FROM_NAME = Deno.env.get('BREVO_FROM_NAME') ?? 'Công Nghệ Thường Nhật';
 const SITE_URL = (Deno.env.get('SITE_URL') ?? 'https://congnghethuongnhat.netlify.app').replace(/\/$/, '');
 const UNSUB_BASE = `${SUPABASE_URL}/functions/v1/unsubscribe`;
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -38,7 +39,9 @@ function json(req: Request, body: unknown, status = 200) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
   if (req.method !== 'POST') return json(req, { error: 'Chỉ chấp nhận POST' }, 405);
-  if (!RESEND_API_KEY) return json(req, { error: 'Dịch vụ email chưa được cấu hình' }, 503);
+  if (!BREVO_API_KEY || !FROM_EMAIL) {
+    return json(req, { error: 'Dịch vụ email chưa được cấu hình' }, 503);
+  }
 
   const body = await req.json().catch(() => ({}));
   const email = String((body as any).email ?? '').trim().toLowerCase();
@@ -101,23 +104,24 @@ Deno.serve(async (req) => {
   if (items.length === 0) return json(req, { subscribed: true, emailSent: false }, 202);
 
   const unsubscribeUrl = `${UNSUB_BASE}?token=${subscriber.unsubscribe_token}`;
-  const response = await fetch('https://api.resend.com/emails', {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${RESEND_API_KEY}`,
+      'api-key': BREVO_API_KEY,
+      accept: 'application/json',
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      from: FROM,
-      to: email,
+      sender: { name: FROM_NAME, email: FROM_EMAIL },
+      to: [{ email }],
       subject: `Chào mừng bạn — 5 bài mới nhất từ Công Nghệ Thường Nhật`,
-      html: renderDigestHtml({
+      htmlContent: renderDigestHtml({
         items,
         siteUrl: SITE_URL,
         unsubscribeUrl,
         intro: 'Cảm ơn bạn đã đăng ký. Đây là 5 bài mới nhất; từ tuần sau, bạn sẽ nhận bản tin vào sáng Thứ Hai.',
       }),
-      text: renderDigestText({ items, siteUrl: SITE_URL, unsubscribeUrl }),
+      textContent: renderDigestText({ items, siteUrl: SITE_URL, unsubscribeUrl }),
       headers: {
         'List-Unsubscribe': `<${unsubscribeUrl}>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
@@ -127,7 +131,7 @@ Deno.serve(async (req) => {
 
   if (!response.ok) {
     const detail = await response.text();
-    console.error('Resend welcome email failed:', response.status, detail);
+    console.error('Brevo welcome email failed:', response.status, detail);
     return json(req, { subscribed: true, emailSent: false }, 202);
   }
   return json(req, { subscribed: true, emailSent: true }, 201);
