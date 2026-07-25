@@ -56,6 +56,12 @@ Admin posts save these homepage placement fields:
 
 Use `section_priority` to order posts inside each area.
 
-## Production note
+## Write permissions
 
-The current SQL includes permissive anon write policies so the static admin can work with the existing hard-coded login. Before publishing publicly, replace those policies with Supabase Auth based admin policies or move writes behind a serverless API.
+Writes to `posts` and to the `post-images` bucket require a signed-in account whose `profiles.role` is `admin` or `moderator`. Anonymous visitors can only read published posts and fetch images.
+
+Never add a write policy for the `anon` role to these objects. The anon key ships publicly in `public/admin/supabase-config.js`, and Postgres combines RLS policies with OR — a single `anon using (true)` policy silently disables every role check. The project shipped with exactly that bug; it was removed in `migrations/0007_remove_anon_write_policies.sql`. See `docs/runbook.md` for the one-line curl check that verifies the hole stays closed.
+
+Apply `migrations/0008_privacy_and_upload_limits.sql` after `0007`. It makes profile
+email rows private to their owner/staff and enforces the article-image MIME and
+10 MiB limits in Storage itself.

@@ -17,16 +17,19 @@ create policy posts_select on public.posts
 
 drop policy if exists posts_insert_staff on public.posts;
 create policy posts_insert_staff on public.posts
-  for insert with check (public.current_user_role() in ('admin', 'moderator'));
+  for insert to authenticated
+  with check (public.current_user_role() in ('admin', 'moderator'));
 
 drop policy if exists posts_update_staff on public.posts;
 create policy posts_update_staff on public.posts
-  for update using (public.current_user_role() in ('admin', 'moderator'))
+  for update to authenticated
+  using (public.current_user_role() in ('admin', 'moderator'))
   with check (public.current_user_role() in ('admin', 'moderator'));
 
 drop policy if exists posts_delete_staff on public.posts;
 create policy posts_delete_staff on public.posts
-  for delete using (public.current_user_role() in ('admin', 'moderator'));
+  for delete to authenticated
+  using (public.current_user_role() in ('admin', 'moderator'));
 
 -- 2. LƯU BÀI (bookmark) ----------------------------------------
 create table if not exists public.saved_posts (

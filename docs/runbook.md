@@ -167,8 +167,29 @@ Database chỉ lưu URL ảnh trong `posts.image_url`, không lưu binary ảnh 
 - Trang chủ, search, category, RSS và article pages hiện đọc dữ liệu hợp nhất từ Markdown + Supabase.
 - Admin đã ghi được bài lên Supabase khi config đúng.
 - Khi deploy static production, bài Supabase mới cần một lần rebuild/redeploy để xuất hiện trong HTML tĩnh.
-- SQL hiện có policy anon write để admin tĩnh demo ghi bài được. Trước production, cần siết lại bằng Supabase Auth hoặc serverless API.
 - `public/admin/supabase-config.js` chứa publishable key, có thể public. Không đặt secret key ở đó.
+
+## Phân quyền ghi dữ liệu
+
+Quyền thêm/sửa/xoá bài và quản lý ảnh chỉ dành cho tài khoản **đã đăng nhập** và có `role` là `admin` hoặc `moderator` trong bảng `profiles`. Khách vãng lai chỉ đọc được bài `published` và xem ảnh; bài nháp không lộ ra ngoài.
+
+Quy tắc quan trọng: **không bao giờ thêm policy ghi cho vai trò `anon`** trên `posts` hay `storage.objects`. Anon key nằm công khai trong `public/admin/supabase-config.js` nên mọi khách truy cập đều có, và RLS cộng dồn policy theo kiểu OR — chỉ một policy `anon using (true)` là đủ vô hiệu hoá toàn bộ phân quyền. Dự án từng dính đúng lỗi này, đã gỡ ở `migrations/0007_remove_anon_write_policies.sql`.
+
+Cách tự kiểm tra lại bất cứ lúc nào (chỉ dùng anon key công khai, phải nhận lỗi RLS):
+
+```bash
+curl -X POST "$SUPABASE_URL/rest/v1/posts" \
+  -H "apikey: <anon key>" -H "Authorization: Bearer <anon key>" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"t","slug":"kiem-thu","category":"ai","content":"x","excerpt":"x"}'
+# Mong đợi: 401 + "new row violates row-level security policy"
+```
+
+Nếu lệnh trên trả 201 nghĩa là lỗ hổng đã quay lại.
+
+Sau migration `0007`, chạy tiếp `migrations/0008_privacy_and_upload_limits.sql`.
+Migration này không cho khách ẩn danh đọc email trong `profiles`, giới hạn bucket
+ảnh ở 10 MB và chỉ nhận JPEG/PNG/WebP/GIF/AVIF.
 
 ## Các file quan trọng
 

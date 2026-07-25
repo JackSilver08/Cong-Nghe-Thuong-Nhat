@@ -64,37 +64,35 @@ create policy "Published posts are public"
 on public.posts for select
 using (status = 'published');
 
--- Development policy for the current hard-coded admin screen.
--- This keeps the static admin working with the public anon key.
--- Before production, replace it with Supabase Auth based policies.
+-- KHÔNG thêm policy ghi cho vai trò `anon` ở đây. Anon key nằm công khai
+-- trong public/admin/supabase-config.js nên mọi khách truy cập đều có, và RLS
+-- cộng dồn policy theo kiểu OR — một policy anon `using (true)` là đủ để vô
+-- hiệu hoá toàn bộ phần phân quyền bên dưới.
+-- Quyền ghi bài thuộc về admin/moderator đã đăng nhập, khai báo ở
+-- migrations/0002_hardening_saved_badges.sql và 0007_remove_anon_write_policies.sql.
 drop policy if exists "Anon admin can manage posts during development" on public.posts;
-create policy "Anon admin can manage posts during development"
-on public.posts for all
-to anon
-using (true)
-with check (true);
 
-insert into storage.buckets (id, name, public)
-values ('post-images', 'post-images', true)
-on conflict (id) do update set public = excluded.public;
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'post-images',
+  'post-images',
+  true,
+  10485760,
+  array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
 
 drop policy if exists "Post images are public" on storage.objects;
 create policy "Post images are public"
 on storage.objects for select
 using (bucket_id = 'post-images');
 
+-- Tương tự: không cấp quyền tải/sửa ảnh cho `anon`. Chỉ còn policy staff bên dưới.
 drop policy if exists "Anon admin can upload post images during development" on storage.objects;
-create policy "Anon admin can upload post images during development"
-on storage.objects for insert
-to anon
-with check (bucket_id = 'post-images');
-
 drop policy if exists "Anon admin can update post images during development" on storage.objects;
-create policy "Anon admin can update post images during development"
-on storage.objects for update
-to anon
-using (bucket_id = 'post-images')
-with check (bucket_id = 'post-images');
 
 drop policy if exists post_images_insert_staff on storage.objects;
 create policy post_images_insert_staff on storage.objects

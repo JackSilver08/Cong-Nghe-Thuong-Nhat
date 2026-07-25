@@ -12,9 +12,13 @@
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- Toast UI Editor: soạn thảo WYSIWYG, chèn bảng bằng lưới, vẫn lưu ra Markdown -->
+    <!-- Toast UI Editor: soạn thảo WYSIWYG, chèn bảng bằng lưới, vẫn lưu ra Markdown.
+         Bắt buộc dùng bản "-all". Bản thường tách 8 gói ProseMirror thành phụ
+         thuộc ngoài mà không map sang biến toàn cục nào, nạp trực tiếp vào trang
+         sẽ vỡ ngay khi khởi tạo với lỗi "Cannot read properties of undefined
+         (reading 'PluginKey')". Bản "-all" gói sẵn ProseMirror và DOMPurify. -->
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.css" />
-    <script src="https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.js"></script>
+    <script src="https://uicdn.toast.com/editor/3.2.2/toastui-editor-all.min.js"></script>
     <script>
       // Tiền kiểm nhanh: chưa có session Supabase thì chuyển đăng nhập ngay
       // (module bên dưới sẽ kiểm tra role chính thức).
@@ -2146,7 +2150,16 @@
 
       async function uploadImage(file, slug) {
         if (!file || !supabaseClient) return '';
-        var extension = file.name.split('.').pop() || 'png';
+        var allowedImageTypes = {
+          'image/jpeg': 'jpg',
+          'image/png': 'png',
+          'image/webp': 'webp',
+          'image/gif': 'gif',
+          'image/avif': 'avif',
+        };
+        var extension = allowedImageTypes[file.type];
+        if (!extension) throw new Error('Chỉ hỗ trợ ảnh JPEG, PNG, WebP, GIF hoặc AVIF.');
+        if (file.size > 10 * 1024 * 1024) throw new Error('Ảnh không được lớn hơn 10 MB.');
         var path = new Date().toISOString().slice(0, 10) + '/' + slug + '-' + Date.now() + '.' + extension;
         var upload = await supabaseClient.storage.from(imageBucket).upload(path, file, {
           cacheControl: '31536000',
@@ -2155,7 +2168,10 @@
         if (upload.error) {
           throw upload.error;
         }
-        return supabaseClient.storage.from(imageBucket).getPublicUrl(path).data.publicUrl;
+        return {
+          path: path,
+          publicUrl: supabaseClient.storage.from(imageBucket).getPublicUrl(path).data.publicUrl,
+        };
       }
 
       document.getElementById('postForm').addEventListener('submit', async function (event) {
@@ -2209,9 +2225,12 @@
           return;
         }
 
+        var uploadedImagePath = '';
         try {
           if (file && file.size) {
-            post.image_url = await uploadImage(file, post.slug);
+            var uploadedImage = await uploadImage(file, post.slug);
+            uploadedImagePath = uploadedImage.path;
+            post.image_url = uploadedImage.publicUrl;
           }
 
           if (postId) {
@@ -2226,6 +2245,13 @@
           showNotice(postId ? 'Đã cập nhật bài trong Supabase.' : 'Đã lưu bài vào Supabase.', 'success');
           await loadPosts();
         } catch (error) {
+          if (uploadedImagePath) {
+            try {
+              await supabaseClient.storage.from(imageBucket).remove([uploadedImagePath]);
+            } catch (cleanupError) {
+              console.warn('Không dọn được ảnh sau lỗi lưu bài:', cleanupError);
+            }
+          }
           showNotice('Không lưu được bài: ' + error.message, 'error');
         }
       });
@@ -2326,11 +2352,9 @@
           button.appendChild(tag);
           button.addEventListener('click', function () {
             if (!editor) return;
-            if (choice.level === 0) {
-              editor.exec('paragraph');
-            } else {
-              editor.exec('heading', { level: choice.level });
-            }
+            // level 0 = hạ về đoạn văn thường. Không có lệnh 'paragraph' riêng
+            // trong cả hai chế độ soạn, phải đi qua chính lệnh 'heading'.
+            editor.exec('heading', { level: choice.level });
             // Chọn xong thì đóng dropdown. eventEmitter là API nội bộ nên
             // bọc lại: bản sau đổi tên cũng chỉ mất tự-đóng, không vỡ nút.
             try {
@@ -2355,8 +2379,11 @@
       }
 
       // Nhãn tiếng Việt cho popup/menu dựng sẵn của thư viện.
+      // Ghi đè lên 'en-US' chứ không đăng ký mã ngôn ngữ mới: setLanguage chỉ
+      // gộp khi mã đã tồn tại, còn mã mới thì thiếu một khoá là ném lỗi và
+      // editor không dựng được. Cách này để khoá chưa dịch rơi về tiếng Anh.
       if (window.toastui && toastui.Editor) {
-        toastui.Editor.setLanguage('vi-VN', {
+        toastui.Editor.setLanguage('en-US', {
           'Insert table': 'Chèn bảng',
           'Insert link': 'Chèn liên kết',
           'Insert image': 'Chèn ảnh',
@@ -2405,7 +2432,6 @@
           height: '360px',
           initialEditType: 'wysiwyg',
           previewStyle: 'vertical',
-          language: 'vi-VN',
           usageStatistics: false,
           placeholder: 'Viết nội dung bài ở đây…',
           autofocus: false,

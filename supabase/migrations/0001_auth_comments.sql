@@ -27,10 +27,15 @@ as $$
   select role from public.profiles where id = auth.uid();
 $$;
 
--- Ai cũng đọc được profile (để hiển thị tên người bình luận).
+-- Chỉ chủ tài khoản và staff đọc profile; comments đã lưu tên/role công khai.
 drop policy if exists profiles_select_all on public.profiles;
-create policy profiles_select_all on public.profiles
-  for select using (true);
+drop policy if exists profiles_select_authenticated on public.profiles;
+create policy profiles_select_authenticated on public.profiles
+  for select to authenticated
+  using (
+    auth.uid() = id
+    or public.current_user_role() in ('admin', 'moderator')
+  );
 
 -- User tự sửa profile của mình (đổi tên). Không cho tự đổi role.
 drop policy if exists profiles_update_own on public.profiles;
