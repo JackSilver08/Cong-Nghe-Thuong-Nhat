@@ -391,6 +391,75 @@
         font-size: 0.82rem;
         line-height: 1.5;
       }
+      .cover-picker { display: grid; gap: 10px; }
+      .cover-picker > span:first-child { color: var(--muted); font-size: 0.84rem; font-weight: 800; }
+      .cover-field {
+        position: relative; min-height: 154px; display: grid; place-items: center;
+        overflow: hidden; border: 1px dashed var(--border-strong); border-radius: 10px;
+        background: linear-gradient(145deg, #f8fafc, #eef2ff);
+      }
+      .cover-field.has-image { border-style: solid; background: #0b1020; }
+      .cover-empty { display: grid; justify-items: center; gap: 8px; padding: 22px; text-align: center; }
+      .cover-empty svg { width: 30px; height: 30px; fill: none; stroke: var(--purple); stroke-width: 1.8; }
+      .cover-empty strong { color: var(--text); font-family: var(--font-head); }
+      .cover-empty small { color: var(--muted); font-weight: 500; }
+      .cover-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+      .cover-image[hidden], .cover-field.has-image .cover-empty { display: none; }
+      .cover-actions { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 8px; }
+      .cover-actions .action-button {
+        min-height: 32px; border-color: rgba(255,255,255,.4);
+        background: rgba(11,16,32,.86); color: #fff; backdrop-filter: blur(8px);
+      }
+      .media-modal {
+        width: min(1180px, 100%); height: min(780px, calc(100vh - 40px));
+        display: grid; grid-template-rows: auto auto auto minmax(0,1fr) auto; overflow: hidden;
+      }
+      .media-toolbar {
+        display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+        border-bottom: 1px solid var(--border); background: var(--surface-low);
+      }
+      .media-search { position: relative; flex: 1; }
+      .media-search input { padding-left: 38px; }
+      .media-search svg {
+        position: absolute; left: 13px; top: 50%; width: 17px; height: 17px;
+        transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 2;
+      }
+      .media-upload-button { white-space: nowrap; }
+      .media-content { min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) 290px; }
+      .media-browser { min-width: 0; overflow: auto; padding: 18px; }
+      .media-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(145px,1fr)); gap: 12px; }
+      .media-card {
+        position: relative; overflow: hidden; padding: 0; border: 2px solid transparent;
+        border-radius: 9px; background: #eef2f7; cursor: pointer;
+      }
+      .media-card:hover { border-color: #a5b4fc; }
+      .media-card.selected { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(70,72,212,.14); }
+      .media-card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+      .media-card span {
+        display: block; overflow: hidden; padding: 9px; color: var(--text);
+        font-size: .76rem; font-weight: 700; text-align: left; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .media-card.selected::after {
+        content: '✓'; position: absolute; top: 7px; right: 7px; width: 25px; height: 25px;
+        display: grid; place-items: center; border: 2px solid #fff; border-radius: 50%;
+        background: var(--purple); color: #fff; font-weight: 900;
+      }
+      .media-empty { min-height: 300px; display: grid; place-items: center; color: var(--muted); text-align: center; }
+      .media-detail { overflow: auto; padding: 18px; border-left: 1px solid var(--border); background: #f8fafc; }
+      .media-detail h3 { margin: 0 0 14px; font-family: var(--font-head); font-size: .92rem; }
+      .media-detail-preview {
+        width: 100%; aspect-ratio: 16 / 10; object-fit: contain;
+        border: 1px solid var(--border); border-radius: 8px; background: #fff;
+      }
+      .media-detail-preview[hidden] { display: none; }
+      .media-meta { display: grid; gap: 10px; margin-top: 14px; }
+      .media-meta div { display: grid; gap: 3px; }
+      .media-meta span { color: var(--muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; }
+      .media-meta strong { overflow-wrap: anywhere; font-size: .82rem; }
+      .media-progress { padding: 9px 20px; color: #3730a3; background: #eef2ff; font-size: .82rem; font-weight: 700; }
+      .media-progress.error { color: #b91c1c; background: #fee2e2; }
+      .media-progress[hidden] { display: none; }
+      .media-modal .modal-actions .muted-note { margin-right: auto; }
       .user-role-select {
         min-width: 150px;
       }
@@ -716,6 +785,10 @@
         td:nth-child(3) {
           display: none;
         }
+        .media-modal { height: calc(100vh - 20px); }
+        .media-toolbar { align-items: stretch; flex-direction: column; }
+        .media-content { grid-template-columns: 1fr; }
+        .media-detail { display: none; }
       }
     </style>
   </head>
@@ -866,10 +939,23 @@
                     Tags
                     <input name="tags" placeholder="AI, Startup, Cloud" />
                   </label>
-                  <label>
-                    Ảnh đại diện
-                    <input name="image" type="file" accept="image/*" />
-                  </label>
+                  <div class="cover-picker">
+                    <span>Ảnh đại diện</span>
+                    <input name="image" id="coverFileInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden />
+                    <div class="cover-field" id="coverField">
+                      <div class="cover-empty">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m4 17 5-5 3 3 2-2 6 5"></path></svg>
+                        <strong>Chưa chọn ảnh bìa</strong>
+                        <small>Chọn ảnh từ thư viện hoặc tải ảnh mới</small>
+                        <button class="action-button" id="openMediaButton" type="button">Chọn từ thư viện</button>
+                      </div>
+                      <img class="cover-image" id="coverPreview" alt="" hidden />
+                      <div class="cover-actions" id="coverActions" hidden>
+                        <button class="action-button" id="replaceCoverButton" type="button">Thay ảnh</button>
+                        <button class="action-button" id="removeCoverButton" type="button">Gỡ ảnh</button>
+                      </div>
+                    </div>
+                  </div>
                   <div class="thumbnail-generator">
                     <div class="thumbnail-generator-head">
                       <strong>Tạo thumbnail bằng AI</strong>
@@ -1005,6 +1091,46 @@
     </div>
 
 
+    <div class="modal-backdrop" id="mediaLibraryModal" hidden>
+      <section class="modal media-modal" role="dialog" aria-modal="true" aria-labelledby="mediaLibraryTitle">
+        <div class="modal-head">
+          <div>
+            <h2 id="mediaLibraryTitle">Thư viện ảnh</h2>
+            <p>Chọn ảnh đã tải lên hoặc thêm ảnh mới vào kho dùng chung.</p>
+          </div>
+          <button class="modal-close" id="closeMediaButton" type="button" aria-label="Đóng">×</button>
+        </div>
+        <div class="media-toolbar">
+          <div class="media-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+            <input id="mediaSearchInput" type="search" placeholder="Tìm theo tên tệp ảnh…" autocomplete="off" />
+          </div>
+          <button class="action-button" id="refreshMediaButton" type="button">Làm mới</button>
+          <label class="action-button media-upload-button" for="mediaUploadInput">↑ Tải ảnh mới</label>
+          <input id="mediaUploadInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+        </div>
+        <div class="media-progress" id="mediaProgress" hidden></div>
+        <div class="media-content">
+          <div class="media-browser">
+            <div class="media-grid" id="mediaGrid"></div>
+            <div class="media-empty" id="mediaEmpty">Đang tải thư viện ảnh…</div>
+          </div>
+          <aside class="media-detail">
+            <h3>Chi tiết ảnh</h3>
+            <img class="media-detail-preview" id="mediaDetailPreview" alt="" hidden />
+            <div class="media-meta" id="mediaMeta">
+              <p class="muted-note">Chọn một ảnh để xem thông tin.</p>
+            </div>
+          </aside>
+        </div>
+        <div class="modal-actions">
+          <span class="muted-note" id="mediaSelectionLabel">Chưa chọn ảnh</span>
+          <button class="ghost" id="cancelMediaButton" type="button">Hủy</button>
+          <button class="primary" id="useMediaButton" type="button" disabled>Dùng ảnh đã chọn</button>
+        </div>
+      </section>
+    </div>
+
     <script type="module">
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
@@ -1018,6 +1144,9 @@
       var imageToolConfig = window.NEWSHUB_IMAGE_TOOL || {};
       var imageToolUrl = String(imageToolConfig.url || 'http://127.0.0.1:8000').replace(/\/$/, '');
       var generatedThumbnailUrl = '';
+      var coverPreviewObjectUrl = '';
+      var mediaItems = [];
+      var selectedMedia = null;
 
       function goToLogin() {
         window.location.replace('/login?next=/admin/index.html');
@@ -1414,6 +1543,197 @@
         notice.hidden = false;
       }
 
+      function formatBytes(bytes) {
+        var value = Number(bytes || 0);
+        if (!value) return 'Không rõ';
+        var units = ['B', 'KB', 'MB', 'GB'];
+        var index = Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1);
+        return (value / Math.pow(1024, index)).toFixed(index ? 1 : 0) + ' ' + units[index];
+      }
+
+      function setCoverPreview(url) {
+        var preview = document.getElementById('coverPreview');
+        var field = document.getElementById('coverField');
+        var actions = document.getElementById('coverActions');
+        if (url) {
+          preview.src = url;
+          preview.hidden = false;
+          field.classList.add('has-image');
+          actions.hidden = false;
+        } else {
+          preview.removeAttribute('src');
+          preview.hidden = true;
+          field.classList.remove('has-image');
+          actions.hidden = true;
+        }
+      }
+
+      function clearCoverSelection() {
+        var postForm = document.getElementById('postForm');
+        postForm.elements.existingImageUrl.value = '';
+        postForm.elements.image.value = '';
+        setCoverPreview('');
+        selectedMedia = null;
+      }
+
+      function setMediaProgress(text, isError) {
+        var progress = document.getElementById('mediaProgress');
+        progress.textContent = text || '';
+        progress.className = isError ? 'media-progress error' : 'media-progress';
+        progress.hidden = !text;
+      }
+
+      function renderMediaDetail(item) {
+        var preview = document.getElementById('mediaDetailPreview');
+        var meta = document.getElementById('mediaMeta');
+        var label = document.getElementById('mediaSelectionLabel');
+        var button = document.getElementById('useMediaButton');
+        if (!item) {
+          preview.hidden = true;
+          preview.removeAttribute('src');
+          meta.innerHTML = '<p class="muted-note">Chọn một ảnh để xem thông tin.</p>';
+          label.textContent = 'Chưa chọn ảnh';
+          button.disabled = true;
+          return;
+        }
+        preview.src = item.url;
+        preview.alt = item.name;
+        preview.hidden = false;
+        meta.innerHTML = '';
+        [
+          ['Tên tệp', item.name],
+          ['Dung lượng', formatBytes(item.size)],
+          ['Ngày tải', item.createdAt ? new Date(item.createdAt).toLocaleString('vi-VN') : 'Không rõ'],
+          ['Đường dẫn', item.path],
+        ].forEach(function (entry) {
+          var row = document.createElement('div');
+          var key = document.createElement('span');
+          var value = document.createElement('strong');
+          key.textContent = entry[0];
+          value.textContent = entry[1];
+          row.append(key, value);
+          meta.append(row);
+        });
+        label.textContent = 'Đã chọn: ' + item.name;
+        button.disabled = false;
+      }
+
+      function renderMediaGrid() {
+        var query = document.getElementById('mediaSearchInput').value.trim().toLocaleLowerCase('vi');
+        var items = mediaItems.filter(function (item) {
+          return !query || item.name.toLocaleLowerCase('vi').includes(query);
+        });
+        var grid = document.getElementById('mediaGrid');
+        var empty = document.getElementById('mediaEmpty');
+        grid.innerHTML = '';
+        empty.hidden = items.length > 0;
+        empty.textContent = mediaItems.length
+          ? 'Không tìm thấy ảnh phù hợp.'
+          : 'Thư viện chưa có ảnh. Hãy tải ảnh đầu tiên.';
+        items.forEach(function (item) {
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'media-card' + (selectedMedia && selectedMedia.path === item.path ? ' selected' : '');
+          card.title = item.name;
+          var image = document.createElement('img');
+          image.src = item.url;
+          image.alt = '';
+          image.loading = 'lazy';
+          var name = document.createElement('span');
+          name.textContent = item.name;
+          card.append(image, name);
+          card.addEventListener('click', function () {
+            selectedMedia = item;
+            renderMediaGrid();
+            renderMediaDetail(item);
+          });
+          grid.append(card);
+        });
+      }
+
+      async function listMediaFolder(prefix, depth) {
+        var result = await supabaseClient.storage.from(imageBucket).list(prefix, {
+          limit: 1000,
+          sortBy: { column: 'created_at', order: 'desc' },
+        });
+        if (result.error) throw result.error;
+        var output = [];
+        for (var index = 0; index < result.data.length; index += 1) {
+          var entry = result.data[index];
+          var path = prefix ? prefix + '/' + entry.name : entry.name;
+          if (!entry.id && depth < 4) {
+            output = output.concat(await listMediaFolder(path, depth + 1));
+          } else if (entry.id && entry.metadata && String(entry.metadata.mimetype || '').startsWith('image/')) {
+            output.push({
+              name: entry.name,
+              path: path,
+              size: entry.metadata.size || 0,
+              createdAt: entry.created_at || entry.updated_at || '',
+              url: supabaseClient.storage.from(imageBucket).getPublicUrl(path).data.publicUrl,
+            });
+          }
+        }
+        return output;
+      }
+
+      async function loadMediaLibrary() {
+        document.getElementById('mediaEmpty').hidden = false;
+        document.getElementById('mediaEmpty').textContent = 'Đang tải thư viện ảnh…';
+        document.getElementById('mediaGrid').innerHTML = '';
+        setMediaProgress('', false);
+        try {
+          mediaItems = await listMediaFolder('', 0);
+          mediaItems.sort(function (a, b) {
+            return String(b.createdAt).localeCompare(String(a.createdAt));
+          });
+          renderMediaGrid();
+        } catch (error) {
+          mediaItems = [];
+          renderMediaGrid();
+          setMediaProgress('Không tải được thư viện: ' + error.message, true);
+        }
+      }
+
+      async function openMediaLibrary() {
+        var modal = document.getElementById('mediaLibraryModal');
+        modal.hidden = false;
+        document.body.style.overflow = 'hidden';
+        selectedMedia = null;
+        renderMediaDetail(null);
+        document.getElementById('mediaSearchInput').value = '';
+        await loadMediaLibrary();
+        document.getElementById('mediaSearchInput').focus();
+      }
+
+      function closeMediaLibrary() {
+        document.getElementById('mediaLibraryModal').hidden = true;
+        document.body.style.overflow = document.getElementById('composePanel').classList.contains('compose-expanded') ? 'hidden' : '';
+        setMediaProgress('', false);
+      }
+
+      async function uploadMediaFiles(files) {
+        var accepted = Array.from(files || []).filter(function (file) {
+          return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type) && file.size <= 5 * 1024 * 1024;
+        });
+        if (!accepted.length) {
+          setMediaProgress('Chỉ hỗ trợ JPEG, PNG, WebP hoặc GIF tối đa 5 MB.', true);
+          return;
+        }
+        var uploadInput = document.getElementById('mediaUploadInput');
+        try {
+          for (var index = 0; index < accepted.length; index += 1) {
+            setMediaProgress('Đang tải ' + (index + 1) + '/' + accepted.length + ': ' + accepted[index].name, false);
+            await uploadImage(accepted[index], slugify(accepted[index].name.replace(/\.[^.]+$/, '')) || 'image');
+          }
+          setMediaProgress('Đã tải ' + accepted.length + ' ảnh vào thư viện.', false);
+          await loadMediaLibrary();
+        } catch (error) {
+          setMediaProgress('Không tải được ảnh: ' + error.message, true);
+        } finally {
+          uploadInput.value = '';
+        }
+      }
+
       function setThumbnailStatus(text, isError) {
         var status = document.getElementById('thumbnailStatus');
         status.textContent = text;
@@ -1517,6 +1837,8 @@
           var preview = document.getElementById('thumbnailPreview');
           preview.src = generatedThumbnailUrl;
           preview.hidden = false;
+          postForm.elements.existingImageUrl.value = '';
+          setCoverPreview(generatedThumbnailUrl);
           if (!postForm.elements.imageAlt.value.trim()) postForm.elements.imageAlt.value = title;
           setThumbnailStatus('Đã tạo ảnh và chọn làm ảnh đại diện. Ảnh sẽ được tải lên khi bạn lưu bài.', false);
         } catch (error) {
@@ -1618,6 +1940,7 @@
         document.getElementById('savePostButton').textContent = 'Lưu bài';
         document.getElementById('cancelEditButton').hidden = true;
         clearGeneratedThumbnail();
+        clearCoverSelection();
       }
 
       function startEditPost(id) {
@@ -1629,6 +1952,7 @@
         var postForm = document.getElementById('postForm');
         postForm.elements.postId.value = post.id || '';
         postForm.elements.existingImageUrl.value = post.image_url || '';
+        setCoverPreview(post.image_url || '');
         postForm.elements.title.value = post.title || '';
         postForm.elements.slug.value = post.slug || '';
         postForm.elements.slug.dataset.touched = 'true';
@@ -1815,6 +2139,30 @@
       });
 
       document.getElementById('generateThumbnailButton').addEventListener('click', generateThumbnail);
+      document.getElementById('openMediaButton').addEventListener('click', openMediaLibrary);
+      document.getElementById('replaceCoverButton').addEventListener('click', openMediaLibrary);
+      document.getElementById('removeCoverButton').addEventListener('click', clearCoverSelection);
+      document.getElementById('closeMediaButton').addEventListener('click', closeMediaLibrary);
+      document.getElementById('cancelMediaButton').addEventListener('click', closeMediaLibrary);
+      document.getElementById('refreshMediaButton').addEventListener('click', loadMediaLibrary);
+      document.getElementById('mediaSearchInput').addEventListener('input', renderMediaGrid);
+      document.getElementById('mediaUploadInput').addEventListener('change', function (event) {
+        uploadMediaFiles(event.target.files);
+      });
+      document.getElementById('useMediaButton').addEventListener('click', function () {
+        if (!selectedMedia) return;
+        var postForm = document.getElementById('postForm');
+        postForm.elements.image.value = '';
+        postForm.elements.existingImageUrl.value = selectedMedia.url;
+        setCoverPreview(selectedMedia.url);
+        if (!postForm.elements.imageAlt.value.trim()) {
+          postForm.elements.imageAlt.value = selectedMedia.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+        }
+        closeMediaLibrary();
+      });
+      document.getElementById('mediaLibraryModal').addEventListener('click', function (event) {
+        if (event.target === event.currentTarget) closeMediaLibrary();
+      });
 
       document.querySelector('input[name="title"]').addEventListener('input', function (event) {
         var slugInput = document.querySelector('input[name="slug"]');
@@ -1874,6 +2222,10 @@
         setComposeExpanded(false);
       });
       document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !document.getElementById('mediaLibraryModal').hidden) {
+          closeMediaLibrary();
+          return;
+        }
         if (event.key === 'Escape' && composePanel.classList.contains('compose-expanded')) {
           setComposeExpanded(false);
         }
