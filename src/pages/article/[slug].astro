@@ -1,5 +1,4 @@
 ---
-import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import { marked } from 'marked';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
@@ -9,15 +8,12 @@ import { getPublishedPosts, getRelatedPosts, isSupabasePost, postSlug } from '..
 // link, ảnh, blockquote, code…). `breaks: true` để xuống dòng đơn thành <br>.
 marked.setOptions({ gfm: true, breaks: true });
 
-export const getStaticPaths = (async () => {
-  const posts = await getPublishedPosts();
-  return posts.map((post) => ({
-    params: { slug: postSlug(post) },
-    props: { post, all: posts },
-  }));
-}) satisfies GetStaticPaths;
-
-const { post, all } = Astro.props;
+const all = await getPublishedPosts();
+const slug = Astro.params.slug || '';
+const post = all.find((item) => postSlug(item) === slug);
+if (!post) {
+  return Astro.redirect('/404', 302);
+}
 const related = getRelatedPosts(post, all, 3);
 const rendered = isSupabasePost(post) ? null : await render(post);
 

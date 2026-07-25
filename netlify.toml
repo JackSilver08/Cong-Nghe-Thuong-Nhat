@@ -1,4 +1,4 @@
-# Cấu hình deploy NewsHub trên Netlify (site tĩnh Astro)
+# Cấu hình deploy NewsHub trên Netlify (Astro SSR để bài Supabase cập nhật tức thời)
 [build]
   command = "npm run build"
   publish = "dist"
