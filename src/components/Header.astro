@@ -66,16 +66,49 @@ import SearchBox from './SearchBox.astro';
       </a>
     </div>
 
-    <!-- Chuyên mục (giữa) -->
-    <nav class="drawer-nav" aria-label="Chuyên mục">
-      <ul>
-        <li><a href="/">Trang chủ</a></li>
-        {CATEGORIES.map((cat) => (
-          <li><a href={`/category/${cat.slug}`}>{cat.label}</a></li>
-        ))}
-        <li><a href="/search">Tìm kiếm</a></li>
-      </ul>
-    </nav>
+    <div class="drawer-content">
+      <!-- Tìm kiếm + nút mở danh mục -->
+      <div class="drawer-search-row">
+        <div class="drawer-search">
+          <SearchBox variant="header" inputId="q-mobile-drawer" />
+        </div>
+        <button
+          class="drawer-category-toggle"
+          type="button"
+          aria-label="Mở danh mục"
+          aria-expanded="false"
+          aria-controls="drawer-categories"
+          data-category-toggle
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+            <rect x="14" y="4" width="6" height="6" rx="1"></rect>
+            <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+            <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+          </svg>
+        </button>
+      </div>
+
+      <nav id="drawer-categories" class="drawer-categories" aria-label="Chuyên mục" hidden>
+        <span class="drawer-section-title">Chuyên mục</span>
+        <ul>
+          {CATEGORIES.map((cat) => (
+            <li><a href={`/category/${cat.slug}`}>{cat.label}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <nav class="drawer-info-nav" aria-label="Thông tin">
+        <span class="drawer-section-title">Thông tin</span>
+        <ul>
+          <li><a href="/gioi-thieu">Giới thiệu</a></li>
+          <li><a href="/lien-he">Liên hệ</a></li>
+          <li><a href="/chinh-sach-bien-tap">Chính sách biên tập</a></li>
+          <li><a href="/chinh-sach-quyen-rieng-tu">Quyền riêng tư</a></li>
+          <li><a href="/dieu-khoan-su-dung">Điều khoản sử dụng</a></li>
+        </ul>
+      </nav>
+    </div>
 
     <!-- Đăng xuất (cuối sidebar) -->
     <div class="drawer-footer">
@@ -332,29 +365,98 @@ import SearchBox from './SearchBox.astro';
     flex: 0 0 auto;
     color: var(--nh-muted);
   }
-  /* Chuyên mục (giữa) */
-  .drawer-nav {
+  .drawer-content {
     flex: 1 1 auto;
-    padding: 8px 12px;
+    padding: 16px;
+    overflow-y: auto;
   }
-  .drawer-nav ul {
+  .drawer-search-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 46px;
+    gap: 10px;
+    align-items: center;
+  }
+  .drawer-search {
+    min-width: 0;
+  }
+  .drawer-search :global(.search-box) {
+    width: 100%;
+  }
+  .drawer-category-toggle {
+    width: 46px;
+    height: 46px;
+    display: inline-grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    background: var(--surface-container);
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+  .drawer-category-toggle svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+  }
+  .drawer-category-toggle:hover,
+  .drawer-category-toggle[aria-expanded='true'] {
+    border-color: var(--nh-purple);
+    background: rgba(70, 72, 212, 0.08);
+    color: var(--nh-purple);
+  }
+  .drawer-categories {
+    margin-top: 12px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-low);
+  }
+  .drawer-categories[hidden] {
+    display: none;
+  }
+  .drawer-section-title {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-muted);
+    font-family: var(--font-head);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .drawer-categories ul,
+  .drawer-info-nav ul {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     gap: 2px;
   }
-  .drawer-nav a {
+  .drawer-categories a,
+  .drawer-info-nav a {
     display: block;
-    padding: 13px 12px;
+    padding: 11px 10px;
     color: var(--text);
     font-family: var(--font-head);
     font-weight: 600;
     border-radius: 10px;
   }
-  .drawer-nav a:hover {
+  .drawer-categories a:hover,
+  .drawer-info-nav a:hover {
     background: var(--surface-low);
     color: var(--nh-purple);
+  }
+  .drawer-info-nav {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
   }
   /* Đăng xuất (cuối sidebar) */
   .drawer-footer {
@@ -411,6 +513,15 @@ import SearchBox from './SearchBox.astro';
   const drawer = document.querySelector<HTMLElement>('#mobile-nav');
   const backdrop = document.querySelector<HTMLElement>('[data-backdrop]');
   const closeBtn = document.querySelector<HTMLButtonElement>('[data-drawer-close]');
+  const categoryToggle = document.querySelector<HTMLButtonElement>('[data-category-toggle]');
+  const categoryPanel = document.querySelector<HTMLElement>('#drawer-categories');
+
+  function setCategories(open: boolean) {
+    if (!categoryToggle || !categoryPanel) return;
+    categoryToggle.setAttribute('aria-expanded', String(open));
+    categoryToggle.setAttribute('aria-label', open ? 'Đóng danh mục' : 'Mở danh mục');
+    categoryPanel.hidden = !open;
+  }
 
   function setDrawer(open: boolean) {
     if (!drawer || !toggle) return;
@@ -422,6 +533,7 @@ import SearchBox from './SearchBox.astro';
     toggle.setAttribute('aria-expanded', String(open));
     toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
     document.body.style.overflow = open ? 'hidden' : '';
+    if (!open) setCategories(false);
   }
 
   toggle?.addEventListener('click', () =>
@@ -429,6 +541,9 @@ import SearchBox from './SearchBox.astro';
   );
   closeBtn?.addEventListener('click', () => setDrawer(false));
   backdrop?.addEventListener('click', () => setDrawer(false));
+  categoryToggle?.addEventListener('click', () => {
+    setCategories(categoryToggle.getAttribute('aria-expanded') !== 'true');
+  });
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') setDrawer(false);
   });
