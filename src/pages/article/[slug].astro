@@ -1,12 +1,8 @@
 ---
 import { render } from 'astro:content';
-import { marked } from 'marked';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import { getPublishedPosts, getRelatedPosts, isSupabasePost, postSlug } from '../../lib/posts';
-
-// Bài Supabase soạn dạng Markdown → render đầy đủ (heading, list, in đậm,
-// link, ảnh, blockquote, code…). `breaks: true` để xuống dòng đơn thành <br>.
-marked.setOptions({ gfm: true, breaks: true });
+import { renderPostHtml } from '../../lib/markdown';
 
 const all = await getPublishedPosts();
 const slug = Astro.params.slug || '';
@@ -17,7 +13,7 @@ if (!post) {
 const related = getRelatedPosts(post, all, 3);
 const rendered = isSupabasePost(post) ? null : await render(post);
 
-const supabaseHtml = isSupabasePost(post) ? (marked.parse(post.body) as string) : '';
+const supabaseHtml = isSupabasePost(post) ? renderPostHtml(post.body) : '';
 const Content = rendered?.Content;
 ---
 

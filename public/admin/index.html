@@ -12,9 +12,9 @@
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <!-- EasyMDE: trình soạn Markdown hiện đại (toolbar, preview, fullscreen) -->
-    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css" />
-    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <!-- Toast UI Editor: soạn thảo WYSIWYG, chèn bảng bằng lưới, vẫn lưu ra Markdown -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.css" />
+    <script src="https://uicdn.toast.com/editor/3.2.2/toastui-editor.min.js"></script>
     <script>
       // Tiền kiểm nhanh: chưa có session Supabase thì chuyển đăng nhập ngay
       // (module bên dưới sẽ kiểm tra role chính thức).
@@ -661,27 +661,101 @@
         gap: 26px;
         align-items: start;
       }
-      #composePanel.compose-expanded .EasyMDEContainer .CodeMirror {
-        min-height: 55vh;
+      /* ----- Khu vực soạn nội dung (Toast UI Editor) ----- */
+      .content-field {
+        display: grid;
+        gap: 7px;
+        min-width: 0;
       }
-      /* EasyMDE khớp giao diện admin */
-      .EasyMDEContainer .CodeMirror {
-        border-radius: 0 0 8px 8px;
+      .field-label {
+        color: var(--muted);
+        font-size: 0.84rem;
+        font-weight: 800;
+      }
+      /* Toast UI khớp giao diện admin */
+      .toastui-editor-defaultUI {
         border-color: var(--border-strong);
-        min-height: 220px;
+        border-radius: 8px;
+        font-family: var(--font-body);
+      }
+      .toastui-editor-defaultUI .ProseMirror,
+      .toastui-editor-defaultUI .toastui-editor-md-container .toastui-editor {
         font-family: var(--font-body);
         color: var(--text);
       }
-      .editor-toolbar {
+      .toastui-editor-toolbar {
         border-radius: 8px 8px 0 0;
+      }
+      .toastui-editor-defaultUI-toolbar {
+        background: var(--surface-low);
         border-color: var(--border-strong);
       }
-      .editor-toolbar button:hover {
-        background: var(--surface-low);
-        border-color: var(--border);
+      /* Popup chèn bảng/liên kết/ảnh phải nổi trên khung viết phóng to (z-index 200) */
+      .toastui-editor-popup {
+        z-index: 320;
       }
-      .EasyMDEContainer .editor-statusbar {
+      .toastui-editor-context-menu {
+        z-index: 330;
+      }
+      /* Dropdown tiêu đề tự viết: chỉ H2–H4, gọi tên theo vai trò */
+      .heading-menu {
+        display: grid;
+        gap: 2px;
+        padding: 6px;
+        min-width: 190px;
+      }
+      .heading-menu button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text);
+        text-align: left;
+        cursor: pointer;
+        font-family: var(--font-body);
+      }
+      .heading-menu button:hover {
+        background: var(--surface-low);
+      }
+      .heading-menu .heading-tag {
         color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+      .heading-menu .h-para { font-size: 0.95rem; }
+      .heading-menu .h-2 { font-size: 1.25rem; font-weight: 800; }
+      .heading-menu .h-3 { font-size: 1.08rem; font-weight: 800; }
+      .heading-menu .h-4 { font-size: 0.96rem; font-weight: 800; }
+
+      /* ----- Dải khôi phục bài viết dở ----- */
+      .restore-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px 14px;
+        border: 1px solid #f2c94c;
+        background: #fef8e7;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        color: #7a5b00;
+      }
+      .restore-bar[hidden] {
+        display: none;
+      }
+      .restore-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .restore-bar button {
+        padding: 6px 12px;
+        font-size: 0.82rem;
       }
       .field-row {
         display: grid;
@@ -906,6 +980,13 @@
                 <form class="quick-form" id="postForm">
                   <input name="postId" type="hidden" />
                   <input name="existingImageUrl" type="hidden" />
+                  <div class="restore-bar" id="restoreBar" hidden>
+                    <span id="restoreText"></span>
+                    <span class="restore-actions">
+                      <button type="button" class="primary" id="restoreDraftButton">Khôi phục</button>
+                      <button type="button" class="ghost" id="discardDraftButton">Bỏ qua</button>
+                    </span>
+                  </div>
                   <div class="compose-cols">
                   <div class="compose-main">
                   <label>
@@ -992,10 +1073,12 @@
                   </label>
                   </div>
                   <div class="compose-side">
-                  <label class="content-label">
-                    Nội dung
-                    <textarea name="content" placeholder="Viết nội dung bài bằng định dạng văn bản hoặc văn bản thường..."></textarea>
-                  </label>
+                  <div class="content-field">
+                    <span class="field-label">Nội dung</span>
+                    <div id="contentEditor"></div>
+                    <!-- Editor ghi ngược Markdown vào đây trước khi submit; FormData đọc từ field này. -->
+                    <textarea name="content" hidden></textarea>
+                  </div>
                   <p class="muted-note">Nếu chưa cấu hình Supabase, bài sẽ được lưu cục bộ để kiểm thử biểu mẫu.</p>
                   <p class="notice" id="postNotice" hidden></p>
                   <div class="form-actions">
@@ -1157,6 +1240,7 @@
       var coverPreviewObjectUrl = '';
       var mediaItems = [];
       var selectedMedia = null;
+      var mediaPurpose = 'cover';
 
       function goToLogin() {
         window.location.replace('/login?next=/admin/index.html');
@@ -1704,7 +1788,9 @@
         }
       }
 
-      async function openMediaLibrary() {
+      // purpose: 'cover' = chọn ảnh bìa, 'inline' = chèn ảnh vào giữa bài.
+      async function openMediaLibrary(purpose) {
+        mediaPurpose = purpose === 'inline' ? 'inline' : 'cover';
         var modal = document.getElementById('mediaLibraryModal');
         modal.hidden = false;
         document.body.style.overflow = 'hidden';
@@ -1790,9 +1876,7 @@
         var postForm = document.getElementById('postForm');
         var title = String(postForm.elements.title.value || '').trim();
         var excerpt = String(postForm.elements.excerpt.value || '').trim();
-        var articleContent = easyMDE
-          ? String(easyMDE.value() || '').trim()
-          : String(postForm.elements.content.value || '').trim();
+        var articleContent = String(getContentMarkdown() || '').trim();
         if (!title) {
           setThumbnailStatus('Hãy nhập tiêu đề bài viết trước.', true);
           postForm.elements.title.focus();
@@ -1943,7 +2027,7 @@
       function resetPostForm() {
         var postForm = document.getElementById('postForm');
         postForm.reset();
-        if (easyMDE) easyMDE.value('');
+        setContentMarkdown('');
         postForm.elements.postId.value = '';
         postForm.elements.existingImageUrl.value = '';
         postForm.querySelector('input[name="slug"]').dataset.touched = '';
@@ -1951,6 +2035,8 @@
         document.getElementById('cancelEditButton').hidden = true;
         clearGeneratedThumbnail();
         clearCoverSelection();
+        // Lưu bài xong hoặc huỷ sửa thì bỏ nháp tự lưu, tránh mời khôi phục nhầm.
+        clearAutosave();
       }
 
       function startEditPost(id) {
@@ -1967,8 +2053,7 @@
         postForm.elements.slug.value = post.slug || '';
         postForm.elements.slug.dataset.touched = 'true';
         postForm.elements.excerpt.value = post.excerpt || '';
-        postForm.elements.content.value = post.content || '';
-        if (easyMDE) easyMDE.value(post.content || '');
+        setContentMarkdown(post.content || '');
         postForm.elements.category.value = post.category || 'ai';
         postForm.elements.status.value = post.status || 'draft';
         postForm.elements.sectionPriority.value = post.section_priority || 0;
@@ -2076,7 +2161,8 @@
       document.getElementById('postForm').addEventListener('submit', async function (event) {
         event.preventDefault();
         var postForm = event.currentTarget;
-        if (easyMDE) postForm.elements.content.value = easyMDE.value();
+        // FormData chỉ đọc textarea, nên phải đồng bộ từ editor trước.
+        postForm.elements.content.value = getContentMarkdown();
         var data = new FormData(postForm);
         var title = String(data.get('title') || '').trim();
         var slug = slugify(String(data.get('slug') || '').trim() || title);
@@ -2149,8 +2235,13 @@
       });
 
       document.getElementById('generateThumbnailButton').addEventListener('click', generateThumbnail);
-      document.getElementById('openMediaButton').addEventListener('click', openMediaLibrary);
-      document.getElementById('replaceCoverButton').addEventListener('click', openMediaLibrary);
+      // Bọc lại: truyền thẳng hàm vào addEventListener sẽ đẩy Event vào tham số purpose.
+      document.getElementById('openMediaButton').addEventListener('click', function () {
+        openMediaLibrary('cover');
+      });
+      document.getElementById('replaceCoverButton').addEventListener('click', function () {
+        openMediaLibrary('cover');
+      });
       document.getElementById('removeCoverButton').addEventListener('click', clearCoverSelection);
       document.getElementById('closeMediaButton').addEventListener('click', closeMediaLibrary);
       document.getElementById('cancelMediaButton').addEventListener('click', closeMediaLibrary);
@@ -2161,6 +2252,14 @@
       });
       document.getElementById('useMediaButton').addEventListener('click', function () {
         if (!selectedMedia) return;
+        if (mediaPurpose === 'inline') {
+          if (editor) {
+            var altText = selectedMedia.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ');
+            editor.exec('addImage', { imageUrl: selectedMedia.url, altText: altText });
+          }
+          closeMediaLibrary();
+          return;
+        }
         var postForm = document.getElementById('postForm');
         postForm.elements.image.value = '';
         postForm.elements.existingImageUrl.value = selectedMedia.url;
@@ -2185,24 +2284,187 @@
         event.target.dataset.touched = 'true';
       });
 
-      // ----- Trình soạn Markdown (EasyMDE) -----
-      var easyMDE = null;
+      // ----- Trình soạn thảo WYSIWYG (Toast UI Editor) -----
+      // Hiển thị như Word nhưng đọc/ghi bằng Markdown, nên bài cũ và trang
+      // /article/[slug] (dùng marked) không phải đổi gì.
+      var editor = null;
       var contentTextarea = document.querySelector('#postForm textarea[name="content"]');
-      if (contentTextarea && window.EasyMDE) {
-        easyMDE = new EasyMDE({
-          element: contentTextarea,
-          spellChecker: false,
-          autoDownloadFontAwesome: true,
-          placeholder: 'Viết nội dung bài bằng định dạng văn bản…',
-          status: false,
-          toolbar: [
-            'bold', 'italic', 'heading', '|',
-            'quote', 'unordered-list', 'ordered-list', '|',
-            'link', 'image', 'code', 'table', '|',
-            'preview', 'side-by-side', 'fullscreen', '|',
-            'guide',
-          ],
+
+      function getContentMarkdown() {
+        if (editor) return editor.getMarkdown();
+        return String(contentTextarea ? contentTextarea.value : '');
+      }
+
+      function setContentMarkdown(markdown) {
+        var value = String(markdown || '');
+        if (contentTextarea) contentTextarea.value = value;
+        if (editor) editor.setMarkdown(value);
+      }
+
+      // Dropdown tiêu đề tự dựng: chỉ H2–H4 vì tiêu đề bài đã là H1,
+      // hai thẻ H1 trên một trang sẽ hại SEO.
+      var HEADING_CHOICES = [
+        { level: 0, label: 'Đoạn văn thường', tag: '', cls: 'h-para' },
+        { level: 2, label: 'Tiêu đề lớn', tag: 'H2', cls: 'h-2' },
+        { level: 3, label: 'Tiêu đề vừa', tag: 'H3', cls: 'h-3' },
+        { level: 4, label: 'Tiêu đề nhỏ', tag: 'H4', cls: 'h-4' },
+      ];
+
+      function buildHeadingMenu() {
+        var wrap = document.createElement('div');
+        wrap.className = 'heading-menu';
+        HEADING_CHOICES.forEach(function (choice) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          var name = document.createElement('span');
+          name.className = choice.cls;
+          name.textContent = choice.label;
+          var tag = document.createElement('span');
+          tag.className = 'heading-tag';
+          tag.textContent = choice.tag;
+          button.appendChild(name);
+          button.appendChild(tag);
+          button.addEventListener('click', function () {
+            if (!editor) return;
+            if (choice.level === 0) {
+              editor.exec('paragraph');
+            } else {
+              editor.exec('heading', { level: choice.level });
+            }
+            // Chọn xong thì đóng dropdown. eventEmitter là API nội bộ nên
+            // bọc lại: bản sau đổi tên cũng chỉ mất tự-đóng, không vỡ nút.
+            try {
+              editor.eventEmitter.emit('closePopup');
+            } catch (error) {
+              /* bỏ qua */
+            }
+            editor.focus();
+          });
+          wrap.appendChild(button);
         });
+        return wrap;
+      }
+
+      function headingToolbarButton() {
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'toastui-editor-toolbar-icons heading';
+        el.style.margin = '0';
+        el.setAttribute('aria-label', 'Cấp tiêu đề');
+        return el;
+      }
+
+      // Nhãn tiếng Việt cho popup/menu dựng sẵn của thư viện.
+      if (window.toastui && toastui.Editor) {
+        toastui.Editor.setLanguage('vi-VN', {
+          'Insert table': 'Chèn bảng',
+          'Insert link': 'Chèn liên kết',
+          'Insert image': 'Chèn ảnh',
+          'Insert CodeBlock': 'Chèn khối mã',
+          'Insert codeBlock': 'Chèn khối mã',
+          Bold: 'Đậm',
+          Italic: 'Nghiêng',
+          Strike: 'Gạch ngang',
+          Line: 'Đường kẻ ngang',
+          Blockquote: 'Trích dẫn',
+          'Unordered list': 'Danh sách chấm',
+          'Ordered list': 'Danh sách số',
+          Task: 'Danh sách việc cần làm',
+          Code: 'Mã trong dòng',
+          Headings: 'Cấp tiêu đề',
+          Paragraph: 'Đoạn văn thường',
+          Markdown: 'Markdown',
+          WYSIWYG: 'Soạn trực quan',
+          Write: 'Viết',
+          Preview: 'Xem trước',
+          More: 'Thêm',
+          OK: 'Xong',
+          Cancel: 'Huỷ',
+          URL: 'Đường dẫn',
+          'Link text': 'Chữ hiển thị',
+          Description: 'Mô tả ảnh',
+          File: 'Tệp',
+          'Choose a file': 'Chọn tệp',
+          'Add row to up': 'Thêm dòng phía trên',
+          'Add row to down': 'Thêm dòng phía dưới',
+          'Add column to left': 'Thêm cột bên trái',
+          'Add column to right': 'Thêm cột bên phải',
+          'Remove row': 'Xoá dòng',
+          'Remove column': 'Xoá cột',
+          'Align column to left': 'Căn cột sang trái',
+          'Align column to center': 'Căn cột vào giữa',
+          'Align column to right': 'Căn cột sang phải',
+          'Remove table': 'Xoá bảng',
+        });
+      }
+
+      var editorMount = document.getElementById('contentEditor');
+      if (editorMount && window.toastui && toastui.Editor) {
+        editor = new toastui.Editor({
+          el: editorMount,
+          height: '360px',
+          initialEditType: 'wysiwyg',
+          previewStyle: 'vertical',
+          language: 'vi-VN',
+          usageStatistics: false,
+          placeholder: 'Viết nội dung bài ở đây…',
+          autofocus: false,
+          toolbarItems: [
+            [
+              {
+                name: 'heading',
+                el: headingToolbarButton(),
+                tooltip: 'Cấp tiêu đề',
+                popup: { body: buildHeadingMenu(), style: { width: 'auto' } },
+              },
+              'bold',
+              'italic',
+              'strike',
+            ],
+            ['quote', 'ul', 'ol', 'task'],
+            ['table', 'hr'],
+            ['link', 'image', 'code', 'codeblock'],
+          ],
+          hooks: {
+            // Kéo-thả hoặc dán ảnh vào giữa bài -> tự upload lên Supabase Storage.
+            addImageBlobHook: async function (blob, callback) {
+              try {
+                var baseName = blob && blob.name ? blob.name : '';
+                var slugSource = baseName.replace(/\.[^.]+$/, '') || 'anh-bai-viet';
+                var named = blob;
+                // Ảnh dán từ clipboard không có .name -> uploadImage() sẽ vỡ khi tách đuôi.
+                if (!baseName) {
+                  var mime = (blob && blob.type) || 'image/png';
+                  var ext = mime.split('/')[1] || 'png';
+                  named = new File([blob], 'anh-dan-' + Date.now() + '.' + ext, { type: mime });
+                }
+                var url = await uploadImage(named, slugify(slugSource));
+                if (!url) {
+                  showNotice('Chưa cấu hình Supabase nên không tải được ảnh lên.', 'error');
+                  return false;
+                }
+                callback(url, slugSource);
+              } catch (error) {
+                showNotice('Không tải được ảnh lên: ' + (error.message || error), 'error');
+              }
+              return false;
+            },
+          },
+        });
+
+        // Nút mở Thư viện ảnh đã có sẵn, để chèn ảnh cũ vào giữa bài.
+        var libraryButton = document.createElement('button');
+        libraryButton.type = 'button';
+        libraryButton.className = 'toastui-editor-toolbar-icons image';
+        libraryButton.style.margin = '0';
+        libraryButton.setAttribute('aria-label', 'Chèn ảnh từ Thư viện ảnh');
+        libraryButton.addEventListener('click', function () {
+          openMediaLibrary('inline');
+        });
+        editor.insertToolbarItem(
+          { groupIndex: 3, itemIndex: 2 },
+          { name: 'mediaLibrary', el: libraryButton, tooltip: 'Chèn ảnh từ Thư viện ảnh' },
+        );
       }
 
       // ----- Mở rộng khung viết (modal) -----
@@ -2218,10 +2480,8 @@
         composeBackdrop.hidden = !expanded;
         expandBtn.title = expanded ? 'Thu nhỏ' : 'Mở rộng khung viết';
         document.body.style.overflow = expanded ? 'hidden' : '';
-        if (easyMDE) {
-          setTimeout(function () {
-            easyMDE.codemirror.refresh();
-          }, 50);
+        if (editor) {
+          editor.setHeight(expanded ? '68vh' : '360px');
         }
       }
 
@@ -2240,6 +2500,122 @@
           setComposeExpanded(false);
         }
       });
+
+      // ----- Tự động lưu bài đang soạn -----
+      // Khoá riêng, không đụng 'newshubDrafts' (danh sách nháp cục bộ khi chưa có Supabase).
+      var AUTOSAVE_KEY = 'cntn:compose-autosave';
+      var AUTOSAVE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+      var AUTOSAVE_FIELDS = [
+        'title', 'slug', 'excerpt', 'category', 'status',
+        'tags', 'imageAlt', 'sectionPriority', 'postId', 'existingImageUrl',
+      ];
+      var autosaveTimer = null;
+      var autosaveReady = false;
+
+      function readAutosaveField(postForm, name) {
+        var field = postForm.elements[name];
+        return field ? String(field.value || '') : '';
+      }
+
+      function writeAutosave() {
+        if (!autosaveReady) return;
+        var postForm = document.getElementById('postForm');
+        if (!postForm) return;
+        var snapshot = { savedAt: Date.now(), content: getContentMarkdown(), fields: {} };
+        AUTOSAVE_FIELDS.forEach(function (name) {
+          snapshot.fields[name] = readAutosaveField(postForm, name);
+        });
+        // Form trắng thì không lưu, tránh ghi đè nháp cũ bằng dữ liệu rỗng.
+        if (!snapshot.content.trim() && !snapshot.fields.title.trim()) {
+          return;
+        }
+        try {
+          localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snapshot));
+        } catch (error) {
+          /* hết dung lượng localStorage thì bỏ qua, không chặn việc viết bài */
+        }
+      }
+
+      function scheduleAutosave() {
+        clearTimeout(autosaveTimer);
+        autosaveTimer = setTimeout(writeAutosave, 3000);
+      }
+
+      function clearAutosave() {
+        clearTimeout(autosaveTimer);
+        try {
+          localStorage.removeItem(AUTOSAVE_KEY);
+        } catch (error) {
+          /* bỏ qua */
+        }
+        document.getElementById('restoreBar').hidden = true;
+      }
+
+      function readAutosave() {
+        try {
+          var raw = localStorage.getItem(AUTOSAVE_KEY);
+          if (!raw) return null;
+          var snapshot = JSON.parse(raw);
+          if (!snapshot || !snapshot.savedAt) return null;
+          if (Date.now() - snapshot.savedAt > AUTOSAVE_MAX_AGE) {
+            localStorage.removeItem(AUTOSAVE_KEY);
+            return null;
+          }
+          return snapshot;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function offerAutosaveRestore() {
+        var snapshot = readAutosave();
+        if (!snapshot) return;
+        var when = new Date(snapshot.savedAt);
+        var stamp =
+          String(when.getHours()).padStart(2, '0') + ':' +
+          String(when.getMinutes()).padStart(2, '0') + ' ngày ' +
+          String(when.getDate()).padStart(2, '0') + '/' +
+          String(when.getMonth() + 1).padStart(2, '0');
+        var title = (snapshot.fields && snapshot.fields.title) || '';
+        document.getElementById('restoreText').textContent =
+          'Bạn có bài đang viết dở lúc ' + stamp + (title ? ' — “' + title + '”' : '') + '.';
+        document.getElementById('restoreBar').hidden = false;
+      }
+
+      document.getElementById('restoreDraftButton').addEventListener('click', function () {
+        var snapshot = readAutosave();
+        if (!snapshot) {
+          document.getElementById('restoreBar').hidden = true;
+          return;
+        }
+        var postForm = document.getElementById('postForm');
+        AUTOSAVE_FIELDS.forEach(function (name) {
+          var field = postForm.elements[name];
+          if (field) field.value = (snapshot.fields && snapshot.fields[name]) || '';
+        });
+        setContentMarkdown(snapshot.content || '');
+        if (snapshot.fields && snapshot.fields.existingImageUrl) {
+          setCoverPreview(snapshot.fields.existingImageUrl);
+        }
+        // Đang khôi phục bài sửa dở thì nút phải là "Cập nhật", không phải "Lưu bài".
+        if (snapshot.fields && snapshot.fields.postId) {
+          document.getElementById('savePostButton').textContent = 'Cập nhật bài';
+          document.getElementById('cancelEditButton').hidden = false;
+        }
+        document.getElementById('restoreBar').hidden = true;
+        showNotice('Đã khôi phục bài đang viết dở.', 'success');
+      });
+
+      document.getElementById('discardDraftButton').addEventListener('click', clearAutosave);
+
+      if (editor) {
+        editor.on('change', scheduleAutosave);
+      }
+      document.getElementById('postForm').addEventListener('input', scheduleAutosave);
+      window.addEventListener('beforeunload', writeAutosave);
+
+      offerAutosaveRestore();
+      autosaveReady = true;
 
       renderUsers();
       if (!supabaseReady) {

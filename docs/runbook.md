@@ -137,6 +137,21 @@ Các vị trí trang chủ:
 
 `section_priority` càng cao thì bài càng được ưu tiên trong khu vực đó.
 
+## Trình soạn thảo nội dung
+
+Dùng Toast UI Editor 3.2.2 (nạp từ `https://uicdn.toast.com/editor/3.2.2/`), mở mặc định ở chế độ soạn trực quan, vẫn có tab Markdown để gõ tay.
+
+Nội dung **luôn được lưu dưới dạng Markdown** vào cột `posts.content`. Đây là ràng buộc quan trọng: `src/pages/article/[slug].astro` dựng HTML bằng `renderPostHtml()` trong `src/lib/markdown.ts`, và `estimateReadingTime()` đếm từ trên chuỗi thô. Nếu đổi sang lưu HTML thì cả hai chỗ này đều sai.
+
+Ghi chú khi sửa `public/admin/index.html`:
+
+- `<textarea name="content" hidden>` phải giữ lại — `FormData` lúc submit đọc từ field này, không đọc từ editor.
+- Mọi chỗ đọc/ghi nội dung nên đi qua `getContentMarkdown()` / `setContentMarkdown()` thay vì chạm thẳng vào editor.
+- Dropdown tiêu đề cố ý chỉ có H2–H4: tiêu đề bài đã là `<h1>`, thêm H1 trong thân bài sẽ thành hai H1 trên một trang.
+- Kéo-thả hoặc dán ảnh vào giữa bài sẽ tự upload lên bucket `post-images` qua `addImageBlobHook`. Nút hình ảnh thứ hai trên thanh công cụ mở Thư viện ảnh có sẵn (`openMediaLibrary('inline')`).
+
+Bài đang soạn được tự lưu vào `localStorage` khoá `cntn:compose-autosave` sau 3 giây ngừng gõ, và được mời khôi phục khi mở lại trang. Khoá này khác `newshubDrafts` (danh sách nháp cục bộ dùng khi chưa cấu hình Supabase).
+
 ## Lưu trữ ảnh
 
 Ảnh bài viết được upload vào Supabase Storage bucket:

@@ -255,6 +255,98 @@ const jsonLd = {
     font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
   }
 
+  /* ------ bảng ------ */
+  /* Khối cuộn riêng cho bảng: bảng nhiều cột phải tự trượt ngang, không được
+     đẩy tràn cả trang trên điện thoại. */
+  .article-content :global(.table-scroll) {
+    overflow-x: auto;
+    margin: 1.6em 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .article-content :global(.table-scroll table) {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .article-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.6em 0;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .article-content :global(thead th) {
+    background: var(--surface);
+    font-family: var(--font-head);
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+  }
+  .article-content :global(th),
+  .article-content :global(td) {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  .article-content :global(th:not(:last-child)),
+  .article-content :global(td:not(:last-child)) {
+    border-right: 1px solid var(--border);
+  }
+  /* Căn lề cột do người viết chọn trong editor: marked xuất ra thuộc tính
+     align=..., mà thuộc tính này thua mọi rule CSS nên phải khai báo lại. */
+  .article-content :global([align='center']) {
+    text-align: center;
+  }
+  .article-content :global([align='right']) {
+    text-align: right;
+  }
+  .article-content :global([align='left']) {
+    text-align: left;
+  }
+  /* Kẻ sọc xen kẽ cho dễ dò mắt theo hàng ngang. */
+  .article-content :global(tbody tr:nth-child(even)) {
+    background: rgba(139, 92, 246, 0.04);
+  }
+  .article-content :global(tbody tr:last-child td) {
+    border-bottom: 0;
+  }
+  /* Bài Markdown trong src/content đi qua pipeline riêng của Astro nên không có
+     lớp .table-scroll bọc ngoài — cho chính thẻ table tự cuộn để khỏi tràn trang. */
+  @media (max-width: 640px) {
+    .article-content :global(table:not(.table-scroll table)) {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
+
+  /* ------ các thành phần khác editor tạo ra được ------ */
+  .article-content :global(hr) {
+    height: 1px;
+    border: 0;
+    background: var(--border);
+    margin: 2.2em 0;
+  }
+  .article-content :global(del),
+  .article-content :global(s) {
+    color: var(--text-muted);
+  }
+  /* Danh sách việc cần làm: bỏ chấm đầu dòng, chừa chỗ cho ô tick. */
+  .article-content :global(li:has(> input[type='checkbox'])) {
+    list-style: none;
+    margin-left: -1.4em;
+  }
+  .article-content :global(li > input[type='checkbox']) {
+    margin-right: 0.55em;
+    accent-color: var(--nh-purple);
+  }
+
   .article-tags {
     display: flex;
     flex-wrap: wrap;
