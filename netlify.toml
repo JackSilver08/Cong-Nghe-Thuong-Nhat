@@ -1,7 +1,7 @@
 # Cấu hình deploy NewsHub trên Netlify (Astro SSR để bài Supabase cập nhật tức thời)
 [build]
   command = "npm run build"
-  publish = "dist"
+  publish = "dist-ssr"
 
 [build.environment]
   # Pin Node để Astro build ổn định (Netlify mặc định có thể cũ hơn yêu cầu)

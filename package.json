@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "description": "NewsHub - static tech/AI news portal built with Astro + Decap CMS",
   "scripts": {
+    "prebuild": "node -e \"require('node:fs').rmSync('dist-ssr', { recursive: true, force: true })\"",
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",

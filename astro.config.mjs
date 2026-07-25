@@ -8,6 +8,7 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   site: 'https://congnghethuongnhat.netlify.app',
   output: 'server',
+  outDir: './dist-ssr',
   adapter: netlify(),
   trailingSlash: 'ignore',
   integrations: [sitemap()],
