@@ -18,10 +18,12 @@ test('removes executable HTML and unsafe URLs', () => {
       '[x](javascript:alert(3))<iframe src="https://evil.example"></iframe>',
   );
 
-  assert.doesNotMatch(html, /<script|onerror|href="javascript:|src="javascript:|<iframe/i);
+  assert.doesNotMatch(html, /<script|<img|<iframe|href="javascript:|src="javascript:/i);
+  assert.match(html, /&lt;script&gt;/);
 });
 
-test('hardens links that open a new tab', () => {
+test('renders raw HTML as inert text', () => {
   const html = renderPostHtml('<a href="https://example.com" target="_blank">x</a>');
-  assert.match(html, /rel="noopener noreferrer"/);
+  assert.doesNotMatch(html, /<a /);
+  assert.match(html, /&lt;a href=/);
 });
