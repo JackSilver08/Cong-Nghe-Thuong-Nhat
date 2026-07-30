@@ -788,6 +788,55 @@
         background: var(--surface-low);
         border-color: var(--border-strong);
       }
+      /* Chế độ Nguồn: sửa HTML sạch trong chính khung Toast UI. */
+      .source-code-editor {
+        display: none;
+        width: 100%;
+        height: calc(100% - 46px);
+        min-height: 250px;
+        margin: 0;
+        padding: 18px 20px;
+        resize: none;
+        border: 0;
+        border-bottom: 1px solid var(--border-strong);
+        border-radius: 0;
+        outline: 0;
+        background: #fff;
+        color: #1f2937;
+        font: 0.9rem/1.65 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        tab-size: 2;
+      }
+      #contentEditor.source-mode .toastui-editor-defaultUI-toolbar,
+      #contentEditor.source-mode .toastui-editor-main {
+        display: none;
+      }
+      #contentEditor.source-mode .source-code-editor {
+        display: block;
+      }
+      .source-mode-button {
+        border: 0;
+        border-left: 1px solid #dadde6;
+        background: transparent;
+        cursor: pointer;
+        font-family: var(--font-body);
+      }
+      .source-mode-button.active {
+        color: var(--nh-purple);
+        background: #fff;
+        font-weight: 700;
+      }
+      .source-cleanup-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
+      .source-cleanup-note.is-cleaned {
+        color: #166534;
+      }
+      .source-cleanup-note[hidden] {
+        display: none;
+      }
       /* Popup chèn bảng/liên kết/ảnh phải nổi trên khung viết phóng to (z-index 200) */
       .toastui-editor-popup {
         z-index: 320;
@@ -1202,6 +1251,14 @@
                   <div class="content-field">
                     <span class="field-label">Nội dung</span>
                     <div id="contentEditor"></div>
+                    <textarea
+                      id="contentSource"
+                      class="source-code-editor"
+                      aria-label="Mã nguồn HTML bài viết"
+                      placeholder="Dán HTML thuần vào đây. CSS và mã không an toàn sẽ tự động bị loại bỏ."
+                      spellcheck="false"
+                    ></textarea>
+                    <p class="source-cleanup-note" id="sourceCleanupNote" hidden role="status" aria-live="polite"></p>
                     <!-- Editor ghi ngược Markdown vào đây trước khi submit; FormData đọc từ field này. -->
                     <textarea name="content" hidden></textarea>
                   </div>
@@ -2866,14 +2923,190 @@
       // /article/[slug] (dùng marked) không phải đổi gì.
       var editor = null;
       var contentTextarea = document.querySelector('#postForm textarea[name="content"]');
+      var sourceTextarea = document.getElementById('contentSource');
+      var sourceCleanupNote = document.getElementById('sourceCleanupNote');
+      var sourceModeButton = null;
+
+      var SOURCE_ALLOWED_TAGS = new Set([
+        'p', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'strong', 'b', 'em', 'i', 'u', 's', 'del', 'mark',
+        'blockquote', 'ul', 'ol', 'li',
+        'a', 'img', 'figure', 'figcaption',
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+        'br', 'hr', 'pre', 'code', 'sup', 'sub',
+      ]);
+      var SOURCE_DROP_TAGS = new Set([
+        'script', 'style', 'link', 'iframe', 'object', 'embed', 'svg',
+        'canvas', 'form', 'input', 'button', 'select', 'textarea',
+        'video', 'audio', 'source', 'track', 'meta', 'base',
+      ]);
+      var SOURCE_ALLOWED_ATTRIBUTES = {
+        a: new Set(['href', 'title']),
+        img: new Set(['src', 'alt', 'title', 'width', 'height', 'loading']),
+        ol: new Set(['start']),
+        li: new Set(['value']),
+        th: new Set(['colspan', 'rowspan', 'align', 'scope']),
+        td: new Set(['colspan', 'rowspan', 'align']),
+        code: new Set([]),
+      };
+
+      function sourceUrlIsSafe(value, isImage) {
+        var url = String(value || '').trim();
+        if (!url) return false;
+        if (url.startsWith('#') || url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) {
+          return true;
+        }
+        try {
+          var parsed = new URL(url, window.location.origin);
+          if (isImage) return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+          return ['http:', 'https:', 'mailto:', 'tel:'].includes(parsed.protocol);
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function sanitizeArticleHtml(input) {
+        var doc = new DOMParser().parseFromString(String(input || ''), 'text/html');
+        var removedCss = 0;
+        var removedUnsafe = 0;
+
+        Array.from(doc.querySelectorAll('style, link[rel~="stylesheet" i]')).forEach(function (node) {
+          removedCss += 1;
+          node.remove();
+        });
+
+        Array.from(doc.body.querySelectorAll('*')).forEach(function (node) {
+          var tag = node.tagName.toLowerCase();
+
+          // Tiêu đề bài đã là H1; H1 trong nội dung được hạ xuống H2.
+          if (tag === 'h1') {
+            var replacement = doc.createElement('h2');
+            while (node.firstChild) replacement.appendChild(node.firstChild);
+            node.replaceWith(replacement);
+            removedUnsafe += 1;
+            return;
+          }
+
+          if (!SOURCE_ALLOWED_TAGS.has(tag)) {
+            if (SOURCE_DROP_TAGS.has(tag)) {
+              if (tag === 'style' || (tag === 'link' && /\bstylesheet\b/i.test(node.getAttribute('rel') || ''))) {
+                removedCss += 1;
+              } else {
+                removedUnsafe += 1;
+              }
+              node.remove();
+            } else {
+              // Bỏ thẻ trình bày như div/span nhưng giữ nội dung bên trong.
+              node.replaceWith.apply(node, Array.from(node.childNodes));
+            }
+          }
+        });
+
+        Array.from(doc.body.querySelectorAll('*')).forEach(function (node) {
+          var tag = node.tagName.toLowerCase();
+          var allowed = SOURCE_ALLOWED_ATTRIBUTES[tag] || new Set();
+          Array.from(node.attributes).forEach(function (attribute) {
+            var name = attribute.name.toLowerCase();
+            if (name === 'style' || name === 'class' || name === 'id') {
+              removedCss += 1;
+              node.removeAttribute(attribute.name);
+              return;
+            }
+            if (name.startsWith('on') || !allowed.has(name)) {
+              removedUnsafe += 1;
+              node.removeAttribute(attribute.name);
+            }
+          });
+
+          if (tag === 'a' && node.hasAttribute('href') && !sourceUrlIsSafe(node.getAttribute('href'), false)) {
+            node.removeAttribute('href');
+            removedUnsafe += 1;
+          }
+          if (tag === 'img') {
+            if (!sourceUrlIsSafe(node.getAttribute('src'), true)) {
+              node.remove();
+              removedUnsafe += 1;
+              return;
+            }
+            node.setAttribute('loading', 'lazy');
+            if (!node.hasAttribute('alt')) node.setAttribute('alt', '');
+          }
+          if ((tag === 'td' || tag === 'th') && node.hasAttribute('align')) {
+            var align = String(node.getAttribute('align') || '').toLowerCase();
+            if (!['left', 'center', 'right'].includes(align)) node.removeAttribute('align');
+          }
+        });
+
+        // Không giữ comment hoặc chỉ dẫn từ công cụ đã sao chép.
+        var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_COMMENT);
+        var comments = [];
+        while (walker.nextNode()) comments.push(walker.currentNode);
+        comments.forEach(function (comment) { comment.remove(); });
+
+        return {
+          html: doc.body.innerHTML.trim(),
+          removedCss: removedCss,
+          removedUnsafe: removedUnsafe,
+        };
+      }
+
+      function showSourceCleanup(result, pasted) {
+        if (!sourceCleanupNote) return;
+        var removed = result.removedCss + result.removedUnsafe;
+        sourceCleanupNote.hidden = false;
+        sourceCleanupNote.classList.toggle('is-cleaned', removed > 0);
+        if (removed > 0) {
+          sourceCleanupNote.textContent =
+            'Đã làm sạch HTML' + (pasted ? ' vừa dán' : '') + ': loại ' +
+            result.removedCss + ' thành phần CSS và ' +
+            result.removedUnsafe + ' thành phần không an toàn.';
+        } else {
+          sourceCleanupNote.textContent = 'HTML hợp lệ, không phát hiện CSS hoặc mã không an toàn.';
+        }
+      }
+
+      function sourceModeIsActive() {
+        return Boolean(document.getElementById('contentEditor')?.classList.contains('source-mode'));
+      }
+
+      function applySourceToEditor(showFeedback) {
+        if (!editor || !sourceTextarea) return;
+        var result = sanitizeArticleHtml(sourceTextarea.value);
+        sourceTextarea.value = result.html;
+        editor.setHTML(result.html || '');
+        if (showFeedback !== false) showSourceCleanup(result, false);
+      }
+
+      function enterSourceMode() {
+        if (!editor || !sourceTextarea || sourceModeIsActive()) return;
+        var result = sanitizeArticleHtml(editor.getHTML());
+        sourceTextarea.value = result.html;
+        document.getElementById('contentEditor').classList.add('source-mode');
+        sourceModeButton?.classList.add('active');
+        sourceModeButton?.setAttribute('aria-selected', 'true');
+        document.querySelectorAll('#contentEditor .toastui-editor-mode-switch .tab-item:not(.source-mode-button)')
+          .forEach(function (tab) { tab.classList.remove('active'); });
+        sourceTextarea.focus();
+        showSourceCleanup(result, false);
+      }
+
+      function leaveSourceMode(applyChanges) {
+        if (!sourceModeIsActive()) return;
+        if (applyChanges !== false) applySourceToEditor(true);
+        document.getElementById('contentEditor').classList.remove('source-mode');
+        sourceModeButton?.classList.remove('active');
+        sourceModeButton?.setAttribute('aria-selected', 'false');
+      }
 
       function getContentMarkdown() {
+        if (sourceModeIsActive()) leaveSourceMode(true);
         if (editor) return editor.getMarkdown();
         return String(contentTextarea ? contentTextarea.value : '');
       }
 
       function setContentMarkdown(markdown) {
         var value = String(markdown || '');
+        leaveSourceMode(false);
         if (contentTextarea) contentTextarea.value = value;
         if (editor) editor.setMarkdown(value);
       }
@@ -3042,6 +3275,49 @@
           { groupIndex: 3, itemIndex: 2 },
           { name: 'mediaLibrary', el: libraryButton, tooltip: 'Chèn ảnh từ Thư viện ảnh' },
         );
+
+        // Thêm tab "Nguồn" vào cạnh Markdown / Soạn trực quan.
+        var editorUi = editorMount.querySelector('.toastui-editor-defaultUI');
+        var modeSwitch = editorMount.querySelector('.toastui-editor-mode-switch');
+        if (editorUi && modeSwitch && sourceTextarea) {
+          editorUi.insertBefore(sourceTextarea, modeSwitch);
+
+          sourceModeButton = document.createElement('button');
+          sourceModeButton.type = 'button';
+          sourceModeButton.className = 'tab-item source-mode-button';
+          sourceModeButton.textContent = 'Nguồn';
+          sourceModeButton.setAttribute('role', 'tab');
+          sourceModeButton.setAttribute('aria-selected', 'false');
+          sourceModeButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            enterSourceMode();
+          });
+          modeSwitch.appendChild(sourceModeButton);
+
+          modeSwitch.querySelectorAll('.tab-item:not(.source-mode-button)').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+              leaveSourceMode(true);
+            });
+          });
+
+          // Làm sạch ngay phần HTML được dán, không chờ đến lúc lưu bài.
+          sourceTextarea.addEventListener('paste', function (event) {
+            var clipboard = event.clipboardData;
+            if (!clipboard) return;
+            event.preventDefault();
+            var incoming = clipboard.getData('text/html') || clipboard.getData('text/plain');
+            var result = sanitizeArticleHtml(incoming);
+            sourceTextarea.setRangeText(
+              result.html,
+              sourceTextarea.selectionStart,
+              sourceTextarea.selectionEnd,
+              'end',
+            );
+            showSourceCleanup(result, true);
+            scheduleAutosave();
+          });
+        }
       }
 
       // ----- Mở rộng khung viết (modal) -----
@@ -3188,6 +3464,7 @@
       if (editor) {
         editor.on('change', scheduleAutosave);
       }
+      sourceTextarea?.addEventListener('input', scheduleAutosave);
       document.getElementById('postForm').addEventListener('input', scheduleAutosave);
       window.addEventListener('beforeunload', writeAutosave);
 
