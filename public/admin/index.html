@@ -566,6 +566,28 @@
       .library-detail-actions .danger { grid-column: 1/-1; color: #b91c1c; border-color: #fecaca; background: #fff1f2; }
       .library-toast { position: fixed; right: 24px; bottom: 24px; z-index: 500; padding: 12px 16px; border-radius: 9px; background: #0b1020; color: #fff; box-shadow: 0 12px 32px rgba(0,0,0,.25); }
       .library-toast[hidden] { display: none; }
+      .category-page { display: grid; gap: 18px; }
+      .category-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(300px, .7fr);
+        gap: 18px;
+        align-items: start;
+      }
+      .category-form { padding: 18px; display: grid; gap: 14px; }
+      .category-form .field-row { grid-template-columns: 1fr 1fr; }
+      .category-checks { display: grid; gap: 10px; }
+      .category-checks label {
+        display: flex; align-items: center; gap: 9px; color: var(--text); font-weight: 600;
+      }
+      .category-checks input { width: 18px; height: 18px; }
+      .category-status {
+        display: inline-flex; align-items: center; min-height: 25px; padding: 0 9px;
+        border-radius: 999px; background: #ecfdf5; color: #166534; font-size: .76rem; font-weight: 800;
+      }
+      .category-status.inactive { background: #f1f5f9; color: #64748b; }
+      .category-system { color: var(--muted); font-size: .76rem; font-weight: 700; }
+      .category-empty { padding: 34px 18px; color: var(--muted); text-align: center; }
+      .category-notice { margin: 0 18px 18px; }
       .user-role-select {
         min-width: 150px;
       }
@@ -1036,6 +1058,7 @@
         }
         .library-stats { grid-template-columns: repeat(2,1fr); }
         .library-controls { grid-template-columns: repeat(2,1fr); }
+        .category-layout { grid-template-columns: 1fr; }
       }
       @media (max-width: 620px) {
         .topbar,
@@ -1085,6 +1108,7 @@
         <nav class="nav" aria-label="Quản trị">
           <a href="#dashboard" class="active" data-admin-tab="dashboard">Bảng điều khiển</a>
           <a href="#media" data-admin-tab="media">Thư viện ảnh</a>
+          <a href="#categories" data-admin-tab="categories" data-admin-only>Quản lý chuyên mục</a>
           <a href="#users" data-admin-tab="users" data-admin-only>Quản lý người dùng</a>
           <a href="#comments" data-admin-tab="comments">Kiểm duyệt bình luận</a>
           <a href="/">Xem trang web</a>
@@ -1292,6 +1316,78 @@
                   </div>
                 </form>
                 <div class="draft-list" id="draftList"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="category-page" data-admin-view="categories" data-admin-only hidden>
+            <div class="library-hero">
+              <div>
+                <h2>Quản lý chuyên mục</h2>
+                <p>Sắp xếp điều hướng, ẩn chuyên mục và quản lý nơi phân loại bài viết.</p>
+              </div>
+              <div class="library-hero-actions">
+                <button class="action-button" id="categoryRefreshButton" type="button">↻ Làm mới</button>
+                <button class="primary" id="categoryNewButton" type="button">+ Thêm chuyên mục</button>
+              </div>
+            </div>
+
+            <div class="category-layout">
+              <section class="panel">
+                <div class="panel-head">
+                  <h2>Danh sách chuyên mục</h2>
+                  <span class="muted-note" id="categoryCount">0 chuyên mục</span>
+                </div>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Tên</th>
+                        <th>Đường dẫn</th>
+                        <th>Bài viết</th>
+                        <th>Thứ tự</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody id="categoryTable">
+                      <tr><td colspan="6">Đang tải chuyên mục…</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-head"><h2 id="categoryFormTitle">Thêm chuyên mục</h2></div>
+                <form class="category-form" id="categoryForm">
+                  <input type="hidden" name="originalSlug" />
+                  <label>
+                    Tên chuyên mục
+                    <input name="label" maxlength="80" required placeholder="Ví dụ: Khoa học dữ liệu" />
+                  </label>
+                  <label>
+                    Đường dẫn
+                    <input name="slug" maxlength="80" required placeholder="khoa-hoc-du-lieu" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" />
+                  </label>
+                  <label>
+                    Mô tả
+                    <textarea name="description" rows="4" placeholder="Mô tả ngắn dùng trên trang chuyên mục"></textarea>
+                  </label>
+                  <label>
+                    Thứ tự hiển thị
+                    <input name="displayOrder" type="number" value="0" step="10" />
+                  </label>
+                  <div class="category-checks">
+                    <label><input name="showInHeader" type="checkbox" checked /> Hiển thị trên header</label>
+                    <label><input name="isActive" type="checkbox" checked /> Chuyên mục đang hoạt động</label>
+                  </div>
+                  <p class="muted-note">Chuyên mục hệ thống không thể đổi đường dẫn hoặc xóa vì còn được dùng bởi nội dung Markdown.</p>
+                  <p class="notice category-notice" id="categoryNotice" hidden role="status" aria-live="polite"></p>
+                  <div class="form-actions">
+                    <button class="primary" type="submit">Lưu chuyên mục</button>
+                    <button class="ghost" id="categoryCancelButton" type="button" hidden>Hủy sửa</button>
+                  </div>
+                </form>
               </section>
             </div>
           </section>
@@ -1617,13 +1713,15 @@
         if (publishedOption) publishedOption.disabled = true;
       }
 
-      var tabTitles = { users: 'Quản lý người dùng', comments: 'Kiểm duyệt bình luận', media: 'Thư viện ảnh', dashboard: 'Bảng điều khiển' };
+      var tabTitles = { users: 'Quản lý người dùng', comments: 'Kiểm duyệt bình luận', media: 'Thư viện ảnh', categories: 'Quản lý chuyên mục', dashboard: 'Bảng điều khiển' };
 
       function setAdminTab(tab) {
         var nextTab = tab === 'users' && isAdmin
           ? 'users'
           : tab === 'comments' && canModerateComments
             ? 'comments'
+            : tab === 'categories' && isAdmin
+              ? 'categories'
             : tab === 'media' && canManagePosts
               ? 'media'
             : canManagePosts
@@ -1641,6 +1739,7 @@
         }
         if (nextTab === 'comments') renderComments();
         if (nextTab === 'media') loadLibraryPage(!libraryLoaded);
+        if (nextTab === 'categories') loadCategories();
       }
 
       document.querySelectorAll('[data-admin-tab]').forEach(function (link) {
@@ -1650,7 +1749,7 @@
         });
       });
       var initialHash = (window.location.hash || '').replace('#', '');
-      setAdminTab(['users', 'comments', 'media'].includes(initialHash) ? initialHash : canManagePosts ? 'dashboard' : 'comments');
+      setAdminTab(['users', 'comments', 'media', 'categories'].includes(initialHash) ? initialHash : canManagePosts ? 'dashboard' : 'comments');
 
       var currentPosts = [];
       var categoryLabels = {
@@ -1662,6 +1761,212 @@
         'cloud': 'Điện toán đám mây',
         'danh-gia': 'Đánh giá',
       };
+      var categoryItems = [];
+
+      function showCategoryNotice(message, type) {
+        var notice = document.getElementById('categoryNotice');
+        notice.textContent = message;
+        notice.className = 'notice category-notice' + (type === 'error' ? ' error' : '');
+        notice.hidden = false;
+      }
+
+      function resetCategoryForm() {
+        var form = document.getElementById('categoryForm');
+        form.reset();
+        form.elements.originalSlug.value = '';
+        form.elements.displayOrder.value = String((categoryItems.length + 1) * 10);
+        form.elements.showInHeader.checked = true;
+        form.elements.isActive.checked = true;
+        form.elements.slug.disabled = false;
+        document.getElementById('categoryFormTitle').textContent = 'Thêm chuyên mục';
+        document.getElementById('categoryCancelButton').hidden = true;
+        document.getElementById('categoryNotice').hidden = true;
+      }
+
+      function populatePostCategorySelect(preferredValue) {
+        var select = document.querySelector('#postForm select[name="category"]');
+        if (!select || !categoryItems.length) return;
+        var currentValue = preferredValue || select.value;
+        select.innerHTML = '';
+        categoryItems.filter(function (item) { return item.is_active; }).forEach(function (item) {
+          var option = document.createElement('option');
+          option.value = item.slug;
+          option.textContent = item.label;
+          select.appendChild(option);
+        });
+        if (Array.from(select.options).some(function (option) { return option.value === currentValue; })) {
+          select.value = currentValue;
+        }
+      }
+
+      async function loadCategories() {
+        var table = document.getElementById('categoryTable');
+        var result = await supabaseClient
+          .from('categories')
+          .select('slug,label,description,display_order,show_in_header,is_active,is_system')
+          .order('display_order', { ascending: true })
+          .order('label', { ascending: true });
+        if (result.error) {
+          table.innerHTML = '<tr><td colspan="6">Chưa có bảng chuyên mục. Hãy chạy migration 0011_categories_management.sql trong Supabase.</td></tr>';
+          showCategoryNotice('Không tải được chuyên mục: ' + result.error.message, 'error');
+          return;
+        }
+
+        categoryItems = result.data || [];
+        categoryLabels = {};
+        categoryItems.forEach(function (item) { categoryLabels[item.slug] = item.label; });
+        populatePostCategorySelect();
+        document.getElementById('categoryCount').textContent = categoryItems.length + ' chuyên mục';
+        table.innerHTML = '';
+
+        if (!categoryItems.length) {
+          table.innerHTML = '<tr><td class="category-empty" colspan="6">Chưa có chuyên mục nào.</td></tr>';
+          return;
+        }
+
+        var postCounts = {};
+        var postsResult = await supabaseClient.from('posts').select('category');
+        (postsResult.data || []).forEach(function (post) {
+          postCounts[post.category] = (postCounts[post.category] || 0) + 1;
+        });
+
+        categoryItems.forEach(function (item) {
+          var row = document.createElement('tr');
+          var name = document.createElement('td');
+          var nameStrong = document.createElement('strong');
+          nameStrong.textContent = item.label;
+          name.appendChild(nameStrong);
+          if (item.is_system) {
+            var system = document.createElement('div');
+            system.className = 'category-system';
+            system.textContent = 'Chuyên mục hệ thống';
+            name.appendChild(system);
+          }
+          var slugCell = document.createElement('td');
+          slugCell.textContent = item.slug;
+          var count = document.createElement('td');
+          count.textContent = String(postCounts[item.slug] || 0);
+          var order = document.createElement('td');
+          order.textContent = String(item.display_order || 0);
+          var status = document.createElement('td');
+          var statusBadge = document.createElement('span');
+          statusBadge.className = 'category-status' + (item.is_active ? '' : ' inactive');
+          statusBadge.textContent = item.is_active
+            ? (item.show_in_header ? 'Header' : 'Đang hoạt động')
+            : 'Đã ẩn';
+          status.appendChild(statusBadge);
+          var actions = document.createElement('td');
+          actions.className = 'actions';
+          var edit = document.createElement('button');
+          edit.type = 'button';
+          edit.className = 'action-button';
+          edit.textContent = 'Sửa';
+          edit.addEventListener('click', function () { editCategory(item); });
+          actions.appendChild(edit);
+          if (!item.is_system) {
+            var remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'action-button danger';
+            remove.textContent = 'Xóa';
+            remove.disabled = Boolean(postCounts[item.slug]);
+            remove.title = postCounts[item.slug] ? 'Hãy chuyển các bài viết sang chuyên mục khác trước' : '';
+            remove.addEventListener('click', function () { deleteCategory(item); });
+            actions.appendChild(remove);
+          }
+          row.append(name, slugCell, count, order, status, actions);
+          table.appendChild(row);
+        });
+      }
+
+      function editCategory(item) {
+        var form = document.getElementById('categoryForm');
+        form.elements.originalSlug.value = item.slug;
+        form.elements.label.value = item.label;
+        form.elements.slug.value = item.slug;
+        form.elements.slug.disabled = Boolean(item.is_system);
+        form.elements.description.value = item.description || '';
+        form.elements.displayOrder.value = String(item.display_order || 0);
+        form.elements.showInHeader.checked = Boolean(item.show_in_header);
+        form.elements.isActive.checked = Boolean(item.is_active);
+        document.getElementById('categoryFormTitle').textContent = 'Sửa chuyên mục';
+        document.getElementById('categoryCancelButton').hidden = false;
+        document.getElementById('categoryNotice').hidden = true;
+        form.elements.label.focus();
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      async function deleteCategory(item) {
+        var accepted = await modernConfirm({
+          title: 'Xóa chuyên mục?',
+          message: 'Chuyên mục “' + item.label + '” sẽ bị xóa vĩnh viễn.',
+          confirmText: 'Xóa chuyên mục',
+        });
+        if (!accepted) return;
+        var result = await supabaseClient.from('categories').delete().eq('slug', item.slug);
+        if (result.error) {
+          showCategoryNotice('Không xóa được chuyên mục: ' + result.error.message, 'error');
+          return;
+        }
+        resetCategoryForm();
+        await loadCategories();
+      }
+
+      document.getElementById('categoryForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var form = event.currentTarget;
+        var originalSlug = String(form.elements.originalSlug.value || '').trim();
+        var existing = categoryItems.find(function (item) { return item.slug === originalSlug; });
+        var nextSlug = existing && existing.is_system
+          ? existing.slug
+          : slugify(String(form.elements.slug.value || form.elements.label.value || ''));
+        var payload = {
+          slug: nextSlug,
+          label: String(form.elements.label.value || '').trim(),
+          description: String(form.elements.description.value || '').trim(),
+          display_order: Number(form.elements.displayOrder.value || 0),
+          show_in_header: form.elements.showInHeader.checked,
+          is_active: form.elements.isActive.checked,
+        };
+        if (!payload.label || !payload.slug) {
+          showCategoryNotice('Vui lòng nhập tên và đường dẫn chuyên mục.', 'error');
+          return;
+        }
+
+        var result;
+        if (originalSlug) {
+          result = await supabaseClient.from('categories').update(payload).eq('slug', originalSlug);
+        } else {
+          result = await supabaseClient.from('categories').insert(payload);
+        }
+        if (result.error) {
+          var duplicate = result.error.code === '23505';
+          showCategoryNotice(
+            duplicate ? 'Đường dẫn này đã được một chuyên mục khác sử dụng.' : 'Không lưu được chuyên mục: ' + result.error.message,
+            'error',
+          );
+          return;
+        }
+        showCategoryNotice(originalSlug ? 'Đã cập nhật chuyên mục.' : 'Đã thêm chuyên mục.', 'success');
+        await loadCategories();
+        window.setTimeout(resetCategoryForm, 900);
+      });
+
+      document.getElementById('categoryNewButton').addEventListener('click', function () {
+        resetCategoryForm();
+        document.getElementById('categoryForm').elements.label.focus();
+      });
+      document.getElementById('categoryCancelButton').addEventListener('click', resetCategoryForm);
+      document.getElementById('categoryRefreshButton').addEventListener('click', loadCategories);
+
+      var categoryLabelInput = document.querySelector('#categoryForm input[name="label"]');
+      var categorySlugInput = document.querySelector('#categoryForm input[name="slug"]');
+      categoryLabelInput.addEventListener('input', function () {
+        if (!document.getElementById('categoryForm').elements.originalSlug.value) {
+          categorySlugInput.value = slugify(categoryLabelInput.value);
+        }
+      });
+
+      loadCategories();
 
       function normalizeUserRole(role) {
         return validRoles.includes(role) ? role : 'user';

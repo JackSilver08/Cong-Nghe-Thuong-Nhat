@@ -1,11 +1,12 @@
 ---
-import { CATEGORIES } from '../lib/categories';
+import { getCategories } from '../lib/categories';
 import SearchBox from './SearchBox.astro';
 
 // Đánh dấu mục điều hướng đang mở (chỉ phục vụ hiển thị, không đổi route).
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isHome = path === '/';
 const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
+const categories = (await getCategories()).filter((category) => category.showInHeader !== false);
 ---
 
 <!-- Điều hướng: ≥1081px dùng hàng chuyên mục trong header; nhỏ hơn thì dùng
@@ -45,7 +46,7 @@ const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
     <div class="container primary-nav-inner">
       <ul>
         <li><a href="/" aria-current={isHome ? 'page' : undefined}>Trang chủ</a></li>
-        {CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <li>
             <a
               href={`/category/${cat.slug}`}
@@ -124,7 +125,7 @@ const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
       <nav id="drawer-categories" class="drawer-categories" aria-label="Chuyên mục" hidden>
         <span class="drawer-section-title">Chuyên mục</span>
         <ul>
-          {CATEGORIES.map((cat) => (
+          {categories.map((cat) => (
             <li><a href={`/category/${cat.slug}`}>{cat.label}</a></li>
           ))}
         </ul>

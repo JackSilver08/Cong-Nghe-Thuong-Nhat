@@ -1,7 +1,7 @@
 ---
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
-import { categoryLabel } from '../lib/categories';
+import { categoryLabelFrom, getCategories } from '../lib/categories';
 
 export interface Props {
   post: Post;
@@ -12,6 +12,8 @@ export interface Props {
 const { post, side = [] } = Astro.props;
 const { data } = post;
 const url = `/article/${postSlug(post)}`;
+const categories = await getCategories();
+const categoryName = categoryLabelFrom(categories, data.category);
 ---
 
 <section class="hero" aria-label="Tin nổi bật">
@@ -22,7 +24,7 @@ const url = `/article/${postSlug(post)}`;
     </div>
     <div class="hero-content">
       <div class="hero-tags">
-        <span class="chip chip-solid">{categoryLabel(data.category)}</span>
+        <span class="chip chip-solid">{categoryName}</span>
         <span class="hero-badge">Tin nổi bật</span>
       </div>
       <h1 class="hero-title">{data.title}</h1>

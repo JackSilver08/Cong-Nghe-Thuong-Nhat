@@ -2,10 +2,11 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import CategoryNav from '../../components/CategoryNav.astro';
-import { CATEGORIES } from '../../lib/categories';
+import { getCategories } from '../../lib/categories';
 import { getPostsByCategory } from '../../lib/posts';
 
-const category = CATEGORIES.find((item) => item.slug === Astro.params.slug);
+const categories = await getCategories();
+const category = categories.find((item) => item.slug === Astro.params.slug);
 if (!category) {
   return Astro.redirect('/404', 302);
 }

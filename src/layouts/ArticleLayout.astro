@@ -5,7 +5,7 @@ import Comments from '../components/Comments.astro';
 import MushroomieAd from '../components/MushroomieAd.astro';
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
-import { categoryLabel } from '../lib/categories';
+import { categoryLabelFrom, getCategories } from '../lib/categories';
 
 export interface Props {
   post: Post;
@@ -17,6 +17,8 @@ const { data } = post;
 const slug = postSlug(post);
 const sideRecommendations = related.slice(0, 4);
 const footerRecommendations = related.slice(4, 7);
+const categories = await getCategories();
+const labelFor = (category: string) => categoryLabelFrom(categories, category);
 const canonical = new URL(`/article/${slug}`, Astro.site).toString();
 const ogImage = data.image
   ? new URL(data.image, Astro.site).toString()
@@ -40,7 +42,7 @@ const jsonLd = {
     },
   },
   mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
-  articleSection: categoryLabel(data.category),
+  articleSection: labelFor(data.category),
   keywords: data.tags.join(', '),
 };
 ---
@@ -62,11 +64,11 @@ const jsonLd = {
       <nav class="breadcrumb" aria-label="Đường dẫn">
         <a href="/">Trang chủ</a>
         <span aria-hidden="true">/</span>
-        <a href={`/category/${data.category}`}>{categoryLabel(data.category)}</a>
+        <a href={`/category/${data.category}`}>{labelFor(data.category)}</a>
       </nav>
 
       <header class="article-header">
-        <a href={`/category/${data.category}`} class="chip chip-solid">{categoryLabel(data.category)}</a>
+        <a href={`/category/${data.category}`} class="chip chip-solid">{labelFor(data.category)}</a>
         <h1 class="article-title">{data.title}</h1>
         <p class="article-excerpt">{data.excerpt}</p>
 
@@ -136,7 +138,7 @@ const jsonLd = {
               {item.data.image && (
                 <img src={item.data.image} alt="" loading="lazy" />
               )}
-              <span class="rail-category">{categoryLabel(item.data.category)}</span>
+              <span class="rail-category">{labelFor(item.data.category)}</span>
               <strong>{item.data.title}</strong>
               <span class="rail-time">{item.data.readingTime || 1} phút đọc</span>
             </a>

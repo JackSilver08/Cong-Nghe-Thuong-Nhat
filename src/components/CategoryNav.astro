@@ -1,5 +1,5 @@
 ---
-import { CATEGORIES } from '../lib/categories';
+import { getCategories } from '../lib/categories';
 
 export interface Props {
   /** Currently active category slug, if any. */
@@ -8,6 +8,7 @@ export interface Props {
   showAll?: boolean;
 }
 const { active, showAll = true } = Astro.props;
+const categories = await getCategories();
 ---
 
 <nav class="cat-nav" aria-label="Lọc theo chuyên mục">
@@ -19,7 +20,7 @@ const { active, showAll = true } = Astro.props;
         </a>
       </li>
     )}
-    {CATEGORIES.map((cat) => (
+    {categories.map((cat) => (
       <li>
         <a
           href={`/category/${cat.slug}`}

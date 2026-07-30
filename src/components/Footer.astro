@@ -1,5 +1,7 @@
 ---
-import { CATEGORIES } from '../lib/categories';
+import { getCategories } from '../lib/categories';
+
+const categories = await getCategories();
 ---
 
 <footer class="site-footer">
@@ -21,7 +23,7 @@ import { CATEGORIES } from '../lib/categories';
     <nav class="footer-col" aria-label="Chuyên mục">
       <h2>Chuyên mục</h2>
       <ul>
-        {CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <li><a href={`/category/${cat.slug}`}>{cat.label}</a></li>
         ))}
       </ul>

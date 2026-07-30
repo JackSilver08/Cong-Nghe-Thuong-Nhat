@@ -1,13 +1,14 @@
 ---
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
-import { categoryLabel } from '../lib/categories';
+import { categoryLabelFrom, getCategories } from '../lib/categories';
 
 export interface Props {
   posts: Post[];
   title?: string;
 }
 const { posts, title = 'Đọc nhiều' } = Astro.props;
+const categories = await getCategories();
 ---
 
 <section class="popular" aria-label={title}>
@@ -19,7 +20,7 @@ const { posts, title = 'Đọc nhiều' } = Astro.props;
         <div class="popular-body">
           <a href={`/article/${postSlug(p)}`} class="popular-link">{p.data.title}</a>
           <p class="popular-meta">
-            <span class="popular-cat">{categoryLabel(p.data.category)}</span>
+            <span class="popular-cat">{categoryLabelFrom(categories, p.data.category)}</span>
             <span aria-hidden="true">•</span>
             <time datetime={p.data.publishedAt.toISOString()}>{formatDate(p.data.publishedAt)}</time>
           </p>

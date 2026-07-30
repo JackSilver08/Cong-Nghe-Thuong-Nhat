@@ -1,7 +1,7 @@
 ---
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
-import { categoryLabel } from '../lib/categories';
+import { categoryLabelFrom, getCategories } from '../lib/categories';
 
 export interface Props {
   post: Post;
@@ -16,6 +16,8 @@ const { data } = post;
 const slug = postSlug(post);
 const url = `/article/${slug}`;
 const Heading = `h${headingLevel}` as 'h2' | 'h3';
+const categories = await getCategories();
+const categoryName = categoryLabelFrom(categories, data.category);
 ---
 
 <article class={`card ${horizontal ? 'card-horizontal' : ''}`}>
@@ -23,17 +25,17 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
     {data.image ? (
       <img src={data.image} alt={data.imageAlt || ''} loading="lazy" data-card-image />
     ) : (
-      <span class="card-media-fallback">{categoryLabel(data.category)}</span>
+      <span class="card-media-fallback">{categoryName}</span>
     )}
     {data.image && (
       <span class="card-media-fallback" data-card-image-fallback hidden>
-        {categoryLabel(data.category)}
+        {categoryName}
       </span>
     )}
   </a>
   <div class="card-body">
     <div class="card-meta-top">
-      <a href={`/category/${data.category}`} class="chip">{categoryLabel(data.category)}</a>
+      <a href={`/category/${data.category}`} class="chip">{categoryName}</a>
       {data.trending && <span class="dot-trend">Xu hướng</span>}
     </div>
     <Heading class="card-title">
