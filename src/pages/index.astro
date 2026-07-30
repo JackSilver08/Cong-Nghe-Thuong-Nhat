@@ -15,7 +15,6 @@ import {
   postSlug,
   type Post,
 } from '../lib/posts';
-import { CATEGORIES } from '../lib/categories';
 
 const allPosts = await getPublishedPosts();
 const fallbackFeatured = allPosts.find((p) => p.data.featured) ?? allPosts[0];
@@ -116,14 +115,6 @@ const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopul
 
     <aside class="sidebar" aria-label="Nội dung phụ">
       <PopularList posts={popular} title="Đọc nhiều" />
-      <nav class="sidebar-topics" aria-label="Chủ đề nổi bật">
-        <h2 class="sidebar-topics-title">Chủ đề</h2>
-        <ul>
-          {CATEGORIES.map((cat) => (
-            <li><a href={`/category/${cat.slug}`}>{cat.label}</a></li>
-          ))}
-        </ul>
-      </nav>
     </aside>
   </div>
 
@@ -166,54 +157,6 @@ const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopul
     align-content: start;
     position: sticky;
     top: calc(var(--header-h) + var(--space-5));
-  }
-  .sidebar-topics {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    padding: var(--space-5);
-    box-shadow: var(--shadow-subtle);
-  }
-  .sidebar-topics-title {
-    font-size: 1.05rem;
-    margin: 0 0 var(--space-3);
-    padding-left: var(--space-3);
-    position: relative;
-  }
-  .sidebar-topics-title::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.14em;
-    bottom: 0.14em;
-    width: 4px;
-    border-radius: var(--radius-pill);
-    background: var(--primary);
-  }
-  .sidebar-topics ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-  .sidebar-topics a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 36px;
-    padding: 0 var(--space-3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-pill);
-    color: var(--text-soft);
-    font-family: var(--font-head);
-    font-size: 0.86rem;
-    font-weight: 600;
-    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
-  }
-  .sidebar-topics a:hover {
-    border-color: var(--primary);
-    color: var(--primary);
   }
   .trend-head {
     align-items: center;
