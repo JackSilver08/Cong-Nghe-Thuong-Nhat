@@ -258,7 +258,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   function roleLabel(role: string) {
     if (role === 'admin') return 'Quản trị viên';
-    if (role === 'moderator') return 'Điều hành viên';
+    if (role === 'editor') return 'Biên tập viên';
+    if (role === 'author') return 'Cộng tác viên';
+    if (role === 'moderator') return 'Kiểm duyệt viên';
     return 'Người dùng';
   }
 

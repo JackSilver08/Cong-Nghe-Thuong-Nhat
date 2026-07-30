@@ -573,7 +573,7 @@ import SearchBox from './SearchBox.astro';
     const user = await getCurrentUser();
     if (!user) return;
 
-    const isStaff = user.role === 'admin' || user.role === 'moderator';
+    const isStaff = ['admin', 'editor', 'author', 'moderator'].includes(user.role);
     const accountHref = isStaff ? '/admin/index.html' : '/account';
 
     // Nút ở header (desktop)

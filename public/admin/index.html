@@ -1231,7 +1231,6 @@
     <script type="module">
       import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-      var ADMIN_EMAIL = 'admin@newshub.com';
       var supabaseConfig = window.NEWSHUB_SUPABASE || {};
       var supabaseReady = Boolean(supabaseConfig.url && supabaseConfig.anonKey);
       var supabaseClient = supabaseReady
@@ -1268,11 +1267,8 @@
         .eq('id', session.user.id)
         .maybeSingle();
       var profile = profileResult.data || {};
-      var currentRole = profile.role === 'admin'
-        ? 'admin'
-        : profile.role === 'moderator'
-          ? 'moderator'
-          : 'user';
+      var validRoles = ['user', 'author', 'editor', 'moderator', 'admin'];
+      var currentRole = validRoles.includes(profile.role) ? profile.role : 'user';
       var currentUser = {
         id: session.user.id,
         email: session.user.email || '',
@@ -1283,22 +1279,41 @@
       var auth = currentUser;
 
       var isAdmin = currentRole === 'admin';
-      var canManagePosts = currentRole === 'admin' || currentRole === 'moderator';
-      if (!canManagePosts) {
+      var canManagePosts = ['admin', 'editor', 'author'].includes(currentRole);
+      var canModerateComments = ['admin', 'moderator'].includes(currentRole);
+      if (!canManagePosts && !canModerateComments) {
         window.location.replace('/account');
         await new Promise(function () {});
       }
       document.documentElement.classList.remove('checking-auth');
       document.getElementById('adminEmail').textContent = currentUser.email;
-      document.getElementById('roleBadge').textContent = currentRole === 'moderator' ? 'Điều hành viên' : 'Quản trị viên';
+      var currentRoleLabels = {
+        admin: 'Quản trị viên',
+        editor: 'Biên tập viên',
+        author: 'Cộng tác viên',
+        moderator: 'Kiểm duyệt viên',
+      };
+      document.getElementById('roleBadge').textContent = currentRoleLabels[currentRole] || 'Người dùng';
       document.querySelectorAll('[data-admin-only]').forEach(function (element) {
         element.hidden = !isAdmin;
       });
+      document.querySelector('[data-admin-tab="dashboard"]').hidden = !canManagePosts;
+      document.querySelector('[data-admin-tab="comments"]').hidden = !canModerateComments;
+      if (currentRole === 'author') {
+        var publishedOption = document.querySelector('#postForm select[name="status"] option[value="published"]');
+        if (publishedOption) publishedOption.disabled = true;
+      }
 
       var tabTitles = { users: 'Quản lý người dùng', comments: 'Kiểm duyệt bình luận', dashboard: 'Bảng điều khiển' };
 
       function setAdminTab(tab) {
-        var nextTab = tab === 'users' && isAdmin ? 'users' : tab === 'comments' ? 'comments' : 'dashboard';
+        var nextTab = tab === 'users' && isAdmin
+          ? 'users'
+          : tab === 'comments' && canModerateComments
+            ? 'comments'
+            : canManagePosts
+              ? 'dashboard'
+              : 'comments';
         document.querySelectorAll('[data-admin-view]').forEach(function (view) {
           view.hidden = view.dataset.adminView !== nextTab;
         });
@@ -1319,7 +1334,7 @@
         });
       });
       var initialHash = (window.location.hash || '').replace('#', '');
-      setAdminTab(initialHash === 'users' || initialHash === 'comments' ? initialHash : 'dashboard');
+      setAdminTab(initialHash === 'users' || initialHash === 'comments' ? initialHash : canManagePosts ? 'dashboard' : 'comments');
 
       var currentPosts = [];
       var categoryLabels = {
@@ -1332,10 +1347,8 @@
         'danh-gia': 'Đánh giá',
       };
 
-      function normalizeUserRole(role, email) {
-        if (email === ADMIN_EMAIL) return 'admin';
-        if (role === 'moderator' || role === 'mod') return 'moderator';
-        return 'user';
+      function normalizeUserRole(role) {
+        return validRoles.includes(role) ? role : 'user';
       }
 
       var profilesCache = [];
@@ -1355,7 +1368,9 @@
 
       function roleLabel(role) {
         if (role === 'admin') return 'Quản trị viên';
-        if (role === 'moderator') return 'Điều hành viên';
+        if (role === 'editor') return 'Biên tập viên';
+        if (role === 'author') return 'Cộng tác viên';
+        if (role === 'moderator') return 'Kiểm duyệt viên';
         return 'Người dùng';
       }
 
@@ -1384,6 +1399,7 @@
           var rolePill = document.createElement('span');
           var editButton = document.createElement('button');
           var deleteButton = document.createElement('button');
+          var roleSelect = document.createElement('select');
 
           account.innerHTML = '<span class="user-cell"><strong></strong><span></span></span>';
           account.querySelector('strong').textContent = user.name || user.email || 'User';
@@ -1394,6 +1410,45 @@
           created.textContent = formatUserDate(user.created_at);
 
           actions.className = 'actions post-actions';
+          roleSelect.className = 'user-role-select';
+          roleSelect.setAttribute('aria-label', 'Vai trò của ' + (user.email || user.name || 'người dùng'));
+          [
+            ['user', 'Người dùng'],
+            ['author', 'Cộng tác viên'],
+            ['editor', 'Biên tập viên'],
+            ['moderator', 'Kiểm duyệt viên'],
+            ['admin', 'Quản trị viên'],
+          ].forEach(function (entry) {
+            var option = document.createElement('option');
+            option.value = entry[0];
+            option.textContent = entry[1];
+            option.selected = user.role === entry[0];
+            roleSelect.append(option);
+          });
+          roleSelect.addEventListener('change', async function () {
+            var previousRole = user.role;
+            var nextRole = roleSelect.value;
+            var confirmed = window.confirm(
+              'Đổi quyền của ' + (user.email || user.name || 'tài khoản') +
+              ' từ “' + roleLabel(previousRole) + '” thành “' + roleLabel(nextRole) + '”?',
+            );
+            if (!confirmed) {
+              roleSelect.value = previousRole;
+              return;
+            }
+            roleSelect.disabled = true;
+            try {
+              await manageUser({ action: 'role', userId: user.id, role: nextRole });
+              showNotice('Đã cập nhật quyền thành ' + roleLabel(nextRole) + '.', 'success');
+              await renderUsers();
+            } catch (error) {
+              roleSelect.value = previousRole;
+              showNotice('Không cập nhật được quyền: ' + error.message, 'error');
+            } finally {
+              roleSelect.disabled = false;
+            }
+          });
+          actions.append(roleSelect);
           editButton.className = 'action-button icon-button';
           editButton.type = 'button';
           editButton.title = 'Đổi mật khẩu';
@@ -1468,7 +1523,7 @@
           var strong = document.createElement('strong');
           strong.textContent = row.author_name || 'Người dùng';
           var small = document.createElement('span');
-          small.textContent = row.author_role === 'admin' ? 'Quản trị viên' : row.author_role === 'moderator' ? 'Điều hành viên' : 'Người dùng';
+          small.textContent = roleLabel(row.author_role);
           whoWrap.append(strong, small);
           who.append(whoWrap);
 
@@ -2091,7 +2146,7 @@
         if (supabaseClient) {
           var result = await supabaseClient
             .from('posts')
-            .select('id,title,slug,excerpt,content,category,tags,author,status,image_url,image_alt,sections,section_priority,popular_score,featured,trending,published_at,created_at')
+            .select('id,title,slug,excerpt,content,category,tags,author,author_id,status,image_url,image_alt,sections,section_priority,popular_score,featured,trending,published_at,created_at')
             .order('created_at', { ascending: false })
             .limit(30);
 
@@ -2107,6 +2162,7 @@
                   category: item.category,
                   tags: item.tags || [],
                   author: item.author,
+                  author_id: item.author_id,
                   status: item.status,
                   image_url: item.image_url,
                   image_alt: item.image_alt,
@@ -2183,6 +2239,7 @@
         var title = String(data.get('title') || '').trim();
         var slug = slugify(String(data.get('slug') || '').trim() || title);
         var status = String(data.get('status') || 'draft');
+        if (currentRole === 'author') status = 'draft';
         var sections = data.getAll('sections').map(String);
         var file = data.get('image');
         var postId = String(data.get('postId') || '').trim();
@@ -2237,6 +2294,7 @@
             var update = await supabaseClient.from('posts').update(post).eq('id', postId).select('id').single();
             if (update.error) throw update.error;
           } else {
+            post.author_id = currentUser.id;
             var insert = await supabaseClient.from('posts').insert(post).select('id').single();
             if (insert.error) throw insert.error;
           }

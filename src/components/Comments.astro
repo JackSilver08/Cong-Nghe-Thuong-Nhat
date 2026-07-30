@@ -628,10 +628,16 @@ const { slug } = Astro.props;
       author.className = 'comment-author';
       author.textContent = c.author_name;
       head.appendChild(author);
-      if (c.author_role === 'admin' || c.author_role === 'moderator') {
+      if (['admin', 'editor', 'author', 'moderator'].includes(c.author_role)) {
         const badge = document.createElement('span');
         badge.className = 'comment-badge';
-        badge.textContent = c.author_role === 'admin' ? 'Quản trị viên' : 'Điều hành viên';
+        const roleLabels: Record<string, string> = {
+          admin: 'Quản trị viên',
+          editor: 'Biên tập viên',
+          author: 'Cộng tác viên',
+          moderator: 'Kiểm duyệt viên',
+        };
+        badge.textContent = roleLabels[c.author_role];
         head.appendChild(badge);
       }
       const time = document.createElement('span');

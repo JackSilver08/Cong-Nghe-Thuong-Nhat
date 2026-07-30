@@ -240,7 +240,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
 
   /** Điều hướng sau khi đăng nhập theo role. */
   function redirectAfterAuth(role: string) {
-    const isStaff = role === 'admin' || role === 'moderator';
+    const isStaff = ['admin', 'editor', 'author', 'moderator'].includes(role);
     if (nextUrl.startsWith('/admin') && !isStaff) {
       window.location.href = '/account';
     } else {

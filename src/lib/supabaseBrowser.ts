@@ -14,9 +14,7 @@ export const supabaseBrowser: SupabaseClient = createClient(
   anonKey ?? 'placeholder-anon-key',
 );
 
-export const ADMIN_EMAIL = 'admin@newshub.com';
-
-export type UserRole = 'user' | 'moderator' | 'admin';
+export type UserRole = 'user' | 'author' | 'editor' | 'moderator' | 'admin';
 
 export interface CurrentUser {
   id: string;
