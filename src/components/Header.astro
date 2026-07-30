@@ -7,6 +7,9 @@ const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isHome = path === '/';
 const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
 const categories = (await getCategories()).filter((category) => category.showInHeader !== false);
+const primaryCategories = categories.slice(0, 7);
+const moreCategories = categories.slice(7);
+const moreIsActive = moreCategories.some((category) => category.slug === activeCategory);
 ---
 
 <!-- Điều hướng: ≥1081px dùng hàng chuyên mục trong header; nhỏ hơn thì dùng
@@ -46,7 +49,7 @@ const categories = (await getCategories()).filter((category) => category.showInH
     <div class="container primary-nav-inner">
       <ul>
         <li><a href="/" aria-current={isHome ? 'page' : undefined}>Trang chủ</a></li>
-        {categories.map((cat) => (
+        {primaryCategories.map((cat) => (
           <li>
             <a
               href={`/category/${cat.slug}`}
@@ -54,6 +57,33 @@ const categories = (await getCategories()).filter((category) => category.showInH
             >{cat.label}</a>
           </li>
         ))}
+        {moreCategories.length > 0 && (
+          <li class="primary-nav-more">
+            <details data-category-more>
+              <summary class:list={{ active: moreIsActive }}>
+                Thêm
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="m4 6 4 4 4-4"></path>
+                </svg>
+              </summary>
+              <ul class="more-menu">
+                {moreCategories.map((cat) => (
+                  <li>
+                    <a
+                      href={`/category/${cat.slug}`}
+                      aria-current={activeCategory === cat.slug ? 'page' : undefined}
+                    >
+                      <span>{cat.label}</span>
+                      <svg viewBox="0 0 16 16" aria-hidden="true">
+                        <path d="M6 3h7v7M13 3 5 11"></path>
+                      </svg>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
+        )}
       </ul>
       <a href="/search" class="primary-nav-search">Tìm kiếm nâng cao →</a>
     </div>
@@ -273,6 +303,99 @@ const categories = (await getCategories()).filter((category) => category.showInH
     color: var(--primary);
     box-shadow: inset 0 -2px 0 var(--primary);
     border-radius: var(--radius-control) var(--radius-control) 0 0;
+  }
+  .primary-nav-more {
+    position: relative;
+  }
+  .primary-nav-more details {
+    position: relative;
+  }
+  .primary-nav-more summary {
+    min-height: 46px;
+    padding: 0 var(--space-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: var(--radius-control);
+    color: var(--text-soft);
+    font-family: var(--font-head);
+    font-size: 0.92rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+    transition: color var(--dur-fast) ease, background var(--dur-fast) ease;
+  }
+  .primary-nav-more summary::-webkit-details-marker {
+    display: none;
+  }
+  .primary-nav-more summary:hover,
+  .primary-nav-more summary.active,
+  .primary-nav-more details[open] summary {
+    color: var(--primary);
+    background: var(--primary-softer);
+  }
+  .primary-nav-more summary > svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    transition: transform var(--dur-fast) ease;
+  }
+  .primary-nav-more details[open] summary > svg {
+    transform: rotate(180deg);
+  }
+  .primary-nav .more-menu {
+    position: absolute;
+    top: calc(100% + 7px);
+    right: 0;
+    z-index: 70;
+    width: max-content;
+    min-width: 220px;
+    max-width: 300px;
+    display: grid;
+    gap: 3px;
+    margin: 0;
+    padding: 7px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow-elevated);
+  }
+  .primary-nav .more-menu::before {
+    content: '';
+    position: absolute;
+    right: 20px;
+    bottom: 100%;
+    border: 6px solid transparent;
+    border-bottom-color: var(--border);
+  }
+  .primary-nav .more-menu a {
+    width: 100%;
+    min-height: 40px;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 0 var(--space-3);
+  }
+  .primary-nav .more-menu a[aria-current='page'] {
+    border-radius: var(--radius-control);
+    box-shadow: none;
+    background: var(--primary-softer);
+  }
+  .primary-nav .more-menu a svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    opacity: 0;
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease;
+  }
+  .primary-nav .more-menu a:hover svg {
+    opacity: 1;
+    transform: translate(1px, -1px);
   }
   .primary-nav-search {
     flex: 0 0 auto;
@@ -711,6 +834,19 @@ const categories = (await getCategories()).filter((category) => category.showInH
   });
 
   // ---- Trạng thái đăng nhập: nút header + tài khoản/đăng xuất trong sidebar ----
+  const categoryMore = document.querySelector<HTMLDetailsElement>('[data-category-more]');
+  document.addEventListener('click', (event) => {
+    if (categoryMore?.open && !categoryMore.contains(event.target as Node)) {
+      categoryMore.open = false;
+    }
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && categoryMore?.open) {
+      categoryMore.open = false;
+      categoryMore.querySelector<HTMLElement>('summary')?.focus();
+    }
+  });
+
   const loginLink = document.querySelector<HTMLAnchorElement>('[data-auth-login]');
   const signupLink = document.querySelector<HTMLAnchorElement>('[data-auth-signup]');
 
