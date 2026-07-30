@@ -301,6 +301,20 @@
       .title-cell {
         font-weight: 800;
       }
+      .recent-posts-table {
+        table-layout: fixed;
+      }
+      .recent-posts-table .col-title { width: 40%; }
+      .recent-posts-table .col-category { width: 17%; }
+      .recent-posts-table .col-date { width: 14%; }
+      .recent-posts-table .col-status { width: 13%; }
+      .recent-posts-table .col-actions { width: 16%; }
+      .recent-posts-table th:nth-child(4),
+      .recent-posts-table td:nth-child(4),
+      .recent-posts-table th:nth-child(5),
+      .recent-posts-table td:nth-child(5) {
+        white-space: nowrap;
+      }
       .pill {
         display: inline-flex;
         align-items: center;
@@ -1166,7 +1180,14 @@
                   <h2>Bài viết gần đây</h2>
                   <a href="/search">Xem tất cả</a>
                 </div>
-                <table>
+                <table class="recent-posts-table">
+                  <colgroup>
+                    <col class="col-title" />
+                    <col class="col-category" />
+                    <col class="col-date" />
+                    <col class="col-status" />
+                    <col class="col-actions" />
+                  </colgroup>
                   <thead>
                     <tr>
                       <th>Tiêu đề</th>
