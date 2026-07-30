@@ -485,7 +485,7 @@
       .library-hero h2 { margin: 0 0 7px; font-family: var(--font-head); font-size: 1.35rem; }
       .library-hero p { margin: 0; color: var(--muted); }
       .library-hero-actions { display: flex; gap: 10px; flex-shrink: 0; }
-      .library-hero-actions > * {
+      .library-hero-actions > :not(input) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -493,6 +493,7 @@
         box-sizing: border-box;
         white-space: nowrap;
       }
+      .library-hero-actions input[hidden] { display: none; }
       .library-upload {
         min-width: 156px;
         padding-inline: 22px;
