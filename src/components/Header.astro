@@ -1,8 +1,15 @@
 ---
 import { CATEGORIES } from '../lib/categories';
 import SearchBox from './SearchBox.astro';
+
+// Đánh dấu mục điều hướng đang mở (chỉ phục vụ hiển thị, không đổi route).
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isHome = path === '/';
+const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
 ---
 
+<!-- Điều hướng: ≥1081px dùng hàng chuyên mục trong header; nhỏ hơn thì dùng
+     drawer + dải chip trên trang. -->
 <header class="site-header">
   <div class="container header-inner">
     <div class="header-left">
@@ -27,6 +34,7 @@ import SearchBox from './SearchBox.astro';
       </div>
       <button
         class="nav-toggle"
+        type="button"
         aria-label="Mở menu"
         aria-expanded="false"
         aria-controls="mobile-nav"
@@ -36,9 +44,37 @@ import SearchBox from './SearchBox.astro';
     </div>
   </div>
 
-  <!-- mobile sidebar drawer -->
+  <!-- Điều hướng chuyên mục cho màn hình rộng -->
+  <nav class="primary-nav" aria-label="Chuyên mục">
+    <div class="container primary-nav-inner">
+      <ul>
+        <li><a href="/" aria-current={isHome ? 'page' : undefined}>Trang chủ</a></li>
+        {CATEGORIES.map((cat) => (
+          <li>
+            <a
+              href={`/category/${cat.slug}`}
+              aria-current={activeCategory === cat.slug ? 'page' : undefined}
+            >{cat.label}</a>
+          </li>
+        ))}
+      </ul>
+      <a href="/search" class="primary-nav-search">Tìm kiếm nâng cao →</a>
+    </div>
+  </nav>
+
+  <!-- Lớp chứa drawer: fixed + overflow hidden nên panel off-canvas không bao
+       giờ nới rộng chiều ngang tài liệu. -->
+  <div class="drawer-layer">
   <div class="drawer-backdrop" data-backdrop></div>
-  <aside id="mobile-nav" class="mobile-drawer" aria-label="Menu di động" aria-hidden="true" inert>
+  <aside
+    id="mobile-nav"
+    class="mobile-drawer"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Menu di động"
+    aria-hidden="true"
+    inert
+  >
     <div class="drawer-top">
       <span class="drawer-title">Menu</span>
       <button class="drawer-close" type="button" data-drawer-close aria-label="Đóng menu">
@@ -120,6 +156,7 @@ import SearchBox from './SearchBox.astro';
       </button>
     </div>
   </aside>
+  </div>
 </header>
 
 <style>
@@ -127,27 +164,25 @@ import SearchBox from './SearchBox.astro';
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 1px 10px rgba(15, 23, 42, 0.04);
   }
   .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: var(--space-5);
     min-height: 64px;
     max-width: var(--maxw);
-    padding-inline: 40px;
   }
   .header-left {
     flex: 1 1 auto;
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: var(--space-4);
   }
   .logo {
     flex: 0 0 auto;
@@ -156,56 +191,121 @@ import SearchBox from './SearchBox.astro';
   }
   .logo img {
     display: block;
-    width: clamp(142px, 15vw, 190px);
-    height: 48px;
+    width: clamp(142px, 15vw, 186px);
+    height: 44px;
     object-fit: contain;
     object-position: left center;
   }
   .header-search {
     flex: 0 1 360px;
-    min-width: 220px;
+    min-width: 200px;
   }
   .header-right {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .auth-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
   }
   .auth-actions a {
     display: inline-flex;
     align-items: center;
-    min-height: 36px;
-    padding: 0 14px;
-    border-radius: 8px;
+    min-height: 40px;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-control);
     font-family: var(--font-head);
-    font-size: 0.8rem;
-    font-weight: 800;
+    font-size: 0.86rem;
+    font-weight: 600;
     line-height: 1;
+    transition: background var(--dur-fast) ease, border-color var(--dur-fast) ease;
   }
   .auth-login {
     border: 1px solid var(--border-strong);
-    background: #fff;
+    background: var(--surface);
     color: var(--text);
   }
-  .auth-signup {
-    background: #000;
-    color: #fff;
+  .auth-login:hover {
+    background: var(--surface-low);
   }
+  .auth-signup {
+    background: var(--primary);
+    color: var(--primary-contrast);
+  }
+  .auth-signup:hover {
+    background: var(--primary-strong);
+  }
+
+  /* ===== Hàng chuyên mục (desktop) ===== */
+  .primary-nav {
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+  .primary-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+  .primary-nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+  .primary-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-control);
+    color: var(--text-soft);
+    font-family: var(--font-head);
+    font-size: 0.92rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: color var(--dur-fast) ease, background var(--dur-fast) ease;
+  }
+  .primary-nav a:hover {
+    color: var(--primary);
+    background: var(--primary-softer);
+  }
+  .primary-nav a[aria-current='page'] {
+    color: var(--primary);
+    box-shadow: inset 0 -2px 0 var(--primary);
+    border-radius: var(--radius-control) var(--radius-control) 0 0;
+  }
+  .primary-nav-search {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--text-muted);
+    font-size: 0.86rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .primary-nav-search:hover {
+    color: var(--primary);
+  }
+
   .nav-toggle {
     display: none;
     flex-direction: column;
     justify-content: center;
     gap: 5px;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     background: var(--surface-container);
     border: 1px solid var(--border-strong);
-    border-radius: 10px;
+    border-radius: var(--radius-control);
     cursor: pointer;
   }
   .nav-toggle span {
@@ -215,7 +315,7 @@ import SearchBox from './SearchBox.astro';
     margin-inline: auto;
     background: var(--text);
     border-radius: 2px;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition: transform var(--dur-normal) ease, opacity var(--dur-normal) ease;
   }
   .nav-toggle[aria-expanded='true'] span:nth-child(1) {
     transform: translateY(7px) rotate(45deg);
@@ -232,50 +332,64 @@ import SearchBox from './SearchBox.astro';
   .mobile-drawer [hidden] {
     display: none !important;
   }
-  .drawer-backdrop {
+  /* Lớp bọc cố định + cắt tràn: panel nằm ngoài màn hình khi đóng nên không
+     được phép tính vào chiều rộng cuộn của tài liệu. */
+  .drawer-layer {
     position: fixed;
     inset: 0;
     z-index: 55;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .drawer-layer > * {
+    pointer-events: auto;
+  }
+  .drawer-backdrop {
+    position: absolute;
+    inset: 0;
     background: rgba(15, 23, 42, 0.5);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s ease;
+    transition: opacity var(--dur-panel) ease;
   }
   .drawer-backdrop.open {
     opacity: 1;
     pointer-events: auto;
   }
   .mobile-drawer {
-    position: fixed;
+    position: absolute;
     top: 0;
     right: 0;
-    z-index: 60;
     display: flex;
     flex-direction: column;
     width: min(86vw, 340px);
-    height: 100dvh;
+    height: 100%;
     background:
-      #fff
+      var(--surface)
       url('/assets/mobile-sidebar-tech-bg.png')
       center bottom / 100% auto no-repeat;
     box-shadow: -12px 0 40px rgba(15, 23, 42, 0.18);
     transform: translateX(100%);
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: hidden;
+    transition: transform var(--dur-panel) var(--ease),
+      visibility 0s linear var(--dur-panel);
     overflow-y: auto;
   }
   .mobile-drawer.open {
     transform: translateX(0);
+    visibility: visible;
+    transition: transform var(--dur-panel) var(--ease), visibility 0s;
   }
   .drawer-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 16px;
+    padding: var(--space-3) var(--space-4);
     border-bottom: 1px solid var(--border);
   }
   .drawer-title {
     font-family: var(--font-head);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.95rem;
     color: var(--text);
   }
@@ -283,50 +397,54 @@ import SearchBox from './SearchBox.astro';
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
     border: 1px solid var(--border-strong);
-    border-radius: 10px;
+    border-radius: var(--radius-control);
     background: var(--surface-container);
     color: var(--text);
     cursor: pointer;
   }
+  .drawer-close:hover {
+    background: var(--surface-low);
+  }
   /* Tài khoản (đầu sidebar) */
   .drawer-account {
-    padding: 16px;
+    padding: var(--space-4);
     border-bottom: 1px solid var(--border);
   }
   .account-guest {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .account-guest a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 42px;
-    border-radius: 10px;
+    min-height: 44px;
+    border-radius: var(--radius-control);
     font-family: var(--font-head);
-    font-weight: 800;
-    font-size: 0.85rem;
+    font-weight: 600;
+    font-size: 0.9rem;
   }
   .btn-outline {
     border: 1px solid var(--border-strong);
-    background: #fff;
+    background: var(--surface);
     color: var(--text);
   }
   .btn-solid {
-    background: #000;
-    color: #fff;
+    background: var(--primary);
+    color: var(--primary-contrast);
   }
   .account-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px;
+    gap: var(--space-3);
+    min-height: 44px;
+    padding: var(--space-2);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-card);
     background: var(--surface-low);
     color: var(--text);
   }
@@ -337,11 +455,11 @@ import SearchBox from './SearchBox.astro';
     justify-content: center;
     width: 42px;
     height: 42px;
-    border-radius: 50%;
-    background: var(--nh-grad, var(--nh-purple));
-    color: #fff;
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+    color: var(--primary-contrast);
     font-family: var(--font-head);
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
   }
   .account-info {
@@ -370,13 +488,13 @@ import SearchBox from './SearchBox.astro';
   }
   .drawer-content {
     flex: 1 1 auto;
-    padding: 16px;
+    padding: var(--space-4);
     overflow-y: auto;
   }
   .drawer-search-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 46px;
-    gap: 10px;
+    gap: var(--space-2);
     align-items: center;
   }
   .drawer-search {
@@ -392,14 +510,14 @@ import SearchBox from './SearchBox.astro';
     place-items: center;
     padding: 0;
     border: 1px solid var(--border-strong);
-    border-radius: 10px;
+    border-radius: var(--radius-control);
     background: var(--surface-container);
     color: var(--text);
     cursor: pointer;
     transition:
-      color 0.15s ease,
-      border-color 0.15s ease,
-      background 0.15s ease;
+      color var(--dur-fast) ease,
+      border-color var(--dur-fast) ease,
+      background var(--dur-fast) ease;
   }
   .drawer-category-toggle svg {
     width: 21px;
@@ -410,15 +528,15 @@ import SearchBox from './SearchBox.astro';
   }
   .drawer-category-toggle:hover,
   .drawer-category-toggle[aria-expanded='true'] {
-    border-color: var(--nh-purple);
-    background: rgba(70, 72, 212, 0.08);
-    color: var(--nh-purple);
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary);
   }
   .drawer-categories {
-    margin-top: 12px;
-    padding: 14px;
+    margin-top: var(--space-3);
+    padding: var(--space-3);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--radius-card);
     background: var(--surface-low);
   }
   .drawer-categories[hidden] {
@@ -426,11 +544,11 @@ import SearchBox from './SearchBox.astro';
   }
   .drawer-section-title {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
     color: var(--text-muted);
     font-family: var(--font-head);
-    font-size: 0.72rem;
-    font-weight: 800;
+    font-size: 0.74rem;
+    font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
@@ -444,63 +562,62 @@ import SearchBox from './SearchBox.astro';
   }
   .drawer-categories a,
   .drawer-info-nav a {
-    display: block;
-    padding: 11px 10px;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-3);
     color: var(--text);
     font-family: var(--font-head);
     font-weight: 600;
-    border-radius: 10px;
+    border-radius: var(--radius-control);
   }
   .drawer-categories a:hover,
   .drawer-info-nav a:hover {
-    background: var(--surface-low);
-    color: var(--nh-purple);
+    background: var(--surface-container);
+    color: var(--primary);
   }
   .drawer-info-nav {
-    margin-top: 22px;
-    padding-top: 18px;
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--border);
   }
   /* Đăng xuất (cuối sidebar) */
   .drawer-footer {
-    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
     border-top: 1px solid var(--border);
   }
   .btn-logout {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: var(--space-2);
     width: 100%;
-    min-height: 46px;
+    min-height: 44px;
     border: 1px solid var(--border-strong);
-    border-radius: 10px;
-    background: #fff;
-    color: #dc2626;
+    border-radius: var(--radius-control);
+    background: var(--surface);
+    color: var(--error);
     font-family: var(--font-head);
-    font-weight: 800;
-    font-size: 0.88rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
   }
   .btn-logout:hover {
-    background: #fef2f2;
+    background: var(--error-bg);
     border-color: #fca5a5;
   }
 
+  @media (min-width: 1081px) {
+    .primary-nav {
+      display: block;
+    }
+  }
   @media (max-width: 1080px) {
     .auth-actions {
       display: none;
     }
     .nav-toggle {
       display: flex;
-    }
-  }
-  @media (max-width: 640px) {
-    .header-inner {
-      padding-inline: 16px;
-    }
-    .header-search {
-      min-width: 0;
     }
   }
   @media (max-width: 460px) {
@@ -526,8 +643,26 @@ import SearchBox from './SearchBox.astro';
     categoryPanel.hidden = !open;
   }
 
+  // Phần tử đã focus trước khi mở drawer, để trả focus về đúng chỗ khi đóng.
+  let lastFocused: HTMLElement | null = null;
+
+  const FOCUSABLE =
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  function focusableInDrawer(): HTMLElement[] {
+    if (!drawer) return [];
+    return Array.from(drawer.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+      (el) => !el.hasAttribute('hidden') && el.offsetParent !== null,
+    );
+  }
+
   function setDrawer(open: boolean) {
     if (!drawer || !toggle) return;
+    const wasOpen = drawer.classList.contains('open');
+    if (open === wasOpen) return;
+
+    if (open) lastFocused = document.activeElement as HTMLElement | null;
+
     drawer.classList.toggle('open', open);
     drawer.setAttribute('aria-hidden', String(!open));
     if (open) drawer.removeAttribute('inert');
@@ -536,7 +671,17 @@ import SearchBox from './SearchBox.astro';
     toggle.setAttribute('aria-expanded', String(open));
     toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
     document.body.style.overflow = open ? 'hidden' : '';
-    if (!open) setCategories(false);
+
+    if (open) {
+      closeBtn?.focus();
+    } else {
+      setCategories(false);
+      // `inert` đã gỡ focus khỏi drawer, đưa nó về nút vừa mở.
+      const restoreTo =
+        lastFocused && lastFocused !== document.body ? lastFocused : toggle;
+      restoreTo.focus();
+      lastFocused = null;
+    }
   }
 
   toggle?.addEventListener('click', () =>
@@ -547,8 +692,30 @@ import SearchBox from './SearchBox.astro';
   categoryToggle?.addEventListener('click', () => {
     setCategories(categoryToggle.getAttribute('aria-expanded') !== 'true');
   });
+
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') setDrawer(false);
+    if (!drawer?.classList.contains('open')) return;
+
+    if (event.key === 'Escape') {
+      setDrawer(false);
+      return;
+    }
+
+    // Giữ focus bên trong drawer khi nó đang mở.
+    if (event.key === 'Tab') {
+      const items = focusableInDrawer();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !drawer.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   // ---- Trạng thái đăng nhập: nút header + tài khoản/đăng xuất trong sidebar ----

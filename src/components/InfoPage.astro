@@ -64,7 +64,9 @@ const {
     </div>
   </section>
 
-  <main class="info-shell">
+  <!-- Không dùng <main> ở đây: layout đã có một <main id="main"> bao ngoài,
+       lồng thêm sẽ tạo hai landmark main trên cùng một trang. -->
+  <div class="info-shell">
     <aside class="info-aside">
       <span>Nội dung</span>
       <strong>{title}</strong>
@@ -74,7 +76,7 @@ const {
     <article class="info-content">
       <slot />
     </article>
-  </main>
+  </div>
 
   <section class="info-cta">
     <div>
@@ -139,9 +141,11 @@ const {
     max-width: 760px;
     margin: 18px 0;
     color: #fff;
-    font-size: clamp(2.8rem, 7vw, 5.75rem);
-    line-height: .98;
-    letter-spacing: -.055em;
+    /* 30px trên mobile → 48px trên desktop, khớp thang tiêu đề chung */
+    font-size: var(--fs-h1);
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    overflow-wrap: break-word;
   }
   .hero-copy > p {
     max-width: 620px;

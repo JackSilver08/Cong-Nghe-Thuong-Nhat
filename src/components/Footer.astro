@@ -67,110 +67,146 @@ import { CATEGORIES } from '../lib/categories';
 <style>
   .site-footer {
     background: var(--nh-dark);
-    color: #cbd5e1;
-    margin-top: 48px;
+    color: #d3dbe6;
+    margin-top: var(--space-7);
   }
   .footer-inner {
     display: grid;
     grid-template-columns: 1.5fr 1fr 1fr 1.3fr;
-    gap: 32px;
-    padding-block: 48px 32px;
+    gap: var(--space-6);
+    padding-block: var(--space-7) var(--space-6);
   }
   .footer-logo {
     display: inline-flex;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: var(--space-3);
   }
   .footer-logo img {
-    width: min(210px, 100%);
-    height: 78px;
+    width: min(200px, 100%);
+    height: 70px;
     object-fit: contain;
     object-position: left center;
   }
   .footer-brand p {
     max-width: 42ch;
-    color: var(--nh-muted);
+    color: #a8b2c3;
     font-size: 0.95rem;
   }
   .footer-col h2 {
     color: #fff;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 14px;
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-2);
   }
   .footer-col ul {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 8px;
+  }
+  .footer-col li {
+    min-width: 0;
   }
   .footer-col a {
-    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    /* nhãn ngắn ("AI") vẫn phải đạt vùng chạm tối thiểu 24px bề ngang */
+    min-width: 24px;
+    color: #d3dbe6;
     font-size: 0.92rem;
   }
   .footer-newsletter p {
-    color: var(--nh-muted);
+    color: #a8b2c3;
     font-size: 0.9rem;
-    margin-bottom: 14px;
+    margin-bottom: var(--space-3);
   }
   .footer-newsletter form {
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
   .footer-newsletter input {
     min-width: 0;
-    flex: 1;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
+    flex: 1 1 180px;
+    min-height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-control);
+    background: rgba(255, 255, 255, 0.06);
     color: #fff;
-    padding: 10px 12px;
+    padding: 0 var(--space-3);
+    font: inherit;
+    font-size: 0.95rem;
+  }
+  .footer-newsletter input::placeholder {
+    color: #94a0b4;
+  }
+  .footer-newsletter input:focus-visible {
+    outline: 2px solid #8f91f0;
+    outline-offset: 1px;
   }
   .footer-newsletter button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    min-width: 72px;
     border: 0;
-    border-radius: 8px;
-    background: var(--nh-purple);
-    color: #fff;
-    font-weight: 800;
-    padding: 0 14px;
+    border-radius: var(--radius-control);
+    background: var(--primary);
+    color: var(--primary-contrast);
+    font-family: var(--font-head);
+    font-weight: 600;
+    padding: 0 var(--space-4);
     cursor: pointer;
+    transition: background var(--dur-fast) ease;
+  }
+  .footer-newsletter button:hover:not(:disabled) {
+    background: #5a5ce0;
   }
   .footer-newsletter button:disabled {
     opacity: 0.6;
     cursor: progress;
   }
   .newsletter-status {
-    margin: 10px 0 0;
-    font-size: 0.85rem;
-    line-height: 1.4;
+    margin: var(--space-2) 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
   }
   .newsletter-status.is-ok {
-    color: var(--nh-cyan);
+    color: #7ef0d0;
   }
   .newsletter-status.is-error {
     color: #fca5a5;
   }
   .footer-col a:hover {
-    color: var(--nh-cyan);
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .footer-bottom {
     border-top: 1px solid rgba(148, 163, 184, 0.18);
-    padding-block: 18px;
+    padding-block: var(--space-4);
   }
   .footer-bottom p {
     margin: 0;
-    color: var(--nh-muted);
+    color: #a8b2c3;
     font-size: 0.85rem;
     text-align: center;
   }
-  @media (max-width: 700px) {
+  @media (max-width: 900px) {
     .footer-inner {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .footer-brand {
       grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 560px) {
+    .footer-inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+      padding-block: var(--space-6) var(--space-5);
     }
   }
 </style>
@@ -208,6 +244,7 @@ import { CATEGORIES } from '../lib/categories';
       }
 
       button.disabled = true;
+      form.setAttribute('aria-busy', 'true');
       status.hidden = true;
 
       const { data, error } = await supabaseBrowser.functions.invoke('subscribe-newsletter', {
@@ -215,6 +252,7 @@ import { CATEGORIES } from '../lib/categories';
       });
 
       button.disabled = false;
+      form.removeAttribute('aria-busy');
 
       if (error) {
         show('Đăng ký chưa được, bạn thử lại sau nhé.', false);

@@ -68,26 +68,29 @@ const { slug } = Astro.props;
     display: none !important;
   }
   .comments {
-    background: var(--bg);
+    background: var(--surface-low);
     border-top: 1px solid var(--border);
-    margin-top: 36px;
-    padding-block: 34px 52px;
+    margin-top: var(--space-6);
+    padding-block: var(--space-6) var(--space-7);
   }
+  /* Cột bình luận khớp đúng chiều rộng cột bài viết ở trên. */
   .comments .comments-inner {
     max-width: var(--maxw);
     display: grid;
-    grid-template-columns: minmax(0, 820px) minmax(260px, 320px);
+    grid-template-columns: minmax(0, 700px) minmax(260px, 320px);
     column-gap: clamp(32px, 4vw, 64px);
   }
   .comments .comments-inner > * {
     grid-column: 1;
+    min-width: 0;
   }
   .comments .comments-title {
-    font-size: 1.4rem;
-    margin: 0 0 22px;
+    font-size: 1.35rem;
+    margin: 0 0 var(--space-5);
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
   .comments .comments-title span {
     color: var(--text-muted);
@@ -104,9 +107,9 @@ const { slug } = Astro.props;
   }
   .comments .comments-eyebrow {
     margin: 0 0 3px;
-    color: var(--nh-purple);
-    font-size: 0.72rem;
-    font-weight: 800;
+    color: var(--primary);
+    font-size: 0.74rem;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -115,12 +118,12 @@ const { slug } = Astro.props;
   .comments .comment-composer {
     display: flex;
     align-items: start;
-    gap: 12px;
+    gap: var(--space-3);
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 30px;
+    border-radius: var(--radius-card);
+    padding: var(--space-3);
+    margin-bottom: var(--space-6);
   }
   .comments .composer-main {
     flex: 1 1 auto;
@@ -128,32 +131,34 @@ const { slug } = Astro.props;
     min-width: 0;
   }
   .comments .composer-avatar {
+    flex: 0 0 auto;
     width: 42px;
     height: 42px;
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     display: grid;
     place-items: center;
-    background: var(--nh-grad);
-    color: #fff;
+    background: var(--primary);
+    color: var(--primary-contrast);
     font-family: var(--font-head);
-    font-weight: 800;
+    font-weight: 700;
   }
   .comments textarea {
     width: 100%;
     border: 1px solid var(--border-strong);
-    border-radius: 10px;
-    padding: 12px 14px;
+    border-radius: var(--radius-control);
+    padding: var(--space-3);
     font: inherit;
     color: var(--text);
-    background: #fff;
+    background: var(--surface);
     min-height: 48px;
     max-height: 180px;
     resize: none;
     overflow-y: hidden;
   }
   .comments textarea:focus {
-    outline: 2px solid var(--ring);
-    border-color: var(--nh-purple);
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--ring);
   }
   .comments .composer-actions {
     display: flex;
@@ -172,27 +177,23 @@ const { slug } = Astro.props;
   }
   .comments .comment-composer .composer-actions button,
   .comments .comment-reply button {
-    min-height: 42px;
+    min-height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     justify-self: start;
     border: 0;
-    border-radius: 9px;
-    background: var(--nh-grad);
-    color: #fff;
+    border-radius: var(--radius-control);
+    background: var(--primary);
+    color: var(--primary-contrast);
     font-family: var(--font-head);
-    font-weight: 800;
-    font-size: 0.86rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     line-height: 1;
-    padding: 0 20px;
-    box-shadow: 0 8px 20px rgba(70, 72, 212, 0.2);
+    padding: 0 var(--space-5);
     cursor: pointer;
     appearance: none;
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease,
-      opacity 0.15s ease;
+    transition: background var(--dur-fast) ease;
   }
   .comments .comment-composer .composer-actions button:disabled {
     background: var(--surface-container);
@@ -215,14 +216,13 @@ const { slug } = Astro.props;
   .comments .status-spinner {
     display: inline-block;
   }
-  .comments .comment-composer .composer-actions button:hover,
-  .comments .comment-reply button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(70, 72, 212, 0.28);
+  .comments .comment-composer .composer-actions button:hover:not([disabled]),
+  .comments .comment-reply button:hover:not([disabled]) {
+    background: var(--primary-strong);
   }
   .comments .comment-composer .composer-actions button:focus-visible,
   .comments .comment-reply button:focus-visible {
-    outline: 3px solid var(--ring);
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
   .comments button[disabled] {
@@ -236,14 +236,16 @@ const { slug } = Astro.props;
   .comments .comment-login {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 18px;
-    margin-bottom: 28px;
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
     color: var(--text-soft);
   }
   .comments .comment-login a {
-    color: var(--nh-purple);
-    font-weight: 800;
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   .comments .comment-status,
@@ -254,19 +256,32 @@ const { slug } = Astro.props;
   .comments .comment-status {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: var(--space-2);
     min-height: 58px;
   }
+  /* Ba trạng thái dữ liệu được phân biệt bằng thị giác, không chỉ bằng chữ. */
+  .comments .comment-status.is-empty,
+  .comments .comment-status.is-error {
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .comments .comment-status.is-error {
+    border-color: #fca5a5;
+    background: var(--error-bg);
+    color: var(--error);
+  }
   .comments .comment-feedback {
-    padding: 10px 12px;
-    margin: -14px 0 20px 53px;
-    border-radius: 9px;
-    background: rgba(70, 72, 212, 0.08);
+    padding: var(--space-2) var(--space-3);
+    margin: calc(var(--space-3) * -1) 0 var(--space-5) 54px;
+    border-radius: var(--radius-control);
+    background: var(--primary-soft);
     color: var(--text-soft);
   }
   .comments .comment-feedback.is-error {
-    background: #fff1f2;
-    color: #9f1239;
+    background: var(--error-bg);
+    color: var(--error);
   }
   .comments .comment-toolbar {
     margin: 0;
@@ -274,24 +289,27 @@ const { slug } = Astro.props;
   .comments .comment-toolbar label {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     font-size: 0.85rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text-muted);
   }
   .comments .comment-toolbar select {
     font: inherit;
-    padding: 6px 10px;
-    border-radius: 8px;
+    font-size: 0.9rem;
+    min-height: 40px;
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-control);
     border: 1px solid var(--border-strong);
-    background: #fff;
+    background: var(--surface);
     color: var(--text);
+    cursor: pointer;
   }
 
   /* Danh sách bình luận */
   .comments .comment-list {
     display: grid;
-    gap: 22px;
+    gap: var(--space-5);
   }
   .comments .comment {
     display: flex;
@@ -303,13 +321,13 @@ const { slug } = Astro.props;
     flex: 0 0 auto;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     display: grid;
     place-items: center;
-    background: var(--nh-grad);
-    color: #fff;
+    background: var(--primary);
+    color: var(--primary-contrast);
     font-family: var(--font-head);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1rem;
     text-transform: uppercase;
     user-select: none;
@@ -335,17 +353,17 @@ const { slug } = Astro.props;
     font-size: 0.95rem;
   }
   .comments .comment-badge {
-    font-size: 0.66rem;
-    font-weight: 800;
-    color: var(--nh-purple);
-    background: rgba(70, 72, 212, 0.12);
-    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-soft);
+    border-radius: var(--radius-pill);
     padding: 2px 8px;
     text-transform: uppercase;
     letter-spacing: 0.02em;
   }
   .comments .comment-time {
-    font-size: 0.78rem;
+    font-size: var(--fs-meta);
     color: var(--text-muted);
   }
   .comments .comment-body {
@@ -356,27 +374,32 @@ const { slug } = Astro.props;
   }
   .comments .comment-actions {
     display: flex;
-    gap: 16px;
-    margin: 7px 2px 0;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-1) 0 0;
   }
   .comments .comment-actions button {
+    display: inline-flex;
+    align-items: center;
     background: none;
     border: 0;
-    min-height: 32px;
-    padding: 0 4px;
+    border-radius: var(--radius-control);
+    min-height: 40px;
+    padding: 0 var(--space-2);
+    margin-left: calc(var(--space-2) * -1);
     color: var(--text-muted);
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.84rem;
+    font-weight: 600;
     cursor: pointer;
   }
   .comments .comment-menu-button {
     position: absolute;
     right: 0;
     top: -5px;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border: 0;
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     background: transparent;
     color: var(--text-muted);
     cursor: pointer;
@@ -392,70 +415,82 @@ const { slug } = Astro.props;
     position: absolute;
     z-index: 5;
     right: 0;
-    top: 34px;
+    top: 40px;
     min-width: 170px;
-    padding: 6px;
-    background: #fff;
+    padding: var(--space-1);
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-elevated);
   }
   .comments .comment-menu button {
     display: block;
     width: 100%;
-    padding: 9px 10px;
+    min-height: 40px;
+    padding: 0 var(--space-3);
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--radius-control);
     background: transparent;
     color: var(--text);
     text-align: left;
     font: inherit;
-    font-size: 0.84rem;
+    font-size: 0.88rem;
     cursor: pointer;
   }
   .comments .comment-menu button:hover {
     background: var(--surface-low);
   }
   .comments .comment-menu .link-danger {
-    color: #b91c1c;
+    color: var(--error);
   }
   .comments .comment-actions button:hover {
-    color: var(--nh-purple);
+    color: var(--primary);
+    background: var(--primary-softer);
   }
   .comments .comment-actions button.link-danger:hover {
-    color: #b91c1c;
+    color: var(--error);
+    background: var(--error-bg);
   }
 
   /* Trả lời (thụt vào 1 cấp) */
   .comments .comment-replies {
     display: grid;
-    gap: 18px;
-    margin-top: 18px;
-    padding-left: 20px;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    padding-left: var(--space-5);
     border-left: 2px solid var(--border);
   }
   .comments .replies-toggle,
   .comments .load-more {
-    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
     border: 0;
+    border-radius: var(--radius-control);
     background: transparent;
-    color: var(--nh-purple);
-    font-weight: 800;
+    color: var(--primary);
+    font-family: var(--font-head);
+    font-weight: 600;
     cursor: pointer;
   }
   .comments .replies-toggle {
-    margin: 8px 0 0 43px;
+    margin: var(--space-1) 0 0 40px;
+    padding-inline: var(--space-2);
   }
   .comments .load-more {
-    display: block;
-    margin: 26px auto 0;
-    padding: 8px 18px;
+    display: flex;
+    margin: var(--space-5) auto 0;
+    padding: 0 var(--space-5);
     border: 1px solid var(--border-strong);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--surface);
   }
+  .comments .load-more:hover {
+    background: var(--surface-container);
+  }
   .comments .comment.is-new {
-    animation: comment-arrive 0.4s ease both;
+    animation: comment-arrive var(--dur-normal) ease both;
   }
   .comments .comment-replies .comment-avatar {
     width: 32px;
@@ -466,18 +501,19 @@ const { slug } = Astro.props;
   /* Form trả lời inline */
   .comments .comment-reply {
     display: grid;
-    gap: 8px;
-    margin-top: 12px;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
   }
   .comments .replying-to {
     margin: 0;
     color: var(--text-muted);
-    font-size: 0.82rem;
+    font-size: 0.84rem;
   }
   .comments .reply-controls {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
   }
   .comments .reply-cancel {
     background: transparent !important;
@@ -491,32 +527,35 @@ const { slug } = Astro.props;
     from { opacity: 0; transform: translateY(8px); }
   }
 
-  @media (max-width: 520px) {
+  @media (max-width: 560px) {
     .comments {
-      padding-block: 26px 38px;
+      padding-block: var(--space-5) var(--space-6);
     }
     .comments .comments-header {
       align-items: flex-start;
     }
     .comments .comment-composer {
-      gap: 9px;
-      padding: 11px;
+      gap: var(--space-2);
+      padding: var(--space-3);
     }
     .comments .composer-avatar,
     .comments .comment-avatar {
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       font-size: 0.85rem;
     }
     .comments .comment-feedback {
       margin-left: 0;
     }
     .comments .comment {
-      gap: 9px;
+      gap: var(--space-2);
     }
     .comments .comment-replies {
-      padding-left: 11px;
-      margin-left: -24px;
+      padding-left: var(--space-3);
+      margin-left: 0;
+    }
+    .comments .replies-toggle {
+      margin-left: 0;
     }
     .comments .composer-actions {
       align-items: stretch;
@@ -525,11 +564,14 @@ const { slug } = Astro.props;
     .comments .comment-composer .composer-actions button {
       width: 100%;
     }
+    .comments .comment-bubble {
+      padding-right: 40px;
+    }
   }
-  @media (max-width: 1279px) {
+  @media (max-width: 1180px) {
     .comments .comments-inner {
       display: block;
-      max-width: 760px;
+      max-width: 700px;
     }
   }
 </style>
@@ -810,6 +852,8 @@ const { slug } = Astro.props;
     async function loadComments(showLoading = true) {
       if (showLoading) {
         statusEl.hidden = false;
+        statusEl.className = 'comment-status is-loading';
+        listEl.setAttribute('aria-busy', 'true');
         statusTextEl.textContent = 'Đang tải bình luận…';
       }
       const { data, error } = await supabaseBrowser
@@ -818,8 +862,11 @@ const { slug } = Astro.props;
         .eq('post_slug', slug)
         .order('created_at', { ascending: true });
 
+      listEl.removeAttribute('aria-busy');
+
       if (error) {
         statusEl.hidden = false;
+        statusEl.className = 'comment-status is-error';
         statusEl.querySelector('.status-spinner')?.remove();
         statusTextEl.textContent = 'Không tải được bình luận. Vui lòng tải lại trang.';
         return;
@@ -847,10 +894,12 @@ const { slug } = Astro.props;
 
       if (!roots.length) {
         statusEl.hidden = false;
+        statusEl.className = 'comment-status is-empty';
         statusEl.querySelector('.status-spinner')?.remove();
         statusTextEl.textContent = 'Chưa có bình luận nào. Hãy mở đầu cuộc trò chuyện!';
         return;
       }
+      statusEl.className = 'comment-status';
       statusEl.hidden = true;
 
       for (const rootComment of roots.slice(0, visibleRootCount)) {

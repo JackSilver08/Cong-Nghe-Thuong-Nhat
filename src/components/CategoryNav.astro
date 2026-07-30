@@ -14,12 +14,18 @@ const { active, showAll = true } = Astro.props;
   <ul>
     {showAll && (
       <li>
-        <a href="/" class={!active ? 'active' : ''}>Tất cả</a>
+        <a href="/" class={!active ? 'active' : ''} aria-current={!active ? 'page' : undefined}>
+          Tất cả
+        </a>
       </li>
     )}
     {CATEGORIES.map((cat) => (
       <li>
-        <a href={`/category/${cat.slug}`} class={active === cat.slug ? 'active' : ''}>
+        <a
+          href={`/category/${cat.slug}`}
+          class={active === cat.slug ? 'active' : ''}
+          aria-current={active === cat.slug ? 'page' : undefined}
+        >
           {cat.label}
         </a>
       </li>
@@ -28,10 +34,16 @@ const { active, showAll = true } = Astro.props;
 </nav>
 
 <style>
+  /* Dải chip cuộn ngang có chủ đích: vùng cuộn nằm gọn trong nav, không đẩy
+     tràn trang. */
   .cat-nav {
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    /* mờ dần ở mép phải để gợi ý còn nội dung phía sau */
+    mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent 100%);
   }
   .cat-nav::-webkit-scrollbar {
     display: none;
@@ -39,30 +51,40 @@ const { active, showAll = true } = Astro.props;
   .cat-nav ul {
     list-style: none;
     display: flex;
-    gap: 12px;
+    gap: var(--space-2);
     margin: 0;
-    padding: 4px 0;
+    padding: 2px 24px 2px 0;
     white-space: nowrap;
   }
+  .cat-nav li {
+    flex: 0 0 auto;
+  }
   .cat-nav a {
-    display: inline-block;
-    padding: 9px 22px;
-    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border-strong);
     background: var(--surface);
     color: var(--text-soft);
     font-family: var(--font-head);
     font-weight: 600;
-    font-size: 0.82rem;
-    transition: all 0.15s ease;
+    font-size: 0.88rem;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease,
+      background var(--dur-fast) ease;
   }
   .cat-nav a:hover {
-    border-color: var(--nh-purple);
-    color: var(--nh-purple);
+    border-color: var(--primary);
+    color: var(--primary);
   }
   .cat-nav a.active {
-    background: var(--nh-grad);
-    border-color: transparent;
-    color: #fff;
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--primary-contrast);
+  }
+  /* Chỉ hiện viền focus trọn vẹn khi chip nằm trong vùng cuộn. */
+  .cat-nav a:focus-visible {
+    outline-offset: -2px;
   }
 </style>

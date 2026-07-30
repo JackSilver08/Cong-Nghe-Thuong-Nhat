@@ -26,7 +26,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             Họ tên
             <input name="name" autocomplete="name" required />
           </label>
-          <p class="notice" id="profileNotice" hidden></p>
+          <p class="notice" id="profileNotice" role="status" aria-live="polite" hidden></p>
           <button type="submit">Lưu thay đổi</button>
         </form>
 
@@ -42,7 +42,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             Mật khẩu mới
             <input name="newPassword" type="password" autocomplete="new-password" minlength="6" />
           </label>
-          <p class="notice" id="passwordNotice" hidden></p>
+          <p class="notice" id="passwordNotice" role="status" aria-live="polite" hidden></p>
           <button type="submit">Đổi mật khẩu</button>
         </form>
 
@@ -50,7 +50,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <div class="panel-head">
             <h2>Bài đã lưu</h2>
           </div>
-          <ul class="saved-list" id="savedList"></ul>
+          <p class="saved-empty" id="savedLoading" role="status" aria-live="polite">
+            Đang tải danh sách bài đã lưu…
+          </p>
+          <ul class="saved-list" id="savedList" aria-busy="true"></ul>
           <p class="saved-empty" id="savedEmpty" hidden>Bạn chưa lưu bài viết nào.</p>
         </div>
 
@@ -65,40 +68,40 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <style>
   .account-page {
-    min-height: calc(100vh - 64px);
+    min-height: calc(100vh - var(--header-h));
     background: var(--surface-low);
-    padding: 42px 20px;
+    padding: var(--space-7) var(--space-5);
   }
   .account-shell {
     width: min(100%, 980px);
     margin: 0 auto;
     display: grid;
     grid-template-columns: 300px minmax(0, 1fr);
-    gap: 18px;
+    gap: var(--space-4);
     align-items: start;
   }
   .account-summary,
   .panel {
-    background: #fff;
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-subtle);
   }
   .account-summary {
-    padding: 22px;
+    padding: var(--space-5);
     display: grid;
-    gap: 16px;
+    gap: var(--space-4);
   }
   .avatar {
-    width: 58px;
-    height: 58px;
+    width: 56px;
+    height: 56px;
     display: grid;
     place-items: center;
-    border-radius: 8px;
-    background: var(--nh-grad);
-    color: #fff;
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+    color: var(--primary-contrast);
     font-family: var(--font-head);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1.4rem;
   }
   h1,
@@ -109,9 +112,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   h1 {
     font-family: var(--font-head);
     font-size: 1.45rem;
+    overflow-wrap: break-word;
   }
   .account-summary p {
-    margin-top: 6px;
+    margin-top: var(--space-1);
     color: var(--text-muted);
     overflow-wrap: anywhere;
   }
@@ -120,24 +124,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     display: inline-flex;
     align-items: center;
     min-height: 28px;
-    border-radius: 999px;
-    padding: 0 10px;
-    color: var(--nh-purple);
-    background: rgba(70, 72, 212, 0.1);
-    font-weight: 800;
+    border-radius: var(--radius-pill);
+    padding: 0 var(--space-3);
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-weight: 700;
     font-size: 0.8rem;
   }
   .account-panels {
     display: grid;
-    gap: 18px;
+    gap: var(--space-4);
+    min-width: 0;
   }
   .panel {
-    padding: 18px;
+    padding: var(--space-5);
     display: grid;
-    gap: 14px;
+    gap: var(--space-4);
+    min-width: 0;
   }
   .panel-head {
-    padding-bottom: 12px;
+    padding-bottom: var(--space-3);
     border-bottom: 1px solid var(--border);
   }
   .panel-head h2 {
@@ -146,76 +152,94 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   label {
     display: grid;
-    gap: 8px;
+    gap: var(--space-2);
     color: var(--text-soft);
-    font-weight: 800;
+    font-weight: 600;
     font-size: 0.9rem;
   }
   input {
     width: 100%;
+    min-height: 44px;
     border: 1px solid var(--border-strong);
-    border-radius: 8px;
-    padding: 12px 13px;
+    border-radius: var(--radius-control);
+    padding: 0 var(--space-3);
     font: inherit;
+    font-size: 0.95rem;
     color: var(--text);
-    background: #fff;
+    background: var(--surface);
   }
-  input:focus {
-    outline: 2px solid var(--ring);
-    border-color: var(--nh-purple);
+  input:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--ring);
   }
   button,
   .admin-link {
-    min-height: 42px;
+    min-height: 44px;
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0 14px;
+    padding: 0 var(--space-4);
     font-family: var(--font-head);
-    font-weight: 800;
+    font-weight: 600;
+    font-size: 0.92rem;
     cursor: pointer;
+    transition: background var(--dur-fast) ease;
   }
   button {
-    background: #000;
-    color: #fff;
+    justify-self: start;
+    background: var(--primary);
+    color: var(--primary-contrast);
+  }
+  button:hover {
+    background: var(--primary-strong);
   }
   .admin-link {
-    background: var(--surface-low);
+    background: var(--surface);
     color: var(--text);
     border: 1px solid var(--border-strong);
   }
+  .admin-link:hover {
+    background: var(--surface-low);
+  }
   .logout {
-    background: #fee2e2;
-    color: #b91c1c;
+    justify-self: stretch;
+    background: var(--error-bg);
+    color: var(--error);
+  }
+  .logout:hover {
+    background: #fecaca;
   }
   .notice {
-    border-radius: 8px;
-    padding: 10px 12px;
-    color: #166534;
-    background: #dcfce7;
-    font-size: 0.88rem;
+    border-radius: var(--radius-control);
+    padding: var(--space-2) var(--space-3);
+    color: var(--success);
+    background: var(--success-bg);
+    font-size: 0.9rem;
   }
   .notice.error {
-    color: #b91c1c;
-    background: #fee2e2;
+    color: var(--error);
+    background: var(--error-bg);
   }
   .account-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
   }
   .saved-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .saved-list li {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: var(--space-3);
+    min-width: 0;
   }
   .saved-list a {
     font-weight: 600;
@@ -223,26 +247,37 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     overflow-wrap: anywhere;
   }
   .saved-list a:hover {
-    color: var(--nh-purple);
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .saved-remove {
     flex: 0 0 auto;
-    min-height: 32px !important;
-    padding: 0 12px !important;
-    font-size: 0.8rem;
-    background: #fee2e2 !important;
-    color: #b91c1c !important;
+    min-height: 40px !important;
+    padding: 0 var(--space-3) !important;
+    font-size: 0.85rem;
+    background: var(--error-bg) !important;
+    color: var(--error) !important;
+  }
+  .saved-remove:hover {
+    background: #fecaca !important;
   }
   .saved-empty {
     margin: 0;
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.92rem;
   }
 
   @media (max-width: 760px) {
+    .account-page {
+      padding-inline: var(--space-4);
+    }
     .account-shell,
     .account-actions {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    button {
+      justify-self: stretch;
     }
   }
 </style>
@@ -286,16 +321,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   async function loadSaved() {
-    if (!current) return;
+    const loadingEl = document.getElementById('savedLoading');
     const listEl = document.getElementById('savedList');
     const emptyEl = document.getElementById('savedEmpty');
-    if (!listEl) return;
+    if (!current || !listEl) {
+      if (loadingEl) loadingEl.hidden = true;
+      listEl?.removeAttribute('aria-busy');
+      return;
+    }
 
     const { data } = await supabaseBrowser
       .from('saved_posts')
       .select('post_slug, post_title, created_at')
       .eq('user_id', current.id)
       .order('created_at', { ascending: false });
+
+    if (loadingEl) loadingEl.hidden = true;
+    listEl.removeAttribute('aria-busy');
 
     const items = data || [];
     listEl.innerHTML = '';

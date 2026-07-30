@@ -81,9 +81,9 @@ const ogImage = new URL(image, Astro.site).toString();
   </head>
   <body>
     <ConfirmDialog />
-    <a href="#main" class="visually-hidden">Bỏ qua tới nội dung</a>
+    <a href="#main" class="skip-link">Bỏ qua tới nội dung</a>
     <Header />
-    <main id="main">
+    <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
@@ -93,19 +93,9 @@ const ogImage = new URL(image, Astro.site).toString();
       (function () {
         const html = document.documentElement;
         if (!html.classList.contains('js-reveal')) return;
-        const selector = [
-          '.hero',
-          '.ticker-wrap',
-          '.cat-row',
-          '.section-head',
-          '.card',
-          '.brief',
-          '.brief-card',
-          '.popular',
-          '.popular-item',
-          '.hero-side-item',
-          '[data-reveal]',
-        ].join(', ');
+        // Chỉ vài khối lớn được fade nhẹ. Feed bài viết không animate để nội
+        // dung hiện ngay và không tạo mảng trống khi cuộn nhanh.
+        const selector = ['.hero', '.section-head', '.brief', '[data-reveal]'].join(', ');
         const els = Array.prototype.slice.call(document.querySelectorAll(selector));
         const revealAll = () => els.forEach((el) => el.classList.add('in-view'));
         try {

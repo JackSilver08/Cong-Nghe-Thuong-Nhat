@@ -38,7 +38,7 @@ const items = posts.map((p) => ({
       </div>
     </header>
 
-    <p class="search-status" aria-live="polite" data-total={items.length}></p>
+    <p class="search-status" role="status" aria-live="polite" data-total={items.length}></p>
 
     <div class="grid grid-3 search-results">
       {posts.map((p, i) => (
@@ -52,36 +52,40 @@ const items = posts.map((p) => ({
       ))}
     </div>
 
-    <p class="search-empty" hidden>Không tìm thấy bài viết phù hợp. Thử từ khoá khác nhé.</p>
+    <div class="search-empty state-block" hidden>
+      <strong>Không tìm thấy bài viết phù hợp</strong>
+      <p>Thử từ khoá ngắn hơn, bỏ dấu hoặc chọn một chuyên mục khác ở phía trên.</p>
+      <a href="/search" class="btn">Xoá bộ lọc</a>
+    </div>
   </div>
 </BaseLayout>
 
 <style>
   .search-page {
-    padding-top: 32px;
-    padding-bottom: 32px;
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-6);
   }
   .search-header h1 {
-    font-size: clamp(1.7rem, 4vw, 2.4rem);
-    margin-bottom: 16px;
+    font-size: var(--fs-h1);
+    margin-bottom: var(--space-4);
   }
   .search-input-wrap {
     max-width: 560px;
   }
   .cat-row {
-    margin-top: 18px;
+    margin-top: var(--space-4);
   }
   .search-status {
     color: var(--text-muted);
     font-size: 0.9rem;
-    margin: 20px 0 18px;
+    margin: var(--space-5) 0 var(--space-4);
   }
   .search-item {
     display: block;
+    min-width: 0;
   }
-  .search-empty {
-    padding: 30px 0;
-    color: var(--text-muted);
+  .search-empty[hidden] {
+    display: none;
   }
 </style>
 

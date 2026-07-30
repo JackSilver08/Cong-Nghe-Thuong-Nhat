@@ -31,7 +31,7 @@ const { posts } = Astro.props;
     align-items: stretch;
     gap: 0;
     background: var(--nh-dark);
-    border-radius: 12px;
+    border-radius: var(--radius-card);
     overflow: hidden;
     border: 0;
     box-shadow: none;
@@ -41,23 +41,23 @@ const { posts } = Astro.props;
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    padding: 0 18px;
+    padding: 0 var(--space-4);
     font-family: var(--font-head);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: #fff;
-    background: var(--nh-purple);
+    color: var(--primary-contrast);
+    background: var(--primary);
   }
   .ticker-label::before {
     content: '';
-    width: 8px;
-    height: 8px;
-    margin-right: 8px;
-    border-radius: 999px;
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    margin-right: var(--space-2);
+    border-radius: var(--radius-pill);
     background: #fff;
-    animation: pulse 1.4s ease-in-out infinite;
   }
   .ticker-viewport {
     flex: 1 1 auto;
@@ -70,40 +70,44 @@ const { posts } = Astro.props;
     display: flex;
     width: max-content;
     min-width: max-content;
-    gap: 40px;
+    gap: var(--space-7);
     margin: 0;
     padding: 0;
     white-space: nowrap;
-    animation: ticker-scroll 22s linear infinite;
+    animation: ticker-scroll 34s linear infinite;
     transform: translate3d(0, 0, 0);
-    will-change: transform;
   }
   .ticker-track::-webkit-scrollbar,
   .ticker-viewport::-webkit-scrollbar {
     display: none;
   }
-  .ticker-viewport:hover .ticker-track {
+  /* Dừng khi rê chuột hoặc khi một liên kết trong ticker nhận focus bàn phím,
+     để người dùng kịp đọc và bấm. */
+  .ticker-viewport:hover .ticker-track,
+  .ticker-viewport:focus-within .ticker-track {
     animation-play-state: paused;
   }
   .ticker-track li {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    padding-block: 13px;
   }
   .ticker-track a {
-    color: rgba(255, 255, 255, 0.86);
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: rgba(255, 255, 255, 0.9);
     font-size: 0.9rem;
-    font-weight: 650;
+    font-weight: 600;
   }
   .ticker-track a::before {
     content: '›';
-    color: #c0c1ff;
-    margin-right: 8px;
+    color: #cdcefb;
+    margin-right: var(--space-2);
     font-weight: 700;
   }
   .ticker-track a:hover {
-    color: #c0c1ff;
+    color: #cdcefb;
   }
   @keyframes ticker-scroll {
     from {
@@ -113,13 +117,18 @@ const { posts } = Astro.props;
       transform: translate3d(-50%, 0, 0);
     }
   }
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
+
+  /* Tôn trọng prefers-reduced-motion: bỏ chạy chữ, đổi thành vùng cuộn tay. */
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-viewport {
+      overflow-x: auto;
     }
-    50% {
-      opacity: 0.3;
+    .ticker-track {
+      animation: none;
+    }
+    /* Bản sao chỉ phục vụ vòng lặp mượt, không cần khi đã tắt hiệu ứng. */
+    .ticker-track li[aria-hidden='true'] {
+      display: none;
     }
   }
 </style>

@@ -17,6 +17,12 @@ const posts = await getPostsByCategory(category.slug);
   description={category.description}
 >
   <div class="container cat-page">
+    <nav class="breadcrumb" aria-label="Đường dẫn">
+      <a href="/">Trang chủ</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{category.label}</span>
+    </nav>
+
     <header class="cat-header">
       <p class="cat-kicker">Chuyên mục</p>
       <h1>{category.label}</h1>
@@ -32,30 +38,58 @@ const posts = await getPostsByCategory(category.slug);
         {posts.map((p) => <ArticleCard post={p} headingLevel={2} />)}
       </div>
     ) : (
-      <p class="empty">Chưa có bài viết trong chuyên mục này.</p>
+      <div class="state-block">
+        <strong>Chưa có bài viết trong chuyên mục này</strong>
+        <p>Chuyên mục đang được cập nhật. Bạn có thể xem những tin mới nhất ở trang chủ.</p>
+        <a href="/" class="btn btn-primary">Về trang chủ</a>
+      </div>
     )}
   </div>
 </BaseLayout>
 
 <style>
   .cat-page {
-    padding-top: 32px;
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-6);
+  }
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-5);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  /* WCAG 2.2 AA (2.5.8): vùng chạm tối thiểu 24×24px cho liên kết phụ. */
+  .breadcrumb a,
+  .breadcrumb span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    min-width: 24px;
+    justify-content: center;
+  }
+  .breadcrumb a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .cat-header {
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
   }
   .cat-kicker {
-    color: var(--nh-purple);
+    color: var(--primary);
     font-family: var(--font-head);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 0.8rem;
-    margin: 0 0 6px;
+    margin: 0 0 var(--space-1);
   }
   .cat-header h1 {
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
-    margin: 0 0 8px;
+    font-size: var(--fs-h1);
+    margin: 0 0 var(--space-2);
   }
   .cat-desc {
     color: var(--text-soft);
@@ -63,13 +97,6 @@ const posts = await getPostsByCategory(category.slug);
     margin: 0;
   }
   .cat-row {
-    margin: 22px 0 26px;
-  }
-  .cat-grid {
-    padding-bottom: 24px;
-  }
-  .empty {
-    padding: 40px 0;
-    color: var(--text-muted);
+    margin: var(--space-5) 0;
   }
 </style>

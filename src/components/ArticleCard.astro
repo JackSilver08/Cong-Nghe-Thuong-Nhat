@@ -21,9 +21,14 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
 <article class={`card ${horizontal ? 'card-horizontal' : ''}`}>
   <a href={url} class="card-media" aria-hidden="true" tabindex="-1">
     {data.image ? (
-      <img src={data.image} alt={data.imageAlt || ''} loading="lazy" />
+      <img src={data.image} alt={data.imageAlt || ''} loading="lazy" data-card-image />
     ) : (
       <span class="card-media-fallback">{categoryLabel(data.category)}</span>
+    )}
+    {data.image && (
+      <span class="card-media-fallback" data-card-image-fallback hidden>
+        {categoryLabel(data.category)}
+      </span>
     )}
   </a>
   <div class="card-body">
@@ -52,111 +57,78 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
 <style>
   .card {
     position: relative;
-    isolation: isolate;
     background: var(--surface);
-    border: 1px solid rgba(226, 232, 240, 0.86);
-    border-radius: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    box-shadow: var(--shadow);
-    transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+    min-width: 0;
+    box-shadow: var(--shadow-subtle);
+    transition: box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
     height: 100%;
   }
-  .card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.16), transparent 34%),
-      radial-gradient(circle at 85% 12%, rgba(139, 92, 246, 0.14), transparent 36%);
-    opacity: 0;
-    transform: scale(0.98);
-    transition: opacity 0.24s ease, transform 0.24s ease;
-  }
-  .card::after {
-    content: '';
-    position: absolute;
-    inset: -40% -70%;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, 0.72) 50%, transparent 62%);
-    opacity: 0;
-    transform: translateX(-34%) rotate(8deg);
-  }
   .card:hover {
-    border-color: rgba(70, 72, 212, 0.24);
-    transform: translateY(-4px);
-    box-shadow: 0 18px 42px rgba(70, 72, 212, 0.16);
-  }
-  .card:hover::before {
-    opacity: 1;
-    transform: scale(1);
-  }
-  .card:hover::after {
-    animation: card-sheen 0.82s ease;
-  }
-  .card > * {
-    position: relative;
-    z-index: 2;
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-elevated);
   }
   .card-media {
     display: block;
     aspect-ratio: 16 / 9;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.16), rgba(139, 92, 246, 0.18));
+    background: var(--surface-container);
     overflow: hidden;
   }
   .card-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
-  }
-  .card:hover .card-media img {
-    transform: scale(1.04);
   }
   .card-media-fallback {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
+    padding: var(--space-3);
+    text-align: center;
     font-family: var(--font-head);
-    font-weight: 700;
-    color: var(--nh-purple);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
   }
   .card-body {
-    padding: 20px;
+    padding: var(--space-4);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space-2);
     flex: 1;
+    min-width: 0;
   }
   .card-meta-top {
     display: flex;
     align-items: center;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: var(--space-2);
   }
   .dot-trend {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    color: var(--nh-orange);
+    color: var(--warning);
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
   .card-title {
-    font-size: 1.05rem;
-    line-height: 1.36;
+    font-size: var(--fs-card-title);
+    line-height: 1.38;
     margin: 0;
     /* clamp to keep text inside the card */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    overflow-wrap: break-word;
   }
   .card-title a:hover {
-    color: var(--nh-purple);
+    color: var(--primary);
   }
   .card-excerpt {
     margin: 0;
@@ -170,12 +142,13 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
   }
   .card-meta {
     margin: auto 0 0;
+    padding-top: var(--space-1);
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--space-1);
     align-items: center;
     color: var(--text-muted);
-    font-size: 0.76rem;
+    font-size: var(--fs-meta);
   }
 
   /* horizontal variant (lists) */
@@ -192,30 +165,25 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
     -webkit-line-clamp: 2;
   }
   .card-horizontal .card-body {
-    padding: 12px 14px;
+    padding: var(--space-3);
   }
 
-  @keyframes card-sheen {
-    0% {
-      opacity: 0;
-      transform: translateX(-34%) rotate(8deg);
-    }
-    28% {
-      opacity: 0.42;
-    }
-    100% {
-      opacity: 0;
-      transform: translateX(34%) rotate(8deg);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .card::before,
-    .card::after,
-    .card,
-    .card-media img {
-      transition: none;
-      animation: none;
-    }
+  .card-media [hidden] {
+    display: none;
   }
 </style>
+
+<script>
+  // Ảnh hỏng (404, hết hạn CDN…) sẽ được thay bằng nhãn chuyên mục thay vì
+  // để trống một ô ảnh vỡ.
+  document.querySelectorAll<HTMLImageElement>('img[data-card-image]').forEach((img) => {
+    const swap = () => {
+      const fallback = img.parentElement?.querySelector<HTMLElement>('[data-card-image-fallback]');
+      if (!fallback) return;
+      img.hidden = true;
+      fallback.hidden = false;
+    };
+    if (img.complete && img.naturalWidth === 0) swap();
+    img.addEventListener('error', swap, { once: true });
+  });
+</script>

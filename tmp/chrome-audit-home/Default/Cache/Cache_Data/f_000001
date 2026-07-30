@@ -1,0 +1,2020 @@
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#0B1020"><script>
+      // Bật scroll-reveal sớm để tránh nháy nội dung; tắt nếu người dùng
+      // yêu cầu giảm chuyển động.
+      try {
+        if (!window.matchMedia || !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.documentElement.classList.add('js-reveal');
+        }
+      } catch (e) {}
+    </script><link rel="icon" href="/favicon.png" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="canonical" href="https://congnghethuongnhat.netlify.app/"><link rel="alternate" type="application/rss+xml" title="Công Nghệ Thường Nhật RSS" href="/rss.xml"><title>Tin tức công nghệ và AI</title><meta name="description" content="Công Nghệ Thường Nhật cập nhật tin công nghệ, AI, thiết bị và an toàn số dễ hiểu mỗi ngày."><!-- Open Graph --><meta property="og:site_name" content="Công Nghệ Thường Nhật"><meta property="og:type" content="website"><meta property="og:title" content="Tin tức công nghệ và AI"><meta property="og:description" content="Công Nghệ Thường Nhật cập nhật tin công nghệ, AI, thiết bị và an toàn số dễ hiểu mỗi ngày."><meta property="og:url" content="https://congnghethuongnhat.netlify.app/"><meta property="og:image" content="https://congnghethuongnhat.netlify.app/assets/post-hero.png"><meta property="og:locale" content="vi_VN"><!-- Twitter --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Tin tức công nghệ và AI"><meta name="twitter:description" content="Công Nghệ Thường Nhật cập nhật tin công nghệ, AI, thiết bị và an toàn số dễ hiểu mỗi ngày."><meta name="twitter:image" content="https://congnghethuongnhat.netlify.app/assets/post-hero.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/styles/global.css">/* ============ Công Nghệ Thường Nhật design tokens ============ */
+:root {
+  --nh-dark: #131b2e;
+  --nh-dark-soft: #2d3133;
+  --nh-ink: #0f172a;
+  --nh-cyan: #22d3ee;
+  --nh-purple: #4648d4;
+  --nh-orange: #f59e0b;
+  --nh-white: #f8fafc;
+  --nh-muted: #7c839b;
+  --nh-grad: linear-gradient(135deg, #4648d4 0%, #6063ee 100%);
+  --nh-hot-grad: linear-gradient(135deg, #4648d4 0%, #131b2e 100%);
+
+  /* light content surface */
+  --bg: #f7f9fb;
+  --surface: #ffffff;
+  --surface-low: #f2f4f6;
+  --surface-container: #eceef0;
+  --text: #191c1e;
+  --text-soft: #45464d;
+  --text-muted: #76777d;
+  --border: #e2e8f0;
+  --border-strong: #c6c6cd;
+  --ring: rgba(70, 72, 212, 0.28);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  --shadow-hover: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --maxw: 1280px;
+
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Be Vietnam Pro', 'Inter', sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: transparent;
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-head);
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  color: var(--text);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+/* ============ layout helpers ============ */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+.section {
+  padding-block: 44px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.section-title {
+  font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+  margin: 0;
+  position: relative;
+  padding-left: 14px;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 5px;
+  border-radius: 4px;
+  background: var(--nh-purple);
+}
+
+.section-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+.section-link:hover {
+  color: var(--nh-purple);
+}
+
+.grid {
+  display: grid;
+  gap: 24px;
+}
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.layout-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ============ badges / chips ============ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  gap: 6px;
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 4px;
+  background: rgba(70, 72, 212, 0.1);
+  border: 0;
+  color: var(--nh-purple);
+}
+
+.chip-solid {
+  background: var(--nh-grad);
+  color: #fff;
+  border: 0;
+}
+
+.meta {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* ============ buttons ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.btn:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+.btn-primary {
+  background: var(--nh-grad);
+  color: #fff;
+  border: 0;
+}
+
+/* ============ focus ============ */
+:focus-visible {
+  outline: 2px solid var(--nh-purple);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============ responsive ============ */
+@media (max-width: 960px) {
+  .layout-main {
+    grid-template-columns: 1fr;
+  }
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+  .section {
+    padding-block: 28px;
+  }
+}
+
+/* ============ Motion & ambient effects ============ */
+
+/* Nền aurora động: các vệt màu mờ trôi nhẹ phía sau toàn site */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25vmax;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38vmax 38vmax at 15% 18%, rgba(70, 72, 212, 0.18), transparent 60%),
+    radial-gradient(34vmax 34vmax at 85% 12%, rgba(34, 211, 238, 0.18), transparent 60%),
+    radial-gradient(42vmax 42vmax at 72% 88%, rgba(139, 92, 246, 0.14), transparent 62%);
+  filter: blur(18px);
+  animation: aurora-drift 18s ease-in-out infinite alternate;
+}
+/* Nội dung luôn nằm trên lớp aurora */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, 3%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-3%, -2%, 0) scale(1.04);
+  }
+}
+
+/* Hover card sang hơn: nâng nổi + đổ bóng tím nhẹ */
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 42px rgba(70, 72, 212, 0.16);
+}
+
+/* Hiện dần khi cuộn (scroll reveal). Chỉ bật khi JS chạy và người dùng
+   không yêu cầu giảm chuyển động — nếu không, nội dung hiển thị bình thường. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js-reveal :where(.hero, .ticker-wrap, .cat-row, .section-head, .card, .brief, .brief-card, .popular, .popular-item, .hero-side-item, [data-reveal]) {
+    opacity: 0;
+    transform: translateY(34px) scale(0.98);
+    transition: opacity 0.85s ease, transform 0.85s cubic-bezier(0.2, 0.7, 0.2, 1);
+    will-change: opacity, transform;
+  }
+  html.js-reveal :where(.hero, .ticker-wrap, .cat-row, .section-head, .card, .brief, .brief-card, .popular, .popular-item, .hero-side-item, [data-reveal]).in-view {
+    opacity: 1;
+    transform: none;
+  }
+  html.js-reveal .card.in-view:hover {
+    transform: translateY(-4px);
+  }
+  /* Card trong lưới hiện lần lượt (stagger) cho cảm giác cao cấp */
+  html.js-reveal .grid > .card:nth-child(2) {
+    transition-delay: 0.06s;
+  }
+  html.js-reveal .grid > .card:nth-child(3) {
+    transition-delay: 0.12s;
+  }
+  html.js-reveal .grid > .card:nth-child(4) {
+    transition-delay: 0.18s;
+  }
+  html.js-reveal .grid > .card:nth-child(5) {
+    transition-delay: 0.24s;
+  }
+  html.js-reveal .grid > .card:nth-child(6) {
+    transition-delay: 0.3s;
+  }
+}
+
+/* Tôn trọng người dùng tắt hiệu ứng chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/SearchBox.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.search-box[data-astro-cid-av774hkb] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+
+.search-box[data-astro-cid-av774hkb] input[data-astro-cid-av774hkb] {
+  border: 0;
+  background: none;
+  outline: none;
+  font: inherit;
+  width: 100%;
+  color: inherit;
+}
+
+.search-box[data-astro-cid-av774hkb] input[data-astro-cid-av774hkb]::placeholder {
+  color: var(--nh-muted);
+}
+
+.search-box[data-astro-cid-av774hkb].header {
+  background: var(--surface-container);
+  border: 1px solid #0000;
+  color: var(--text);
+  width: min(360px, 100%);
+}
+
+.search-box[data-astro-cid-av774hkb].header svg[data-astro-cid-av774hkb] {
+  color: var(--text-muted);
+  flex: none;
+}
+
+.search-box[data-astro-cid-av774hkb].page {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  padding: 12px 18px;
+}
+
+.search-box[data-astro-cid-av774hkb].page svg[data-astro-cid-av774hkb] {
+  color: var(--nh-purple);
+  flex: none;
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/Header.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.site-header[data-astro-cid-nen7h5rs] {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #ffffffeb;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 10px #0f172a0a;
+}
+
+.header-inner[data-astro-cid-nen7h5rs] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 64px;
+  max-width: var(--maxw);
+  padding-inline: 40px;
+}
+
+.header-left[data-astro-cid-nen7h5rs] {
+  flex: auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo[data-astro-cid-nen7h5rs] {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.logo[data-astro-cid-nen7h5rs] img[data-astro-cid-nen7h5rs] {
+  display: block;
+  width: clamp(142px, 15vw, 190px);
+  height: 48px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.header-search[data-astro-cid-nen7h5rs] {
+  flex: 0 360px;
+  min-width: 220px;
+}
+
+.header-right[data-astro-cid-nen7h5rs] {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-actions[data-astro-cid-nen7h5rs] {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-actions[data-astro-cid-nen7h5rs] a[data-astro-cid-nen7h5rs] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-family: var(--font-head);
+  font-size: .8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.auth-login[data-astro-cid-nen7h5rs] {
+  border: 1px solid var(--border-strong);
+  background: #fff;
+  color: var(--text);
+}
+
+.auth-signup[data-astro-cid-nen7h5rs] {
+  background: #000;
+  color: #fff;
+}
+
+.nav-toggle[data-astro-cid-nen7h5rs] {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background: var(--surface-container);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.nav-toggle[data-astro-cid-nen7h5rs] span[data-astro-cid-nen7h5rs] {
+  display: block;
+  height: 2px;
+  width: 20px;
+  margin-inline: auto;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform .2s, opacity .2s;
+}
+
+.nav-toggle[data-astro-cid-nen7h5rs][aria-expanded="true"] span[data-astro-cid-nen7h5rs]:first-child {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle[data-astro-cid-nen7h5rs][aria-expanded="true"] span[data-astro-cid-nen7h5rs]:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle[data-astro-cid-nen7h5rs][aria-expanded="true"] span[data-astro-cid-nen7h5rs]:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.mobile-drawer[data-astro-cid-nen7h5rs] [data-astro-cid-nen7h5rs][hidden] {
+  display: none !important;
+}
+
+.drawer-backdrop[data-astro-cid-nen7h5rs] {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: #0f172a80;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+}
+
+.drawer-backdrop[data-astro-cid-nen7h5rs].open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-drawer[data-astro-cid-nen7h5rs] {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: min(86vw, 340px);
+  height: 100dvh;
+  background: #fff url("/assets/mobile-sidebar-tech-bg.png") bottom / 100% no-repeat;
+  box-shadow: -12px 0 40px #0f172a2e;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+  overflow-y: auto;
+}
+
+.mobile-drawer[data-astro-cid-nen7h5rs].open {
+  transform: translateX(0);
+}
+
+.drawer-top[data-astro-cid-nen7h5rs] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drawer-title[data-astro-cid-nen7h5rs] {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: .95rem;
+  color: var(--text);
+}
+
+.drawer-close[data-astro-cid-nen7h5rs] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-container);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.drawer-account[data-astro-cid-nen7h5rs] {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.account-guest[data-astro-cid-nen7h5rs] {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.account-guest[data-astro-cid-nen7h5rs] a[data-astro-cid-nen7h5rs] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border-radius: 10px;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: .85rem;
+}
+
+.btn-outline[data-astro-cid-nen7h5rs] {
+  border: 1px solid var(--border-strong);
+  background: #fff;
+  color: var(--text);
+}
+
+.btn-solid[data-astro-cid-nen7h5rs] {
+  background: #000;
+  color: #fff;
+}
+
+.account-card[data-astro-cid-nen7h5rs] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-low);
+  color: var(--text);
+}
+
+.account-avatar[data-astro-cid-nen7h5rs] {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--nh-grad, var(--nh-purple));
+  color: #fff;
+  font-family: var(--font-head);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.account-info[data-astro-cid-nen7h5rs] {
+  flex: auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-info[data-astro-cid-nen7h5rs] strong[data-astro-cid-nen7h5rs] {
+  font-size: .92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-info[data-astro-cid-nen7h5rs] small[data-astro-cid-nen7h5rs] {
+  color: var(--nh-muted);
+  font-size: .78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-chevron[data-astro-cid-nen7h5rs] {
+  flex: none;
+  color: var(--nh-muted);
+}
+
+.drawer-content[data-astro-cid-nen7h5rs] {
+  flex: auto;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.drawer-search-row[data-astro-cid-nen7h5rs] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  gap: 10px;
+  align-items: center;
+}
+
+.drawer-search[data-astro-cid-nen7h5rs] {
+  min-width: 0;
+}
+
+.drawer-search[data-astro-cid-nen7h5rs] .search-box {
+  width: 100%;
+}
+
+.drawer-category-toggle[data-astro-cid-nen7h5rs] {
+  width: 46px;
+  height: 46px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-container);
+  color: var(--text);
+  cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+
+.drawer-category-toggle[data-astro-cid-nen7h5rs] svg[data-astro-cid-nen7h5rs] {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8px;
+}
+
+.drawer-category-toggle[data-astro-cid-nen7h5rs]:hover, .drawer-category-toggle[data-astro-cid-nen7h5rs][aria-expanded="true"] {
+  border-color: var(--nh-purple);
+  background: #4648d414;
+  color: var(--nh-purple);
+}
+
+.drawer-categories[data-astro-cid-nen7h5rs] {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-low);
+}
+
+.drawer-categories[data-astro-cid-nen7h5rs][hidden] {
+  display: none;
+}
+
+.drawer-section-title[data-astro-cid-nen7h5rs] {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-family: var(--font-head);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.drawer-categories[data-astro-cid-nen7h5rs] ul[data-astro-cid-nen7h5rs], .drawer-info-nav[data-astro-cid-nen7h5rs] ul[data-astro-cid-nen7h5rs] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.drawer-categories[data-astro-cid-nen7h5rs] a[data-astro-cid-nen7h5rs], .drawer-info-nav[data-astro-cid-nen7h5rs] a[data-astro-cid-nen7h5rs] {
+  display: block;
+  padding: 11px 10px;
+  color: var(--text);
+  font-family: var(--font-head);
+  font-weight: 600;
+  border-radius: 10px;
+}
+
+.drawer-categories[data-astro-cid-nen7h5rs] a[data-astro-cid-nen7h5rs]:hover, .drawer-info-nav[data-astro-cid-nen7h5rs] a[data-astro-cid-nen7h5rs]:hover {
+  background: var(--surface-low);
+  color: var(--nh-purple);
+}
+
+.drawer-info-nav[data-astro-cid-nen7h5rs] {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.drawer-footer[data-astro-cid-nen7h5rs] {
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+
+.btn-logout[data-astro-cid-nen7h5rs] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: #fff;
+  color: #dc2626;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: .88rem;
+  cursor: pointer;
+}
+
+.btn-logout[data-astro-cid-nen7h5rs]:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+@media (width <= 1080px) {
+  .auth-actions[data-astro-cid-nen7h5rs] {
+    display: none;
+  }
+
+  .nav-toggle[data-astro-cid-nen7h5rs] {
+    display: flex;
+  }
+}
+
+@media (width <= 640px) {
+  .header-inner[data-astro-cid-nen7h5rs] {
+    padding-inline: 16px;
+  }
+
+  .header-search[data-astro-cid-nen7h5rs] {
+    min-width: 0;
+  }
+}
+
+@media (width <= 460px) {
+  .header-search[data-astro-cid-nen7h5rs] {
+    display: none;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/Footer.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.site-footer[data-astro-cid-jo6i4kqk] {
+  background: var(--nh-dark);
+  color: #cbd5e1;
+  margin-top: 48px;
+}
+
+.footer-inner[data-astro-cid-jo6i4kqk] {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.3fr;
+  gap: 32px;
+  padding-block: 48px 32px;
+}
+
+.footer-logo[data-astro-cid-jo6i4kqk] {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.footer-logo[data-astro-cid-jo6i4kqk] img[data-astro-cid-jo6i4kqk] {
+  width: min(210px, 100%);
+  height: 78px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.footer-brand[data-astro-cid-jo6i4kqk] p[data-astro-cid-jo6i4kqk] {
+  max-width: 42ch;
+  color: var(--nh-muted);
+  font-size: .95rem;
+}
+
+.footer-col[data-astro-cid-jo6i4kqk] h2[data-astro-cid-jo6i4kqk] {
+  color: #fff;
+  font-size: .95rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 14px;
+}
+
+.footer-col[data-astro-cid-jo6i4kqk] ul[data-astro-cid-jo6i4kqk] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.footer-col[data-astro-cid-jo6i4kqk] a[data-astro-cid-jo6i4kqk] {
+  color: #cbd5e1;
+  font-size: .92rem;
+}
+
+.footer-newsletter[data-astro-cid-jo6i4kqk] p[data-astro-cid-jo6i4kqk] {
+  color: var(--nh-muted);
+  font-size: .9rem;
+  margin-bottom: 14px;
+}
+
+.footer-newsletter[data-astro-cid-jo6i4kqk] form[data-astro-cid-jo6i4kqk] {
+  display: flex;
+  gap: 8px;
+}
+
+.footer-newsletter[data-astro-cid-jo6i4kqk] input[data-astro-cid-jo6i4kqk] {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid #ffffff1a;
+  border-radius: 8px;
+  background: #ffffff0d;
+  color: #fff;
+  padding: 10px 12px;
+}
+
+.footer-newsletter[data-astro-cid-jo6i4kqk] button[data-astro-cid-jo6i4kqk] {
+  border: 0;
+  border-radius: 8px;
+  background: var(--nh-purple);
+  color: #fff;
+  font-weight: 800;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.footer-newsletter[data-astro-cid-jo6i4kqk] button[data-astro-cid-jo6i4kqk]:disabled {
+  opacity: .6;
+  cursor: progress;
+}
+
+.newsletter-status[data-astro-cid-jo6i4kqk] {
+  margin: 10px 0 0;
+  font-size: .85rem;
+  line-height: 1.4;
+}
+
+.newsletter-status[data-astro-cid-jo6i4kqk].is-ok {
+  color: var(--nh-cyan);
+}
+
+.newsletter-status[data-astro-cid-jo6i4kqk].is-error {
+  color: #fca5a5;
+}
+
+.footer-col[data-astro-cid-jo6i4kqk] a[data-astro-cid-jo6i4kqk]:hover {
+  color: var(--nh-cyan);
+}
+
+.footer-bottom[data-astro-cid-jo6i4kqk] {
+  border-top: 1px solid #94a3b82e;
+  padding-block: 18px;
+}
+
+.footer-bottom[data-astro-cid-jo6i4kqk] p[data-astro-cid-jo6i4kqk] {
+  margin: 0;
+  color: var(--nh-muted);
+  font-size: .85rem;
+  text-align: center;
+}
+
+@media (width <= 700px) {
+  .footer-inner[data-astro-cid-jo6i4kqk] {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-brand[data-astro-cid-jo6i4kqk] {
+    grid-column: 1 / -1;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/ConfirmDialog.astro?astro&amp;type=style&amp;index=0&amp;lang.css">body.confirm-dialog-open {
+  overflow: hidden;
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn] {
+  width: min(440px, 100vw - 32px);
+  padding: 0;
+  border: 1px solid #94a3b833;
+  border-radius: 24px;
+  color: #e8edf8;
+  background: #0f162af7;
+  box-shadow: 0 30px 90px #0206179e, inset 0 0 0 1px #ffffff0a;
+  opacity: 0;
+  transform: translateY(12px) scale(.96);
+  transition: opacity .18s ease, transform .18s ease, display .18s allow-discrete, overlay .18s allow-discrete;
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn][open] {
+  opacity: 1;
+  transform: none;
+}
+
+@starting-style {
+  .confirm-dialog[data-astro-cid-mel3ecrn][open] {
+    opacity: 0;
+    transform: translateY(12px) scale(.96);
+  }
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn]::backdrop {
+  background: #030712b8;
+  backdrop-filter: blur(8px);
+}
+
+.confirm-dialog__panel[data-astro-cid-mel3ecrn] {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 16px;
+  padding: 26px;
+}
+
+.confirm-dialog__icon[data-astro-cid-mel3ecrn] {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  color: #fb7185;
+  background: #f43f5e21;
+  box-shadow: inset 0 0 0 1px #fb718538;
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn][data-tone="primary"] .confirm-dialog__icon[data-astro-cid-mel3ecrn] {
+  color: #818cf8;
+  background: #6366f124;
+}
+
+.confirm-dialog__icon[data-astro-cid-mel3ecrn] svg[data-astro-cid-mel3ecrn] {
+  width: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8px;
+}
+
+.confirm-dialog__eyebrow[data-astro-cid-mel3ecrn] {
+  margin: 1px 0 6px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn] h2[data-astro-cid-mel3ecrn] {
+  margin: 0;
+  color: #fff;
+  font: 800 21px / 1.3 Be Vietnam Pro, sans-serif;
+}
+
+.confirm-dialog__content[data-astro-cid-mel3ecrn] > p[data-astro-cid-mel3ecrn]:last-child {
+  margin: 9px 0 0;
+  color: #aeb9ce;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.confirm-dialog__actions[data-astro-cid-mel3ecrn] {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn] button[data-astro-cid-mel3ecrn] {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+  font: 700 14px Inter, sans-serif;
+}
+
+.confirm-dialog__cancel[data-astro-cid-mel3ecrn] {
+  color: #cbd5e1;
+  background: #94a3b81a;
+}
+
+.confirm-dialog__confirm[data-astro-cid-mel3ecrn] {
+  color: #fff;
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  box-shadow: 0 9px 22px #e11d4840;
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn][data-tone="primary"] .confirm-dialog__confirm[data-astro-cid-mel3ecrn] {
+  background: linear-gradient(135deg, #6366f1, #4648d4);
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn] button[data-astro-cid-mel3ecrn]:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.confirm-dialog[data-astro-cid-mel3ecrn] button[data-astro-cid-mel3ecrn]:focus-visible {
+  outline: 3px solid #818cf866;
+  outline-offset: 2px;
+}
+
+@media (width <= 480px) {
+  .confirm-dialog__panel[data-astro-cid-mel3ecrn] {
+    grid-template-columns: 42px 1fr;
+    padding: 20px;
+  }
+
+  .confirm-dialog__icon[data-astro-cid-mel3ecrn] {
+    width: 42px;
+    height: 42px;
+  }
+
+  .confirm-dialog__actions[data-astro-cid-mel3ecrn] {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confirm-dialog[data-astro-cid-mel3ecrn] {
+    transition: none;
+  }
+
+  .confirm-dialog[data-astro-cid-mel3ecrn] button[data-astro-cid-mel3ecrn]:hover {
+    transform: none;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/HeroNews.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.hero[data-astro-cid-qiulg3cb] {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 24px;
+  padding-block: 32px 0;
+}
+
+.hero-main[data-astro-cid-qiulg3cb] {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 500px;
+  background: var(--nh-dark);
+  border: 0;
+  box-shadow: var(--shadow);
+}
+
+.hero-main[data-astro-cid-qiulg3cb]:before {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(circle at 22% 24%, #22d3ee3d, #0000 30%), radial-gradient(circle at 76% 14%, #8b5cf63d, #0000 32%), linear-gradient(115deg, #0000 35%, #ffffff2e 48%, #0000 62%);
+  mix-blend-mode: screen;
+  opacity: .7;
+  transform: translate3d(-8%, -4%, 0);
+  animation: 9s ease-in-out infinite alternate hero-light-drift;
+}
+
+.hero-media[data-astro-cid-qiulg3cb], .hero-media[data-astro-cid-qiulg3cb] img[data-astro-cid-qiulg3cb] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-media[data-astro-cid-qiulg3cb] {
+  overflow: hidden;
+  transform-origin: center;
+  z-index: 0;
+}
+
+.hero-media[data-astro-cid-qiulg3cb] img[data-astro-cid-qiulg3cb] {
+  transition: transform .7s;
+}
+
+.hero-main[data-astro-cid-qiulg3cb]:hover .hero-media[data-astro-cid-qiulg3cb] img[data-astro-cid-qiulg3cb] {
+  transform: scale(1.035);
+}
+
+.hero-overlay[data-astro-cid-qiulg3cb] {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(#0f172a00 0%, #0f172a59 45%, #0f172ad6 100%);
+}
+
+.hero-content[data-astro-cid-qiulg3cb] {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  padding: 32px;
+  color: #fff;
+}
+
+.hero-tags[data-astro-cid-qiulg3cb] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.hero-badge[data-astro-cid-qiulg3cb] {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: .74rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #c0c1ff;
+}
+
+.hero-title[data-astro-cid-qiulg3cb] {
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin: 0 0 14px;
+  max-width: 18ch;
+  font-weight: 800;
+}
+
+.hero-excerpt[data-astro-cid-qiulg3cb] {
+  color: #ffffffe6;
+  max-width: 64ch;
+  margin: 0 0 12px;
+  font-size: 1.02rem;
+  line-height: 1.72;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-meta[data-astro-cid-qiulg3cb] {
+  color: #cbd5e1;
+  font-size: .85rem;
+  margin: 0;
+}
+
+.hero-side[data-astro-cid-qiulg3cb] {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-self: start;
+  padding-top: 2px;
+}
+
+.hero-side-heading[data-astro-cid-qiulg3cb] {
+  position: relative;
+  color: var(--text);
+  font-size: 1.45rem;
+  line-height: 1.15;
+  margin: 0 0 6px;
+  padding-left: 14px;
+  font-weight: 800;
+}
+
+.hero-side-heading[data-astro-cid-qiulg3cb]:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .16em;
+  bottom: .16em;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--nh-purple), var(--nh-cyan));
+}
+
+.hero-side-list[data-astro-cid-qiulg3cb] {
+  display: grid;
+  gap: 12px;
+}
+
+.hero-side-item[data-astro-cid-qiulg3cb] {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: none;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 8px;
+  transition: background .18s;
+}
+
+.hero-side-item[data-astro-cid-qiulg3cb]:hover {
+  background: #fff;
+}
+
+.hero-side-media[data-astro-cid-qiulg3cb] {
+  flex: 0 0 128px;
+  height: 96px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-container);
+}
+
+.hero-side-media[data-astro-cid-qiulg3cb] img[data-astro-cid-qiulg3cb] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-side-body[data-astro-cid-qiulg3cb] {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.hero-side-title[data-astro-cid-qiulg3cb] {
+  color: var(--text);
+  font-size: 1.15rem;
+  line-height: 1.3;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hero-side-item[data-astro-cid-qiulg3cb]:hover .hero-side-title[data-astro-cid-qiulg3cb] {
+  color: var(--nh-purple);
+}
+
+@media (width <= 900px) {
+  .hero[data-astro-cid-qiulg3cb] {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-main[data-astro-cid-qiulg3cb] {
+    min-height: 420px;
+  }
+
+  .hero-side[data-astro-cid-qiulg3cb] {
+    padding-top: 0;
+  }
+}
+
+@media (width <= 480px) {
+  .hero[data-astro-cid-qiulg3cb] {
+    padding-block: 24px 16px;
+  }
+
+  .hero-content[data-astro-cid-qiulg3cb] {
+    padding: 18px;
+  }
+
+  .hero-main[data-astro-cid-qiulg3cb] {
+    min-height: 380px;
+  }
+
+  .hero-title[data-astro-cid-qiulg3cb] {
+    font-size: clamp(1.9rem, 11vw, 2.65rem);
+  }
+
+  .hero-side-item[data-astro-cid-qiulg3cb] {
+    align-items: center;
+    gap: 12px;
+    min-height: 84px;
+    padding: 6px;
+  }
+
+  .hero-side-media[data-astro-cid-qiulg3cb] {
+    flex: 0 0 104px;
+    width: 104px;
+    height: 78px;
+    min-height: 0;
+    border-radius: 7px;
+  }
+
+  .hero-side-body[data-astro-cid-qiulg3cb] {
+    min-width: 0;
+    padding: 0 4px 0 0;
+  }
+
+  .hero-side-title[data-astro-cid-qiulg3cb] {
+    font-size: 1rem;
+    line-height: 1.35;
+    -webkit-line-clamp: 3;
+  }
+}
+
+@media (width <= 360px) {
+  .hero-side-item[data-astro-cid-qiulg3cb] {
+    gap: 10px;
+  }
+
+  .hero-side-media[data-astro-cid-qiulg3cb] {
+    flex-basis: 92px;
+    width: 92px;
+    height: 69px;
+  }
+
+  .hero-side-title[data-astro-cid-qiulg3cb] {
+    font-size: .94rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-media[data-astro-cid-qiulg3cb] {
+    animation: 22s ease-out both hero-kenburns;
+  }
+}
+
+@keyframes hero-kenburns {
+  from {
+    transform: scale(1.08);
+  }
+
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes hero-light-drift {
+  from {
+    transform: translate3d(-8%, -4%, 0) rotate(0);
+  }
+
+  to {
+    transform: translate3d(8%, 5%, 0) rotate(4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-main[data-astro-cid-qiulg3cb]:before, .hero-media[data-astro-cid-qiulg3cb] {
+    animation: none;
+  }
+
+  .hero-media[data-astro-cid-qiulg3cb] img[data-astro-cid-qiulg3cb] {
+    transition: none;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/BreakingTicker.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.ticker[data-astro-cid-zmtqedct] {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--nh-dark);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 0;
+  box-shadow: none;
+  min-height: 48px;
+}
+
+.ticker-label[data-astro-cid-zmtqedct] {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #fff;
+  background: var(--nh-purple);
+}
+
+.ticker-label[data-astro-cid-zmtqedct]:before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 999px;
+  background: #fff;
+  animation: 1.4s ease-in-out infinite pulse;
+}
+
+.ticker-viewport[data-astro-cid-zmtqedct] {
+  flex: auto;
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+}
+
+.ticker-track[data-astro-cid-zmtqedct] {
+  list-style: none;
+  display: flex;
+  width: max-content;
+  min-width: max-content;
+  gap: 40px;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  animation: 22s linear infinite ticker-scroll;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.ticker-track[data-astro-cid-zmtqedct]::-webkit-scrollbar, .ticker-viewport[data-astro-cid-zmtqedct]::-webkit-scrollbar {
+  display: none;
+}
+
+.ticker-viewport[data-astro-cid-zmtqedct]:hover .ticker-track[data-astro-cid-zmtqedct] {
+  animation-play-state: paused;
+}
+
+.ticker-track[data-astro-cid-zmtqedct] li[data-astro-cid-zmtqedct] {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding-block: 13px;
+}
+
+.ticker-track[data-astro-cid-zmtqedct] a[data-astro-cid-zmtqedct] {
+  color: #ffffffdb;
+  font-size: .9rem;
+  font-weight: 650;
+}
+
+.ticker-track[data-astro-cid-zmtqedct] a[data-astro-cid-zmtqedct]:before {
+  content: "›";
+  color: #c0c1ff;
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+.ticker-track[data-astro-cid-zmtqedct] a[data-astro-cid-zmtqedct]:hover {
+  color: #c0c1ff;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: .3;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/ArticleCard.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.card[data-astro-cid-7ahxywo7] {
+  position: relative;
+  isolation: isolate;
+  background: var(--surface);
+  border: 1px solid #e2e8f0db;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow);
+  transition: transform .24s, box-shadow .24s, border-color .24s;
+  height: 100%;
+}
+
+.card[data-astro-cid-7ahxywo7]:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 18% 0, #22d3ee29, #0000 34%), radial-gradient(circle at 85% 12%, #8b5cf624, #0000 36%);
+  opacity: 0;
+  transform: scale(.98);
+  transition: opacity .24s, transform .24s;
+}
+
+.card[data-astro-cid-7ahxywo7]:after {
+  content: "";
+  position: absolute;
+  inset: -40% -70%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(110deg, #0000 38%, #ffffffb8 50%, #0000 62%);
+  opacity: 0;
+  transform: translateX(-34%) rotate(8deg);
+}
+
+.card[data-astro-cid-7ahxywo7]:hover {
+  border-color: #4648d43d;
+  transform: translateY(-4px);
+  box-shadow: 0 18px 42px #4648d429;
+}
+
+.card[data-astro-cid-7ahxywo7]:hover:before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.card[data-astro-cid-7ahxywo7]:hover:after {
+  animation: .82s card-sheen;
+}
+
+.card[data-astro-cid-7ahxywo7] > [data-astro-cid-7ahxywo7] {
+  position: relative;
+  z-index: 2;
+}
+
+.card-media[data-astro-cid-7ahxywo7] {
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #22d3ee29, #8b5cf62e);
+  overflow: hidden;
+}
+
+.card-media[data-astro-cid-7ahxywo7] img[data-astro-cid-7ahxywo7] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s;
+}
+
+.card[data-astro-cid-7ahxywo7]:hover .card-media[data-astro-cid-7ahxywo7] img[data-astro-cid-7ahxywo7] {
+  transform: scale(1.04);
+}
+
+.card-media-fallback[data-astro-cid-7ahxywo7] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--nh-purple);
+}
+
+.card-body[data-astro-cid-7ahxywo7] {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.card-meta-top[data-astro-cid-7ahxywo7] {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dot-trend[data-astro-cid-7ahxywo7] {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--nh-orange);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.card-title[data-astro-cid-7ahxywo7] {
+  font-size: 1.05rem;
+  line-height: 1.36;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-title[data-astro-cid-7ahxywo7] a[data-astro-cid-7ahxywo7]:hover {
+  color: var(--nh-purple);
+}
+
+.card-excerpt[data-astro-cid-7ahxywo7] {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: .92rem;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-meta[data-astro-cid-7ahxywo7] {
+  margin: auto 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: .76rem;
+}
+
+.card-horizontal[data-astro-cid-7ahxywo7] {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.card-horizontal[data-astro-cid-7ahxywo7] .card-media[data-astro-cid-7ahxywo7] {
+  flex: 0 0 110px;
+  aspect-ratio: 1;
+}
+
+.card-horizontal[data-astro-cid-7ahxywo7] .card-title[data-astro-cid-7ahxywo7] {
+  font-size: .98rem;
+  -webkit-line-clamp: 2;
+}
+
+.card-horizontal[data-astro-cid-7ahxywo7] .card-body[data-astro-cid-7ahxywo7] {
+  padding: 12px 14px;
+}
+
+@keyframes card-sheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-34%) rotate(8deg);
+  }
+
+  28% {
+    opacity: .42;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(34%) rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card[data-astro-cid-7ahxywo7]:before, .card[data-astro-cid-7ahxywo7]:after, .card[data-astro-cid-7ahxywo7], .card-media[data-astro-cid-7ahxywo7] img[data-astro-cid-7ahxywo7] {
+    transition: none;
+    animation: none;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/PopularList.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.popular[data-astro-cid-an2y2tlh] {
+  background: var(--surface);
+  border: 0;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.popular-title[data-astro-cid-an2y2tlh] {
+  font-size: 1rem;
+  margin: 0 0 14px;
+  padding-left: 12px;
+  position: relative;
+}
+
+.popular-title[data-astro-cid-an2y2tlh]:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .1em;
+  bottom: .1em;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--nh-purple);
+}
+
+.popular-list[data-astro-cid-an2y2tlh] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.popular-item[data-astro-cid-an2y2tlh] {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.popular-item[data-astro-cid-an2y2tlh]:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.popular-rank[data-astro-cid-an2y2tlh] {
+  flex: none;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 1.3rem;
+  line-height: 1;
+  width: 1.6ch;
+  color: var(--nh-purple);
+}
+
+.popular-link[data-astro-cid-an2y2tlh] {
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: .88rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.popular-link[data-astro-cid-an2y2tlh]:hover {
+  color: var(--nh-purple);
+}
+
+.popular-meta[data-astro-cid-an2y2tlh] {
+  margin: 6px 0 0;
+  font-size: .78rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.popular-cat[data-astro-cid-an2y2tlh] {
+  color: var(--nh-purple);
+  font-weight: 600;
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/CategoryNav.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.cat-nav[data-astro-cid-okpgx4fs] {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.cat-nav[data-astro-cid-okpgx4fs]::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-nav[data-astro-cid-okpgx4fs] ul[data-astro-cid-okpgx4fs] {
+  list-style: none;
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+
+.cat-nav[data-astro-cid-okpgx4fs] a[data-astro-cid-okpgx4fs] {
+  display: inline-block;
+  padding: 9px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-soft);
+  font-family: var(--font-head);
+  font-weight: 600;
+  font-size: .82rem;
+  transition: all .15s;
+}
+
+.cat-nav[data-astro-cid-okpgx4fs] a[data-astro-cid-okpgx4fs]:hover {
+  border-color: var(--nh-purple);
+  color: var(--nh-purple);
+}
+
+.cat-nav[data-astro-cid-okpgx4fs] a[data-astro-cid-okpgx4fs].active {
+  background: var(--nh-grad);
+  border-color: #0000;
+  color: #fff;
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/components/AiDailyBrief.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.brief[data-astro-cid-w7o6acjd] {
+  padding: 32px 0 40px;
+}
+
+.brief-bg[data-astro-cid-w7o6acjd] {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: clamp(28px, 5vw, 56px);
+  color: #fff;
+  background: radial-gradient(circle at 90% 0, #4648d421, #0000 42%), #0f172a;
+  border: 1px solid #ffffff14;
+  box-shadow: var(--shadow-hover);
+}
+
+.brief-head[data-astro-cid-w7o6acjd] {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.brief-kicker[data-astro-cid-w7o6acjd] {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #c0c1ff;
+  font-family: var(--font-head);
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.brief-kicker[data-astro-cid-w7o6acjd] span[data-astro-cid-w7o6acjd] {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--nh-purple);
+  box-shadow: 0 0 0 5px #4648d42e;
+}
+
+.brief-head[data-astro-cid-w7o6acjd] h2[data-astro-cid-w7o6acjd] {
+  color: #fff;
+  font-size: clamp(1.8rem, 3vw, 2.55rem);
+  margin: 12px 0 8px;
+}
+
+.brief-head[data-astro-cid-w7o6acjd] p[data-astro-cid-w7o6acjd] {
+  max-width: 680px;
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.brief-link[data-astro-cid-w7o6acjd] {
+  flex: none;
+  color: #fff;
+  font-weight: 800;
+}
+
+.brief-grid[data-astro-cid-w7o6acjd] {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.brief-card[data-astro-cid-w7o6acjd] {
+  min-height: 100%;
+  padding: 22px;
+  border-radius: 16px;
+  background: #ffffff0d;
+  border: 1px solid #ffffff1a;
+  backdrop-filter: blur(7px);
+  transition: transform .2s, border-color .2s, background .2s;
+}
+
+.brief-card[data-astro-cid-w7o6acjd]:hover {
+  transform: translateY(-4px);
+  background: #ffffff14;
+  border-color: #ffffff2e;
+}
+
+.brief-icon[data-astro-cid-w7o6acjd] {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: var(--nh-purple);
+  color: #fff;
+  font-family: var(--font-head);
+  font-weight: 900;
+}
+
+.brief-card[data-astro-cid-w7o6acjd] h3[data-astro-cid-w7o6acjd] {
+  color: #fff;
+  font-size: 1.08rem;
+  margin-bottom: 8px;
+}
+
+.brief-card[data-astro-cid-w7o6acjd] p[data-astro-cid-w7o6acjd] {
+  color: #cbd5e1;
+  font-size: .93rem;
+  line-height: 1.68;
+}
+
+.brief-card[data-astro-cid-w7o6acjd] a[data-astro-cid-w7o6acjd] {
+  color: #6ffbbe;
+  font-family: var(--font-head);
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+@media (width <= 820px) {
+  .brief-head[data-astro-cid-w7o6acjd] {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .brief-grid[data-astro-cid-w7o6acjd] {
+    grid-template-columns: 1fr;
+  }
+}
+</style><style data-vite-dev-id="C:/Công Nghệ Thường Nhật/src/pages/index.astro?astro&amp;type=style&amp;index=0&amp;lang.css">.ticker-wrap[data-astro-cid-lcdefpme] {
+  margin-top: 24px;
+}
+
+.cat-row[data-astro-cid-lcdefpme] {
+  margin-top: 24px;
+}
+
+.main-col[data-astro-cid-lcdefpme] {
+  min-width: 0;
+}
+
+.sidebar[data-astro-cid-lcdefpme] {
+  display: grid;
+  gap: 24px;
+  position: sticky;
+  top: 84px;
+}
+
+.trend-head[data-astro-cid-lcdefpme] {
+  align-items: center;
+}
+
+.section-rule[data-astro-cid-lcdefpme] {
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+}
+
+@media (width <= 960px) {
+  .sidebar[data-astro-cid-lcdefpme] {
+    position: static;
+  }
+}
+</style><script type="module" src="/@vite/client"></script><script type="module" src="/src/styles/global.css"></script><script type="module" src="/src/components/SearchBox.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/Header.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/Footer.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/ConfirmDialog.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/HeroNews.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/BreakingTicker.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/ArticleCard.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/PopularList.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/CategoryNav.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/components/AiDailyBrief.astro?astro&type=style&index=0&lang.css"></script><script type="module" src="/src/pages/index.astro?astro&type=style&index=0&lang.css"></script></head><body><dialog class="confirm-dialog" id="siteConfirmDialog" aria-labelledby="siteConfirmTitle" aria-describedby="siteConfirmMessage" data-astro-cid-mel3ecrn><form method="dialog" class="confirm-dialog__panel" data-astro-cid-mel3ecrn><div class="confirm-dialog__icon" aria-hidden="true" data-astro-cid-mel3ecrn><svg viewBox="0 0 24 24" data-astro-cid-mel3ecrn><path d="M12 8v5m0 3.5v.01M10.3 3.8 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z" data-astro-cid-mel3ecrn></path></svg></div><div class="confirm-dialog__content" data-astro-cid-mel3ecrn><p class="confirm-dialog__eyebrow" data-astro-cid-mel3ecrn>Xác nhận thao tác</p><h2 id="siteConfirmTitle" data-astro-cid-mel3ecrn>Bạn có chắc chắn?</h2><p id="siteConfirmMessage" data-astro-cid-mel3ecrn></p></div><div class="confirm-dialog__actions" data-astro-cid-mel3ecrn><button class="confirm-dialog__cancel" value="cancel" data-astro-cid-mel3ecrn>Hủy</button><button class="confirm-dialog__confirm" value="confirm" data-astro-cid-mel3ecrn>Xác nhận</button></div></form></dialog><script>
+  (function () {
+    var dialog = document.getElementById('siteConfirmDialog');
+    if (!dialog) return;
+    var title = dialog.querySelector('#siteConfirmTitle');
+    var message = dialog.querySelector('#siteConfirmMessage');
+    var confirmButton = dialog.querySelector('.confirm-dialog__confirm');
+    var activeResolver = null;
+    var previousFocus = null;
+    window.siteConfirm = function (options) {
+      options = typeof options === 'string' ? { message: options } : (options || {});
+      if (dialog.open) dialog.close('cancel');
+      title.textContent = options.title || 'Bạn có chắc chắn?';
+      message.textContent = options.message || '';
+      confirmButton.textContent = options.confirmText || 'Xác nhận';
+      dialog.dataset.tone = options.tone || 'danger';
+      previousFocus = document.activeElement;
+      dialog.showModal();
+      document.body.classList.add('confirm-dialog-open');
+      return new Promise(function (resolve) { activeResolver = resolve; });
+    };
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) dialog.close('cancel');
+    });
+    dialog.addEventListener('close', function () {
+      document.body.classList.remove('confirm-dialog-open');
+      var resolve = activeResolver;
+      activeResolver = null;
+      if (resolve) resolve(dialog.returnValue === 'confirm');
+      if (previousFocus && previousFocus.focus) previousFocus.focus();
+    });
+  })();
+</script><a href="#main" class="visually-hidden">Bỏ qua tới nội dung</a><header class="site-header" data-astro-cid-nen7h5rs><div class="container header-inner" data-astro-cid-nen7h5rs><div class="header-left" data-astro-cid-nen7h5rs><a href="/" class="logo" aria-label="Công Nghệ Thường Nhật - Trang chủ" data-astro-cid-nen7h5rs><img src="/assets/cong-nghe-thuong-nhat-logo.png" alt="Công Nghệ Thường Nhật" width="190" height="70" data-astro-cid-nen7h5rs></a><div class="header-search" data-astro-cid-nen7h5rs><form class="search-box header" action="/search" method="get" role="search" data-astro-cid-av774hkb><label for="q-header" class="visually-hidden" data-astro-cid-av774hkb>Tìm kiếm bài viết</label><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-astro-cid-av774hkb><circle cx="11" cy="11" r="7" data-astro-cid-av774hkb></circle><line x1="21" y1="21" x2="16.65" y2="16.65" data-astro-cid-av774hkb></line></svg><input id="q-header" type="search" name="q" placeholder="Tìm bài viết, chủ đề, tag…" autocomplete="off" data-astro-cid-av774hkb></form></div></div><div class="header-right" data-astro-cid-nen7h5rs><div class="auth-actions" aria-label="Tài khoản" data-astro-cid-nen7h5rs><a href="/login" class="auth-login" data-auth-login data-astro-cid-nen7h5rs>Đăng nhập</a><a href="/login?mode=signup" class="auth-signup" data-auth-signup data-astro-cid-nen7h5rs>Đăng ký</a></div><button class="nav-toggle" aria-label="Mở menu" aria-expanded="false" aria-controls="mobile-nav" data-astro-cid-nen7h5rs><span data-astro-cid-nen7h5rs></span><span data-astro-cid-nen7h5rs></span><span data-astro-cid-nen7h5rs></span></button></div></div><!-- mobile sidebar drawer --><div class="drawer-backdrop" data-backdrop data-astro-cid-nen7h5rs></div><aside id="mobile-nav" class="mobile-drawer" aria-label="Menu di động" aria-hidden="true" inert data-astro-cid-nen7h5rs><div class="drawer-top" data-astro-cid-nen7h5rs><span class="drawer-title" data-astro-cid-nen7h5rs>Menu</span><button class="drawer-close" type="button" data-drawer-close aria-label="Đóng menu" data-astro-cid-nen7h5rs><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" data-astro-cid-nen7h5rs><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" data-astro-cid-nen7h5rs></path></svg></button></div><!-- Tài khoản (đầu sidebar) --><div class="drawer-account" data-astro-cid-nen7h5rs><div class="account-guest" data-auth-guest data-astro-cid-nen7h5rs><a href="/login" class="btn-outline" data-astro-cid-nen7h5rs>Đăng nhập</a><a href="/login?mode=signup" class="btn-solid" data-astro-cid-nen7h5rs>Đăng ký</a></div><a href="/account" class="account-card" data-auth-user hidden data-astro-cid-nen7h5rs><span class="account-avatar" data-user-initial data-astro-cid-nen7h5rs>N</span><span class="account-info" data-astro-cid-nen7h5rs><strong data-user-name data-astro-cid-nen7h5rs>Tài khoản</strong><small data-user-email data-astro-cid-nen7h5rs></small></span><svg class="account-chevron" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" data-astro-cid-nen7h5rs><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-nen7h5rs></path></svg></a></div><div class="drawer-content" data-astro-cid-nen7h5rs><!-- Tìm kiếm + nút mở danh mục --><div class="drawer-search-row" data-astro-cid-nen7h5rs><div class="drawer-search" data-astro-cid-nen7h5rs><form class="search-box header" action="/search" method="get" role="search" data-astro-cid-av774hkb><label for="q-mobile-drawer" class="visually-hidden" data-astro-cid-av774hkb>Tìm kiếm bài viết</label><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-astro-cid-av774hkb><circle cx="11" cy="11" r="7" data-astro-cid-av774hkb></circle><line x1="21" y1="21" x2="16.65" y2="16.65" data-astro-cid-av774hkb></line></svg><input id="q-mobile-drawer" type="search" name="q" placeholder="Tìm bài viết, chủ đề, tag…" autocomplete="off" data-astro-cid-av774hkb></form></div><button class="drawer-category-toggle" type="button" aria-label="Mở danh mục" aria-expanded="false" aria-controls="drawer-categories" data-category-toggle data-astro-cid-nen7h5rs><svg viewBox="0 0 24 24" aria-hidden="true" data-astro-cid-nen7h5rs><rect x="4" y="4" width="6" height="6" rx="1" data-astro-cid-nen7h5rs></rect><rect x="14" y="4" width="6" height="6" rx="1" data-astro-cid-nen7h5rs></rect><rect x="4" y="14" width="6" height="6" rx="1" data-astro-cid-nen7h5rs></rect><rect x="14" y="14" width="6" height="6" rx="1" data-astro-cid-nen7h5rs></rect></svg></button></div><nav id="drawer-categories" class="drawer-categories" aria-label="Chuyên mục" hidden data-astro-cid-nen7h5rs><span class="drawer-section-title" data-astro-cid-nen7h5rs>Chuyên mục</span><ul data-astro-cid-nen7h5rs><li data-astro-cid-nen7h5rs><a href="/category/ai" data-astro-cid-nen7h5rs>AI</a></li><li data-astro-cid-nen7h5rs><a href="/category/thiet-bi" data-astro-cid-nen7h5rs>Thiết bị</a></li><li data-astro-cid-nen7h5rs><a href="/category/startup" data-astro-cid-nen7h5rs>Khởi nghiệp</a></li><li data-astro-cid-nen7h5rs><a href="/category/an-ninh-mang" data-astro-cid-nen7h5rs>An ninh mạng</a></li><li data-astro-cid-nen7h5rs><a href="/category/lap-trinh" data-astro-cid-nen7h5rs>Lập trình</a></li><li data-astro-cid-nen7h5rs><a href="/category/cloud" data-astro-cid-nen7h5rs>Điện toán đám mây</a></li><li data-astro-cid-nen7h5rs><a href="/category/danh-gia" data-astro-cid-nen7h5rs>Đánh giá</a></li></ul></nav><nav class="drawer-info-nav" aria-label="Thông tin" data-astro-cid-nen7h5rs><span class="drawer-section-title" data-astro-cid-nen7h5rs>Thông tin</span><ul data-astro-cid-nen7h5rs><li data-astro-cid-nen7h5rs><a href="/gioi-thieu" data-astro-cid-nen7h5rs>Giới thiệu</a></li><li data-astro-cid-nen7h5rs><a href="/lien-he" data-astro-cid-nen7h5rs>Liên hệ</a></li><li data-astro-cid-nen7h5rs><a href="/chinh-sach-bien-tap" data-astro-cid-nen7h5rs>Chính sách biên tập</a></li><li data-astro-cid-nen7h5rs><a href="/chinh-sach-quyen-rieng-tu" data-astro-cid-nen7h5rs>Quyền riêng tư</a></li><li data-astro-cid-nen7h5rs><a href="/dieu-khoan-su-dung" data-astro-cid-nen7h5rs>Điều khoản sử dụng</a></li></ul></nav></div><!-- Đăng xuất (cuối sidebar) --><div class="drawer-footer" data-astro-cid-nen7h5rs><button type="button" class="btn-logout" data-drawer-logout hidden data-astro-cid-nen7h5rs><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" data-astro-cid-nen7h5rs><path d="M15 12H3m0 0l4-4m-4 4l4 4M13 4h6a1 1 0 011 1v14a1 1 0 01-1 1h-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-nen7h5rs></path></svg>Đăng xuất</button></div></aside></header><script type="module" src="/src/components/Header.astro?astro&type=script&index=0&lang.ts"></script><main id="main"><div class="container" data-astro-cid-lcdefpme><section class="hero" aria-label="Tin nổi bật" data-astro-cid-qiulg3cb><a href="/article/5-ai-pho-bien-nhat-hien-nay-cho-nghien-cuu-khoa-hoc" class="hero-main" data-astro-cid-qiulg3cb><div class="hero-media" data-astro-cid-qiulg3cb><img src="https://mfwnayxisdsmlppywjir.supabase.co/storage/v1/object/public/post-images/2026-07-08/5-ai-pho-bien-nhat-hien-nay-cho-nghien-cuu-khoa-hoc-1783490043582.webp" alt="chatbot thumb" fetchpriority="high" data-astro-cid-qiulg3cb><div class="hero-overlay" data-astro-cid-qiulg3cb></div></div><div class="hero-content" data-astro-cid-qiulg3cb><div class="hero-tags" data-astro-cid-qiulg3cb><span class="chip chip-solid" data-astro-cid-qiulg3cb>AI</span><span class="hero-badge" data-astro-cid-qiulg3cb>Tin nổi bật</span></div><h1 class="hero-title" data-astro-cid-qiulg3cb>5 AI phổ biến nhất hiện nay cho nghiên cứu khoa học</h1><p class="hero-excerpt" data-astro-cid-qiulg3cb>Khám phá 5 công cụ AI tốt nhất cho nghiên cứu khoa học hiện nay, gồm Elicit, Consensus, Scite, SciSpace và NotebookLM. So sánh ưu điểm, cách dùng và đối tượng phù hợp.</p><p class="hero-meta" data-astro-cid-qiulg3cb>NewsHub Admin • <time datetime="2026-07-08T05:54:03.581Z" data-astro-cid-qiulg3cb>08/07/2026</time> • 11 phút đọc</p></div></a><div class="hero-side" data-astro-cid-qiulg3cb><h2 class="hero-side-heading" data-astro-cid-qiulg3cb>Nổi bật</h2><div class="hero-side-list" data-astro-cid-qiulg3cb><a href="/article/tac-hai-cua-viec-de-lo-thong-tin-ca-nhan-tren-mang-va-cach-phong-tranh" class="hero-side-item" data-astro-cid-qiulg3cb><div class="hero-side-media" data-astro-cid-qiulg3cb><img src="https://mfwnayxisdsmlppywjir.supabase.co/storage/v1/object/public/post-images/2026-07-30/chatgpt-image-jul-30-2026-06-13-33-pm-1785410024188.png" alt="chatgpt image jul 30 2026 06 13 33 pm 1785410024188" loading="lazy" data-astro-cid-qiulg3cb></div><div class="hero-side-body" data-astro-cid-qiulg3cb><h3 class="hero-side-title" data-astro-cid-qiulg3cb>Tác Hại Của Việc Để Lộ Thông Tin Cá Nhân Trên Mạng Và Cách Phòng Tránh</h3></div></a><a href="/article/top-5-dien-thoai-tot-nhat-2026-dang-mua-hien-nay" class="hero-side-item" data-astro-cid-qiulg3cb><div class="hero-side-media" data-astro-cid-qiulg3cb><img src="https://mfwnayxisdsmlppywjir.supabase.co/storage/v1/object/public/post-images/2026-07-25/oip-1-1784990310635.webp" alt="oip 1 1784990310635" loading="lazy" data-astro-cid-qiulg3cb></div><div class="hero-side-body" data-astro-cid-qiulg3cb><h3 class="hero-side-title" data-astro-cid-qiulg3cb>Top 5 điện thoại tốt nhất 2026 đáng mua hiện nay</h3></div></a><a href="/article/xu-huong-cong-nghe-hien-dai-giup-doanh-nghiep-but-pha-trong-ky-nguyen-so" class="hero-side-item" data-astro-cid-qiulg3cb><div class="hero-side-media" data-astro-cid-qiulg3cb><img src="https://mfwnayxisdsmlppywjir.supabase.co/storage/v1/object/public/post-images/2026-07-25/startup-1784978340386.jpg" alt="startup 1784978340386" loading="lazy" data-astro-cid-qiulg3cb></div><div class="hero-side-body" data-astro-cid-qiulg3cb><h3 class="hero-side-title" data-astro-cid-qiulg3cb>Xu hướng công nghệ hiện đại giúp doanh nghiệp bứt phá trong kỷ nguyên số</h3></div></a></div></div></section><div class="ticker-wrap" data-astro-cid-lcdefpme><div class="ticker" role="region" aria-label="Tin nóng mới nhất" data-astro-cid-zmtqedct><span class="ticker-label" data-astro-cid-zmtqedct>Tin nóng</span><div class="ticker-viewport" data-astro-cid-zmtqedct><ul class="ticker-track" data-astro-cid-zmtqedct><li data-astro-cid-zmtqedct><a href="/article/ai-agent-bao-mat-chuoi-cung-ung-va-lan-song-cloud-tu-van-hanh" data-astro-cid-zmtqedct>AI Agent, bảo mật chuỗi cung ứng và làn sóng Cloud tự vận hành</a></li><li data-astro-cid-zmtqedct><a href="/article/tac-hai-cua-viec-de-lo-thong-tin-ca-nhan-tren-mang-va-cach-phong-tranh" data-astro-cid-zmtqedct>Tác Hại Của Việc Để Lộ Thông Tin Cá Nhân Trên Mạng Và Cách Phòng Tránh</a></li><li data-astro-cid-zmtqedct><a href="/article/top-5-dien-thoai-tot-nhat-2026-dang-mua-hien-nay" data-astro-cid-zmtqedct>Top 5 điện thoại tốt nhất 2026 đáng mua hiện nay</a></li><li data-astro-cid-zmtqedct><a href="/article/xu-huong-cong-nghe-hien-dai-giup-doanh-nghiep-but-pha-trong-ky-nguyen-so" data-astro-cid-zmtqedct>Xu hướng công nghệ hiện đại giúp doanh nghiệp bứt phá trong kỷ nguyên số</a></li><li data-astro-cid-zmtqedct><a href="/article/gpt-the-he-moi-suy-luan" data-astro-cid-zmtqedct>Mô hình AI thế hệ mới đẩy khả năng suy luận lên tầm cao mới</a></li><li aria-hidden="true" data-astro-cid-zmtqedct><a href="/article/ai-agent-bao-mat-chuoi-cung-ung-va-lan-song-cloud-tu-van-hanh" tabindex="-1" data-astro-cid-zmtqedct>AI Agent, bảo mật chuỗi cung ứng và làn sóng Cloud tự vận hành</a></li><li aria-hidden="true" data-astro-cid-zmtqedct><a href="/article/tac-hai-cua-viec-de-lo-thong-tin-ca-nhan-tren-mang-va-cach-phong-tranh" tabindex="-1" data-astro-cid-zmtqedct>Tác Hại Của Việc Để Lộ Thông Tin Cá Nhân Trên Mạng Và Cách Phòng Tránh</a></li><li aria-hidden="true" data-astro-cid-zmtqedct><a href="/article/top-5-dien-thoai-tot-nhat-2026-dang-mua-hien-nay" tabindex="-1" data-astro-cid-zmtqedct>Top 5 điện thoại tốt nhất 2026 đáng mua hiện nay</a></li><li aria-hidden="true" data-astro-cid-zmtqedct><a href="/article/xu-huong-cong-nghe-hien-dai-giup-doanh-nghiep-but-pha-trong-ky-nguyen-so" tabindex="-1" data-astro-cid-zmtqedct>Xu hướng công nghệ hiện đại giúp doanh nghiệp bứt phá trong kỷ nguyên số</a></li><li aria-hidden="true" data-astro-cid-zmtqedct><a href="/article/gpt-the-he-moi-suy-luan" tabindex="-1" data-astro-cid-zmtqedct>Mô hình AI thế hệ mới đẩy khả năng suy luận lên tầm cao mới</a></li></ul></div></div></div><div class="cat-row" data-astro-cid-lcdefpme><nav class="cat-nav" aria-label="Lọc theo chuyên mục" data-astro-cid-okpgx4fs><ul data-astro-cid-okpgx4fs><li data-astro-cid-okpgx4fs><a href="/" class="active" data-astro-cid-okpgx4fs>Tất cả</a></li><li data-astro-cid-okpgx4fs><a href="/category/ai" class data-astro-cid-okpgx4fs>AI</a></li><li data-astro-cid-okpgx4fs><a href="/category/thiet-bi" class data-astro-cid-okpgx4fs>Thiết bị</a></li><li data-astro-cid-okpgx4fs><a href="/category/startup" class data-astro-cid-okpgx4fs>Khởi nghiệp</a></li><li data-astro-cid-okpgx4fs><a href="/category/an-ninh-mang" class data-astro-cid-okpgx4fs>An ninh mạng</a></li><li data-astro-cid-okpgx4fs><a href="/category/lap-trinh" class data-astro-cid-okpgx4fs>Lập trình</a></li><li data-astro-cid-okpgx4fs><a href="/category/cloud" class data-astro-cid-okpgx4fs>Điện toán đám mây</a></li><li data-astro-cid-okpgx4fs><a href="/category/danh-gia" class data-astro-cid-okpgx4fs>Đánh giá</a></li></ul></nav></div></div><div class="container layout-main" data-astro-cid-lcdefpme><div class="main-col" data-astro-cid-lcdefpme><section class="section" aria-label="Cập nhật mới nhất" data-astro-cid-lcdefpme><div class="section-head" data-astro-cid-lcdefpme><h2 class="section-title" data-astro-cid-lcdefpme>Cập nhật mới nhất</h2><a href="/search" class="section-link" data-astro-cid-lcdefpme>Xem tất cả →</a></div><div class="grid grid-3" data-astro-cid-lcdefpme><article class="card " data-astro-cid-7ahxywo7><a href="/article/gpt-the-he-moi-suy-luan" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="https://mfwnayxisdsmlppywjir.supabase.co/storage/v1/object/public/post-images/2026-07-14/gpt-the-he-moi-suy-luan-1784007180191.png" alt="Minh hoạ mạng nơ-ron của mô hình AI thế hệ mới" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/ai" class="chip" data-astro-cid-7ahxywo7>AI</a></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/gpt-the-he-moi-suy-luan" data-astro-cid-7ahxywo7>Mô hình AI thế hệ mới đẩy khả năng suy luận lên tầm cao mới</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Thế hệ mô hình ngôn ngữ mới nhất tập trung vào suy luận nhiều bước, giảm ảo giác và mở ra cách con người làm việc cùng trợ lý AI trong công việc hằng ngày.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Admin</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-14T05:33:00.190Z" data-astro-cid-7ahxywo7>14/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/ai-agent-bao-mat-chuoi-cung-ung-va-lan-song-cloud-tu-van-hanh" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="https://mfwnayxisdsmlppywjir.supabase.co/storage/v1/object/public/post-images/2026-07-14/ai-agent-bao-mat-chuoi-cung-ung-va-lan-song-cloud-tu-van-hanh-1784004909521.png" alt="AI Agent" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/cloud" class="chip" data-astro-cid-7ahxywo7>Điện toán đám mây</a></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/ai-agent-bao-mat-chuoi-cung-ung-va-lan-song-cloud-tu-van-hanh" data-astro-cid-7ahxywo7>AI Agent, bảo mật chuỗi cung ứng và làn sóng Cloud tự vận hành</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Cập nhật công nghệ Cloud ngày 14/7/2026 với AI Agent, bảo mật chuỗi cung ứng AI, cơ sở dữ liệu 26ai, Kubernetes tự vận hành và tối ưu chi phí GPU.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Admin</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-14T04:55:19.790Z" data-astro-cid-7ahxywo7>14/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>16 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/startup-fintech-goi-von" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="/assets/post-review.png" alt="Biểu đồ tăng trưởng của một startup fintech" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/startup" class="chip" data-astro-cid-7ahxywo7>Khởi nghiệp</a></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/startup-fintech-goi-von" data-astro-cid-7ahxywo7>Fintech Việt gọi vốn trở lại: nhà đầu tư tìm mô hình bền vững</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Sau giai đoạn thận trọng, dòng vốn đang quay lại với các startup fintech Việt, nhưng nhà đầu tư nay ưu tiên mô hình có lãi và tuân thủ pháp lý rõ ràng.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Admin</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-08T09:10:57.880Z" data-astro-cid-7ahxywo7>08/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/ai-agent-tu-dong-hoa-cong-viec" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="/assets/post-ai-agent.png" alt="Sơ đồ AI agent điều phối nhiều công cụ tự động" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/ai" class="chip" data-astro-cid-7ahxywo7>AI</a><span class="dot-trend" data-astro-cid-7ahxywo7>Xu hướng</span></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/ai-agent-tu-dong-hoa-cong-viec" data-astro-cid-7ahxywo7>AI agent: khi trợ lý biết tự lên kế hoạch và hành động</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Không chỉ trả lời câu hỏi, các AI agent thế hệ mới có thể tự chia nhỏ mục tiêu, gọi công cụ và hoàn thành chuỗi tác vụ nhiều bước thay cho con người.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Minh Quân</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-06T00:00:00.000Z" data-astro-cid-7ahxywo7>06/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/chip-ai-cuoc-dua-phan-cung" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="/assets/post-ai-chip.png" alt="Cận cảnh một con chip tăng tốc AI trên bo mạch" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/ai" class="chip" data-astro-cid-7ahxywo7>AI</a><span class="dot-trend" data-astro-cid-7ahxywo7>Xu hướng</span></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/chip-ai-cuoc-dua-phan-cung" data-astro-cid-7ahxywo7>Cuộc đua chip AI: khi phần cứng quyết định tốc độ đổi mới</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Nhu cầu huấn luyện và vận hành mô hình lớn đang đẩy cuộc đua chip AI lên cao trào, kéo theo bài toán về nguồn cung, điện năng và hiệu quả tính toán.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Hải Đăng</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-05T00:00:00.000Z" data-astro-cid-7ahxywo7>05/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/startup-viet-ai-nong-nghiep" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="/assets/post-startup.png" alt="Cánh đồng thông minh với cảm biến và thiết bị giám sát" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/startup" class="chip" data-astro-cid-7ahxywo7>Khởi nghiệp</a></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/startup-viet-ai-nong-nghiep" data-astro-cid-7ahxywo7>Startup Việt ứng dụng AI vào nông nghiệp thông minh</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Một thế hệ startup Việt đang dùng cảm biến, dữ liệu và AI để giúp nông dân dự báo mùa vụ, tiết kiệm nước và nâng cao chất lượng nông sản.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Thu Hà</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-05T00:00:00.000Z" data-astro-cid-7ahxywo7>05/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article></div></section></div><aside class="sidebar" aria-label="Nội dung phụ" data-astro-cid-lcdefpme><section class="popular" aria-label="Đọc nhiều" data-astro-cid-an2y2tlh><h2 class="popular-title" data-astro-cid-an2y2tlh>Đọc nhiều</h2><ol class="popular-list" data-astro-cid-an2y2tlh><li class="popular-item" data-astro-cid-an2y2tlh><span class="popular-rank" data-astro-cid-an2y2tlh>1</span><div class="popular-body" data-astro-cid-an2y2tlh><a href="/article/top-5-dien-thoai-tot-nhat-2026-dang-mua-hien-nay" class="popular-link" data-astro-cid-an2y2tlh>Top 5 điện thoại tốt nhất 2026 đáng mua hiện nay</a><p class="popular-meta" data-astro-cid-an2y2tlh><span class="popular-cat" data-astro-cid-an2y2tlh>Đánh giá</span><span aria-hidden="true" data-astro-cid-an2y2tlh>•</span><time datetime="2026-07-25T16:11:51.451Z" data-astro-cid-an2y2tlh>25/07/2026</time></p></div></li><li class="popular-item" data-astro-cid-an2y2tlh><span class="popular-rank" data-astro-cid-an2y2tlh>2</span><div class="popular-body" data-astro-cid-an2y2tlh><a href="/article/ai-agent-tu-dong-hoa-cong-viec" class="popular-link" data-astro-cid-an2y2tlh>AI agent: khi trợ lý biết tự lên kế hoạch và hành động</a><p class="popular-meta" data-astro-cid-an2y2tlh><span class="popular-cat" data-astro-cid-an2y2tlh>AI</span><span aria-hidden="true" data-astro-cid-an2y2tlh>•</span><time datetime="2026-07-06T00:00:00.000Z" data-astro-cid-an2y2tlh>06/07/2026</time></p></div></li><li class="popular-item" data-astro-cid-an2y2tlh><span class="popular-rank" data-astro-cid-an2y2tlh>3</span><div class="popular-body" data-astro-cid-an2y2tlh><a href="/article/chip-ai-cuoc-dua-phan-cung" class="popular-link" data-astro-cid-an2y2tlh>Cuộc đua chip AI: khi phần cứng quyết định tốc độ đổi mới</a><p class="popular-meta" data-astro-cid-an2y2tlh><span class="popular-cat" data-astro-cid-an2y2tlh>AI</span><span aria-hidden="true" data-astro-cid-an2y2tlh>•</span><time datetime="2026-07-05T00:00:00.000Z" data-astro-cid-an2y2tlh>05/07/2026</time></p></div></li><li class="popular-item" data-astro-cid-an2y2tlh><span class="popular-rank" data-astro-cid-an2y2tlh>4</span><div class="popular-body" data-astro-cid-an2y2tlh><a href="/article/ma-doc-tong-tien-phong-thu" class="popular-link" data-astro-cid-an2y2tlh>Phòng thủ trước mã độc tống tiền: bài học cho doanh nghiệp Việt</a><p class="popular-meta" data-astro-cid-an2y2tlh><span class="popular-cat" data-astro-cid-an2y2tlh>An ninh mạng</span><span aria-hidden="true" data-astro-cid-an2y2tlh>•</span><time datetime="2026-07-04T00:00:00.000Z" data-astro-cid-an2y2tlh>04/07/2026</time></p></div></li><li class="popular-item" data-astro-cid-an2y2tlh><span class="popular-rank" data-astro-cid-an2y2tlh>5</span><div class="popular-body" data-astro-cid-an2y2tlh><a href="/article/ai-tao-sinh-cong-viec-sang-tao" class="popular-link" data-astro-cid-an2y2tlh>AI tạo sinh thay đổi cách làm việc sáng tạo như thế nào</a><p class="popular-meta" data-astro-cid-an2y2tlh><span class="popular-cat" data-astro-cid-an2y2tlh>AI</span><span aria-hidden="true" data-astro-cid-an2y2tlh>•</span><time datetime="2026-07-02T00:00:00.000Z" data-astro-cid-an2y2tlh>02/07/2026</time></p></div></li></ol></section></aside></div><div class="container" data-astro-cid-lcdefpme><section class="brief" aria-label="Bản tin AI hằng ngày" data-astro-cid-w7o6acjd><div class="brief-bg" data-astro-cid-w7o6acjd><div class="brief-head" data-astro-cid-w7o6acjd><div data-astro-cid-w7o6acjd><span class="brief-kicker" data-astro-cid-w7o6acjd><span data-astro-cid-w7o6acjd></span>Bản tin AI hằng ngày</span><h2 data-astro-cid-w7o6acjd>Tổng hợp AI trong ngày</h2><p data-astro-cid-w7o6acjd>Những chuyển động đáng chú ý nhất về mô hình, hạ tầng và ứng dụng AI, được chắt lọc để đọc nhanh nhưng vẫn có ngữ cảnh.</p></div><a href="/category/ai" class="brief-link" data-astro-cid-w7o6acjd>Xem thêm tin AI →</a></div><div class="brief-grid" data-astro-cid-w7o6acjd><article class="brief-card" data-astro-cid-w7o6acjd><div class="brief-icon" data-astro-cid-w7o6acjd>60</div><h3 data-astro-cid-w7o6acjd>Tóm tắt 60 giây</h3><p data-astro-cid-w7o6acjd>Thế hệ mô hình ngôn ngữ mới nhất tập trung vào suy luận nhiều bước, giảm ảo giác và mở ra cách con người làm việc cùng trợ lý AI trong công việc hằng ngày.</p><a href="/article/gpt-the-he-moi-suy-luan" data-astro-cid-w7o6acjd>Mô hình AI thế hệ mới đẩy khả năng suy luận lên tầm cao mới</a></article><article class="brief-card" data-astro-cid-w7o6acjd><div class="brief-icon" data-astro-cid-w7o6acjd>AI</div><h3 data-astro-cid-w7o6acjd>Góc nhìn chuyên sâu</h3><p data-astro-cid-w7o6acjd>Đặt tin tức vào bối cảnh tác động đến doanh nghiệp, developer và người dùng cuối.</p><a href="/article/5-ai-pho-bien-nhat-hien-nay-cho-nghien-cuu-khoa-hoc" data-astro-cid-w7o6acjd>5 AI phổ biến nhất hiện nay cho nghiên cứu khoa học</a></article><article class="brief-card" data-astro-cid-w7o6acjd><div class="brief-icon" data-astro-cid-w7o6acjd>↗</div><h3 data-astro-cid-w7o6acjd>Theo dõi xu hướng</h3><p data-astro-cid-w7o6acjd>Theo dõi các chủ đề nóng như AI agent, chip AI, dữ liệu cá nhân và tự động hóa.</p><a href="/article/ai-agent-tu-dong-hoa-cong-viec" data-astro-cid-w7o6acjd>AI agent: khi trợ lý biết tự lên kế hoạch và hành động</a></article></div></div></section><section class="section trend-section" aria-label="Xu hướng công nghệ" data-astro-cid-lcdefpme><div class="section-head trend-head" data-astro-cid-lcdefpme><h2 class="section-title" data-astro-cid-lcdefpme>Xu hướng công nghệ</h2><span class="section-rule" aria-hidden="true" data-astro-cid-lcdefpme></span></div><div class="grid grid-4" data-astro-cid-lcdefpme><article class="card " data-astro-cid-7ahxywo7><a href="/article/xu-huong-cong-nghe-hien-dai-giup-doanh-nghiep-but-pha-trong-ky-nguyen-so" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="https://mfwnayxisdsmlppywjir.supabase.co/storage/v1/object/public/post-images/2026-07-25/startup-1784978340386.jpg" alt="startup 1784978340386" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/startup" class="chip" data-astro-cid-7ahxywo7>Khởi nghiệp</a><span class="dot-trend" data-astro-cid-7ahxywo7>Xu hướng</span></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/xu-huong-cong-nghe-hien-dai-giup-doanh-nghiep-but-pha-trong-ky-nguyen-so" data-astro-cid-7ahxywo7>Xu hướng công nghệ hiện đại giúp doanh nghiệp bứt phá trong kỷ nguyên số</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Khám phá những xu hướng công nghệ hiện đại đang thay đổi cách doanh nghiệp vận hành, tiếp cận khách hàng và phát triển trong kỷ nguyên số.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>adminCNTN</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-25T11:19:11.234Z" data-astro-cid-7ahxywo7>25/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>17 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/ai-agent-tu-dong-hoa-cong-viec" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="/assets/post-ai-agent.png" alt="Sơ đồ AI agent điều phối nhiều công cụ tự động" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/ai" class="chip" data-astro-cid-7ahxywo7>AI</a><span class="dot-trend" data-astro-cid-7ahxywo7>Xu hướng</span></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/ai-agent-tu-dong-hoa-cong-viec" data-astro-cid-7ahxywo7>AI agent: khi trợ lý biết tự lên kế hoạch và hành động</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Không chỉ trả lời câu hỏi, các AI agent thế hệ mới có thể tự chia nhỏ mục tiêu, gọi công cụ và hoàn thành chuỗi tác vụ nhiều bước thay cho con người.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Minh Quân</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-06T00:00:00.000Z" data-astro-cid-7ahxywo7>06/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/chip-ai-cuoc-dua-phan-cung" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="/assets/post-ai-chip.png" alt="Cận cảnh một con chip tăng tốc AI trên bo mạch" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/ai" class="chip" data-astro-cid-7ahxywo7>AI</a><span class="dot-trend" data-astro-cid-7ahxywo7>Xu hướng</span></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/chip-ai-cuoc-dua-phan-cung" data-astro-cid-7ahxywo7>Cuộc đua chip AI: khi phần cứng quyết định tốc độ đổi mới</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Nhu cầu huấn luyện và vận hành mô hình lớn đang đẩy cuộc đua chip AI lên cao trào, kéo theo bài toán về nguồn cung, điện năng và hiệu quả tính toán.</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Hải Đăng</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-05T00:00:00.000Z" data-astro-cid-7ahxywo7>05/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article><article class="card " data-astro-cid-7ahxywo7><a href="/article/ma-doc-tong-tien-phong-thu" class="card-media" aria-hidden="true" tabindex="-1" data-astro-cid-7ahxywo7><img src="/assets/post-security.png" alt="Biểu tượng khoá bảo mật trên nền dữ liệu số" loading="lazy" data-astro-cid-7ahxywo7></a><div class="card-body" data-astro-cid-7ahxywo7><div class="card-meta-top" data-astro-cid-7ahxywo7><a href="/category/an-ninh-mang" class="chip" data-astro-cid-7ahxywo7>An ninh mạng</a><span class="dot-trend" data-astro-cid-7ahxywo7>Xu hướng</span></div><h3 class="card-title" data-astro-cid-7ahxywo7="true"><a href="/article/ma-doc-tong-tien-phong-thu" data-astro-cid-7ahxywo7>Phòng thủ trước mã độc tống tiền: bài học cho doanh nghiệp Việt</a></h3><p class="card-excerpt" data-astro-cid-7ahxywo7>Các cuộc tấn công mã độc tống tiền ngày càng tinh vi và nhắm vào doanh nghiệp vừa và nhỏ. Đâu là những lớp phòng thủ cơ bản mà mọi tổ chức nên có?</p><p class="card-meta" data-astro-cid-7ahxywo7><span data-astro-cid-7ahxywo7>Đức Toàn</span><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><time datetime="2026-07-04T00:00:00.000Z" data-astro-cid-7ahxywo7>04/07/2026</time><span aria-hidden="true" data-astro-cid-7ahxywo7>•</span><span data-astro-cid-7ahxywo7>2 phút đọc</span></p></div></article></div></section></div></main><footer class="site-footer" data-astro-cid-jo6i4kqk><div class="container footer-inner" data-astro-cid-jo6i4kqk><div class="footer-brand" data-astro-cid-jo6i4kqk><a href="/" class="footer-logo" aria-label="Công Nghệ Thường Nhật - Trang chủ" data-astro-cid-jo6i4kqk><img src="/assets/cong-nghe-thuong-nhat-logo-white.png" alt="Công Nghệ Thường Nhật" width="210" height="78" data-astro-cid-jo6i4kqk></a><p data-astro-cid-jo6i4kqk>Tin tức công nghệ, AI, startup và an ninh mạng — cập nhật nhanh, chọn lọc và dễ đọc.</p></div><nav class="footer-col" aria-label="Chuyên mục" data-astro-cid-jo6i4kqk><h2 data-astro-cid-jo6i4kqk>Chuyên mục</h2><ul data-astro-cid-jo6i4kqk><li data-astro-cid-jo6i4kqk><a href="/category/ai" data-astro-cid-jo6i4kqk>AI</a></li><li data-astro-cid-jo6i4kqk><a href="/category/thiet-bi" data-astro-cid-jo6i4kqk>Thiết bị</a></li><li data-astro-cid-jo6i4kqk><a href="/category/startup" data-astro-cid-jo6i4kqk>Khởi nghiệp</a></li><li data-astro-cid-jo6i4kqk><a href="/category/an-ninh-mang" data-astro-cid-jo6i4kqk>An ninh mạng</a></li><li data-astro-cid-jo6i4kqk><a href="/category/lap-trinh" data-astro-cid-jo6i4kqk>Lập trình</a></li><li data-astro-cid-jo6i4kqk><a href="/category/cloud" data-astro-cid-jo6i4kqk>Điện toán đám mây</a></li><li data-astro-cid-jo6i4kqk><a href="/category/danh-gia" data-astro-cid-jo6i4kqk>Đánh giá</a></li></ul></nav><nav class="footer-col" aria-label="Thông tin và chính sách" data-astro-cid-jo6i4kqk><h2 data-astro-cid-jo6i4kqk>Thông tin</h2><ul data-astro-cid-jo6i4kqk><li data-astro-cid-jo6i4kqk><a href="/gioi-thieu" data-astro-cid-jo6i4kqk>Giới thiệu</a></li><li data-astro-cid-jo6i4kqk><a href="/lien-he" data-astro-cid-jo6i4kqk>Liên hệ</a></li><li data-astro-cid-jo6i4kqk><a href="/chinh-sach-bien-tap" data-astro-cid-jo6i4kqk>Chính sách biên tập</a></li><li data-astro-cid-jo6i4kqk><a href="/chinh-sach-quyen-rieng-tu" data-astro-cid-jo6i4kqk>Quyền riêng tư</a></li><li data-astro-cid-jo6i4kqk><a href="/dieu-khoan-su-dung" data-astro-cid-jo6i4kqk>Điều khoản sử dụng</a></li></ul></nav><div class="footer-col footer-newsletter" data-astro-cid-jo6i4kqk><h2 data-astro-cid-jo6i4kqk>Bản tin định kỳ</h2><p data-astro-cid-jo6i4kqk>Nhận ngay 5 bài mới nhất và bản tin công nghệ vào sáng Thứ Hai hàng tuần.</p><form data-newsletter novalidate data-astro-cid-jo6i4kqk><label class="visually-hidden" for="footer-email" data-astro-cid-jo6i4kqk>Thư điện tử của bạn</label><input id="footer-email" name="email" type="email" autocomplete="email" placeholder="Thư điện tử của bạn" required data-astro-cid-jo6i4kqk><button type="submit" data-submit data-astro-cid-jo6i4kqk>Gửi</button></form><p class="newsletter-status" data-status hidden role="status" aria-live="polite" data-astro-cid-jo6i4kqk></p></div></div><div class="footer-bottom" data-astro-cid-jo6i4kqk><div class="container" data-astro-cid-jo6i4kqk><p data-astro-cid-jo6i4kqk>Mọi bản quyền thuộc về Công Nghệ Thường Nhật</p></div></div></footer><script type="module" src="/src/components/Footer.astro?astro&type=script&index=0&lang.ts"></script><script type="module" src="/src/layouts/BaseLayout.astro?astro&type=script&index=0&lang.ts"></script></body></html>
