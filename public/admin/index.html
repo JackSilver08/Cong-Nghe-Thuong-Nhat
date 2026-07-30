@@ -485,7 +485,19 @@
       .library-hero h2 { margin: 0 0 7px; font-family: var(--font-head); font-size: 1.35rem; }
       .library-hero p { margin: 0; color: var(--muted); }
       .library-hero-actions { display: flex; gap: 10px; flex-shrink: 0; }
-      .library-upload { cursor: pointer; }
+      .library-hero-actions > * {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        box-sizing: border-box;
+        white-space: nowrap;
+      }
+      .library-upload {
+        min-width: 156px;
+        padding-inline: 22px;
+        cursor: pointer;
+      }
       .library-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
       .library-stat {
         display: grid; gap: 7px; padding: 18px; border: 1px solid var(--border);
