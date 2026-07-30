@@ -476,6 +476,63 @@
       .media-progress.error { color: #b91c1c; background: #fee2e2; }
       .media-progress[hidden] { display: none; }
       .media-modal .modal-actions .muted-note { margin-right: auto; }
+      .library-page { display: grid; gap: 18px; }
+      .library-hero {
+        display: flex; align-items: center; justify-content: space-between; gap: 20px;
+        padding: 24px; border: 1px solid #dfe3f0; border-radius: 14px;
+        background: linear-gradient(135deg, #fff 0%, #f4f5ff 62%, #eef9ff 100%);
+      }
+      .library-hero h2 { margin: 0 0 7px; font-family: var(--font-head); font-size: 1.35rem; }
+      .library-hero p { margin: 0; color: var(--muted); }
+      .library-hero-actions { display: flex; gap: 10px; flex-shrink: 0; }
+      .library-upload { cursor: pointer; }
+      .library-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+      .library-stat {
+        display: grid; gap: 7px; padding: 18px; border: 1px solid var(--border);
+        border-radius: 12px; background: #fff;
+      }
+      .library-stat span { color: var(--muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+      .library-stat strong { font-family: var(--font-head); font-size: 1.45rem; }
+      .library-controls {
+        display: grid; grid-template-columns: minmax(230px,1.5fr) repeat(2,minmax(150px,.7fr)) minmax(160px,.8fr);
+        gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #fff;
+      }
+      .library-controls label { gap: 6px; color: var(--muted); font-size: .76rem; }
+      .library-search { position: relative; align-self: end; }
+      .library-search input { padding-left: 40px; }
+      .library-search svg { position: absolute; left: 14px; top: 50%; width: 17px; transform: translateY(-50%); fill: none; stroke: var(--muted); stroke-width: 2; }
+      .library-custom-dates { display: flex; gap: 10px; padding: 0 16px 16px; border: 1px solid var(--border); border-top: 0; border-radius: 0 0 12px 12px; background: #fff; }
+      .library-custom-dates[hidden] { display: none; }
+      .library-custom-dates label { flex: 1; color: var(--muted); font-size: .76rem; }
+      .library-results-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .library-results-head p { margin: 0; color: var(--muted); font-size: .86rem; }
+      .library-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(210px,1fr)); gap: 16px; }
+      .library-item {
+        overflow: hidden; padding: 0; border: 1px solid var(--border); border-radius: 12px;
+        background: #fff; color: var(--text); cursor: pointer; text-align: left; transition: .18s ease;
+      }
+      .library-item:hover { transform: translateY(-2px); border-color: #a5b4fc; box-shadow: 0 12px 28px rgba(70,72,212,.1); }
+      .library-item.selected { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(70,72,212,.12); }
+      .library-thumb { position: relative; overflow: hidden; aspect-ratio: 16/10; background: #eef2f7; }
+      .library-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .library-type { position: absolute; top: 9px; left: 9px; padding: 4px 7px; border-radius: 6px; background: rgba(11,16,32,.76); color: #fff; font-size: .66rem; font-weight: 900; backdrop-filter: blur(6px); }
+      .library-item-body { display: grid; gap: 7px; padding: 12px; }
+      .library-item-name { overflow: hidden; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+      .library-item-meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .72rem; }
+      .library-empty { padding: 64px 24px; border: 1px dashed var(--border-strong); border-radius: 12px; color: var(--muted); text-align: center; background: #fff; }
+      .library-detail {
+        position: fixed; top: 0; right: 0; z-index: 410; width: min(430px, 100vw); height: 100vh;
+        overflow: auto; padding: 22px; background: #fff; box-shadow: -24px 0 70px rgba(11,16,32,.2);
+      }
+      .library-detail[hidden], .library-detail-backdrop[hidden] { display: none; }
+      .library-detail-backdrop { position: fixed; inset: 0; z-index: 400; background: rgba(11,16,32,.48); backdrop-filter: blur(3px); }
+      .library-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+      .library-detail-head h3 { margin: 0; font-family: var(--font-head); }
+      .library-detail img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; background: #eef2f7; }
+      .library-detail-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 18px; }
+      .library-detail-actions .danger { grid-column: 1/-1; color: #b91c1c; border-color: #fecaca; background: #fff1f2; }
+      .library-toast { position: fixed; right: 24px; bottom: 24px; z-index: 500; padding: 12px 16px; border-radius: 9px; background: #0b1020; color: #fff; box-shadow: 0 12px 32px rgba(0,0,0,.25); }
+      .library-toast[hidden] { display: none; }
       .user-role-select {
         min-width: 150px;
       }
@@ -895,6 +952,8 @@
         .stats {
           grid-template-columns: 1fr;
         }
+        .library-stats { grid-template-columns: repeat(2,1fr); }
+        .library-controls { grid-template-columns: repeat(2,1fr); }
       }
       @media (max-width: 620px) {
         .topbar,
@@ -913,6 +972,12 @@
         .media-toolbar { align-items: stretch; flex-direction: column; }
         .media-content { grid-template-columns: 1fr; }
         .media-detail { display: none; }
+        .library-hero { align-items: stretch; flex-direction: column; }
+        .library-hero-actions { display: grid; grid-template-columns: 1fr 1fr; }
+        .library-stats, .library-controls { grid-template-columns: 1fr; }
+        .library-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+        .library-item-meta { display: grid; }
+        .library-custom-dates { flex-direction: column; }
       }
     </style>
   </head>
@@ -937,6 +1002,7 @@
         </a>
         <nav class="nav" aria-label="Quản trị">
           <a href="#dashboard" class="active" data-admin-tab="dashboard">Bảng điều khiển</a>
+          <a href="#media" data-admin-tab="media">Thư viện ảnh</a>
           <a href="#users" data-admin-tab="users" data-admin-only>Quản lý người dùng</a>
           <a href="#comments" data-admin-tab="comments">Kiểm duyệt bình luận</a>
           <a href="/">Xem trang web</a>
@@ -1140,6 +1206,91 @@
             </div>
           </section>
 
+          <section class="library-page" data-admin-view="media" hidden>
+            <div class="library-hero">
+              <div>
+                <h2>Thư viện ảnh</h2>
+                <p>Quản lý toàn bộ ảnh đã tải lên, theo dõi thời gian và dung lượng trong một nơi.</p>
+              </div>
+              <div class="library-hero-actions">
+                <button class="action-button" id="libraryRefreshButton" type="button">↻ Làm mới</button>
+                <label class="primary library-upload" for="libraryUploadInput">↑ Tải ảnh lên</label>
+                <input id="libraryUploadInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden />
+              </div>
+            </div>
+
+            <div class="library-stats" aria-label="Thống kê thư viện ảnh">
+              <article class="library-stat"><span>Tổng số ảnh</span><strong id="libraryTotalCount">0</strong></article>
+              <article class="library-stat"><span>Tổng dung lượng</span><strong id="libraryTotalSize">0 B</strong></article>
+              <article class="library-stat"><span>Ảnh trong 30 ngày</span><strong id="libraryRecentCount">0</strong></article>
+              <article class="library-stat"><span>Lần tải lên gần nhất</span><strong id="libraryLatestTime">—</strong></article>
+            </div>
+
+            <div>
+              <div class="library-controls">
+                <div class="library-search">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+                  <input id="librarySearchInput" type="search" placeholder="Tìm theo tên hoặc đường dẫn…" autocomplete="off" aria-label="Tìm ảnh" />
+                </div>
+                <label>Thời gian
+                  <select id="libraryTimeFilter">
+                    <option value="all">Tất cả thời gian</option>
+                    <option value="today">Hôm nay</option>
+                    <option value="7">7 ngày qua</option>
+                    <option value="30">30 ngày qua</option>
+                    <option value="year">Năm nay</option>
+                    <option value="custom">Khoảng tùy chọn</option>
+                  </select>
+                </label>
+                <label>Định dạng
+                  <select id="libraryTypeFilter">
+                    <option value="all">Tất cả định dạng</option>
+                    <option value="webp">WebP</option>
+                    <option value="jpg">JPG / JPEG</option>
+                    <option value="png">PNG</option>
+                    <option value="gif">GIF</option>
+                  </select>
+                </label>
+                <label>Sắp xếp
+                  <select id="librarySort">
+                    <option value="newest">Mới nhất trước</option>
+                    <option value="oldest">Cũ nhất trước</option>
+                    <option value="largest">Dung lượng lớn nhất</option>
+                    <option value="smallest">Dung lượng nhỏ nhất</option>
+                    <option value="name">Tên A–Z</option>
+                  </select>
+                </label>
+              </div>
+              <div class="library-custom-dates" id="libraryCustomDates" hidden>
+                <label>Từ ngày<input id="libraryDateFrom" type="date" /></label>
+                <label>Đến ngày<input id="libraryDateTo" type="date" /></label>
+              </div>
+            </div>
+
+            <div class="library-results-head">
+              <p id="libraryResultText">Đang tải thư viện…</p>
+              <button class="action-button" id="libraryClearFilters" type="button">Xóa bộ lọc</button>
+            </div>
+            <div class="library-grid" id="libraryGrid"></div>
+            <div class="library-empty" id="libraryEmpty">Đang tải thư viện ảnh…</div>
+          </section>
+
+          <div class="library-detail-backdrop" id="libraryDetailBackdrop" hidden></div>
+          <aside class="library-detail" id="libraryDetail" aria-labelledby="libraryDetailTitle" hidden>
+            <div class="library-detail-head">
+              <h3 id="libraryDetailTitle">Chi tiết ảnh</h3>
+              <button class="modal-close" id="libraryDetailClose" type="button" aria-label="Đóng">×</button>
+            </div>
+            <img id="libraryDetailImage" alt="" />
+            <div class="media-meta" id="libraryDetailMeta"></div>
+            <div class="library-detail-actions">
+              <button class="action-button" id="libraryCopyButton" type="button">Sao chép URL</button>
+              <button class="action-button" id="libraryDownloadButton" type="button">Tải xuống</button>
+              <button class="action-button danger" id="libraryDeleteButton" type="button">Xóa ảnh khỏi thư viện</button>
+            </div>
+          </aside>
+          <div class="library-toast" id="libraryToast" role="status" hidden></div>
+
           <section class="panel user-management" id="userManagement" data-admin-view="users" data-admin-only hidden>
             <div class="panel-head user-panel-head">
               <div>
@@ -1286,6 +1437,8 @@
       var coverPreviewObjectUrl = '';
       var mediaItems = [];
       var selectedMedia = null;
+      var librarySelectedMedia = null;
+      var libraryLoaded = false;
       var mediaPurpose = 'cover';
 
       function modernConfirm(options) {
@@ -1367,19 +1520,22 @@
         element.hidden = !isAdmin;
       });
       document.querySelector('[data-admin-tab="dashboard"]').hidden = !canManagePosts;
+      document.querySelector('[data-admin-tab="media"]').hidden = !canManagePosts;
       document.querySelector('[data-admin-tab="comments"]').hidden = !canModerateComments;
       if (currentRole === 'author') {
         var publishedOption = document.querySelector('#postForm select[name="status"] option[value="published"]');
         if (publishedOption) publishedOption.disabled = true;
       }
 
-      var tabTitles = { users: 'Quản lý người dùng', comments: 'Kiểm duyệt bình luận', dashboard: 'Bảng điều khiển' };
+      var tabTitles = { users: 'Quản lý người dùng', comments: 'Kiểm duyệt bình luận', media: 'Thư viện ảnh', dashboard: 'Bảng điều khiển' };
 
       function setAdminTab(tab) {
         var nextTab = tab === 'users' && isAdmin
           ? 'users'
           : tab === 'comments' && canModerateComments
             ? 'comments'
+            : tab === 'media' && canManagePosts
+              ? 'media'
             : canManagePosts
               ? 'dashboard'
               : 'comments';
@@ -1394,6 +1550,7 @@
           window.history.replaceState(null, '', '#' + nextTab);
         }
         if (nextTab === 'comments') renderComments();
+        if (nextTab === 'media') loadLibraryPage(!libraryLoaded);
       }
 
       document.querySelectorAll('[data-admin-tab]').forEach(function (link) {
@@ -1403,7 +1560,7 @@
         });
       });
       var initialHash = (window.location.hash || '').replace('#', '');
-      setAdminTab(initialHash === 'users' || initialHash === 'comments' ? initialHash : canManagePosts ? 'dashboard' : 'comments');
+      setAdminTab(['users', 'comments', 'media'].includes(initialHash) ? initialHash : canManagePosts ? 'dashboard' : 'comments');
 
       var currentPosts = [];
       var categoryLabels = {
@@ -1920,6 +2077,212 @@
       }
 
       // purpose: 'cover' = chọn ảnh bìa, 'inline' = chèn ảnh vào giữa bài.
+      function mediaExtension(item) {
+        var match = String(item.name || '').toLowerCase().match(/\.([a-z0-9]+)$/);
+        var extension = match ? match[1] : '';
+        return extension === 'jpeg' ? 'jpg' : extension;
+      }
+
+      function relativeMediaTime(value) {
+        if (!value) return 'Không rõ';
+        var date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Không rõ';
+        var seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+        if (seconds < 60) return 'Vừa xong';
+        if (seconds < 3600) return Math.floor(seconds / 60) + ' phút trước';
+        if (seconds < 86400) return Math.floor(seconds / 3600) + ' giờ trước';
+        if (seconds < 604800) return Math.floor(seconds / 86400) + ' ngày trước';
+        return date.toLocaleDateString('vi-VN');
+      }
+
+      function libraryFilteredItems() {
+        var query = document.getElementById('librarySearchInput').value.trim().toLocaleLowerCase('vi');
+        var time = document.getElementById('libraryTimeFilter').value;
+        var type = document.getElementById('libraryTypeFilter').value;
+        var now = new Date();
+        var start = null;
+        var end = null;
+        if (time === 'today') start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if (time === '7' || time === '30') start = new Date(now.getTime() - Number(time) * 86400000);
+        if (time === 'year') start = new Date(now.getFullYear(), 0, 1);
+        if (time === 'custom') {
+          var from = document.getElementById('libraryDateFrom').value;
+          var to = document.getElementById('libraryDateTo').value;
+          start = from ? new Date(from + 'T00:00:00') : null;
+          end = to ? new Date(to + 'T23:59:59') : null;
+        }
+        var items = mediaItems.filter(function (item) {
+          var created = item.createdAt ? new Date(item.createdAt) : null;
+          return (!query || item.name.toLocaleLowerCase('vi').includes(query) || item.path.toLocaleLowerCase('vi').includes(query))
+            && (type === 'all' || mediaExtension(item) === type)
+            && (!start || (created && created >= start))
+            && (!end || (created && created <= end));
+        });
+        var sort = document.getElementById('librarySort').value;
+        items.sort(function (a, b) {
+          if (sort === 'oldest') return String(a.createdAt).localeCompare(String(b.createdAt));
+          if (sort === 'largest') return Number(b.size) - Number(a.size);
+          if (sort === 'smallest') return Number(a.size) - Number(b.size);
+          if (sort === 'name') return a.name.localeCompare(b.name, 'vi');
+          return String(b.createdAt).localeCompare(String(a.createdAt));
+        });
+        return items;
+      }
+
+      function updateLibraryStats() {
+        var totalSize = mediaItems.reduce(function (sum, item) { return sum + Number(item.size || 0); }, 0);
+        var boundary = Date.now() - 30 * 86400000;
+        var recent = mediaItems.filter(function (item) {
+          return item.createdAt && new Date(item.createdAt).getTime() >= boundary;
+        }).length;
+        document.getElementById('libraryTotalCount').textContent = String(mediaItems.length);
+        document.getElementById('libraryTotalSize').textContent = totalSize ? formatBytes(totalSize) : '0 B';
+        document.getElementById('libraryRecentCount').textContent = String(recent);
+        document.getElementById('libraryLatestTime').textContent = mediaItems.length ? relativeMediaTime(mediaItems[0].createdAt) : '—';
+      }
+
+      function renderLibraryPage() {
+        var items = libraryFilteredItems();
+        var grid = document.getElementById('libraryGrid');
+        var empty = document.getElementById('libraryEmpty');
+        grid.innerHTML = '';
+        empty.hidden = items.length > 0;
+        empty.textContent = mediaItems.length ? 'Không có ảnh phù hợp với bộ lọc.' : 'Thư viện chưa có ảnh. Hãy tải ảnh đầu tiên lên.';
+        document.getElementById('libraryResultText').textContent = 'Hiển thị ' + items.length + ' trong tổng số ' + mediaItems.length + ' ảnh';
+        items.forEach(function (item) {
+          var card = document.createElement('button');
+          card.type = 'button';
+          card.className = 'library-item' + (librarySelectedMedia && librarySelectedMedia.path === item.path ? ' selected' : '');
+          var thumb = document.createElement('div');
+          thumb.className = 'library-thumb';
+          var image = document.createElement('img');
+          image.src = item.url;
+          image.alt = '';
+          image.loading = 'lazy';
+          var type = document.createElement('span');
+          type.className = 'library-type';
+          type.textContent = (mediaExtension(item) || 'ẢNH').toUpperCase();
+          thumb.append(image, type);
+          var body = document.createElement('div');
+          body.className = 'library-item-body';
+          var name = document.createElement('span');
+          name.className = 'library-item-name';
+          name.textContent = item.name;
+          var meta = document.createElement('span');
+          meta.className = 'library-item-meta';
+          var size = document.createElement('span');
+          size.textContent = formatBytes(item.size);
+          var uploaded = document.createElement('span');
+          uploaded.textContent = relativeMediaTime(item.createdAt);
+          meta.append(size, uploaded);
+          body.append(name, meta);
+          card.append(thumb, body);
+          card.addEventListener('click', function () { openLibraryDetail(item); });
+          grid.append(card);
+        });
+        updateLibraryStats();
+      }
+
+      async function loadLibraryPage(force) {
+        if (libraryLoaded && !force) {
+          renderLibraryPage();
+          return;
+        }
+        document.getElementById('libraryEmpty').hidden = false;
+        document.getElementById('libraryEmpty').textContent = 'Đang tải thư viện ảnh…';
+        document.getElementById('libraryGrid').innerHTML = '';
+        document.getElementById('libraryResultText').textContent = 'Đang tải thư viện…';
+        await loadMediaLibrary();
+        libraryLoaded = true;
+        renderLibraryPage();
+      }
+
+      function openLibraryDetail(item) {
+        librarySelectedMedia = item;
+        var image = document.getElementById('libraryDetailImage');
+        var meta = document.getElementById('libraryDetailMeta');
+        image.src = item.url;
+        image.alt = item.name;
+        meta.innerHTML = '';
+        [
+          ['Tên tệp', item.name],
+          ['Định dạng', (mediaExtension(item) || 'Không rõ').toUpperCase()],
+          ['Dung lượng', formatBytes(item.size)],
+          ['Ngày tải lên', item.createdAt ? new Date(item.createdAt).toLocaleString('vi-VN') : 'Không rõ'],
+          ['Thời gian tương đối', relativeMediaTime(item.createdAt)],
+          ['Đường dẫn lưu trữ', item.path],
+        ].forEach(function (entry) {
+          var row = document.createElement('div');
+          var key = document.createElement('span');
+          var value = document.createElement('strong');
+          key.textContent = entry[0];
+          value.textContent = entry[1];
+          row.append(key, value);
+          meta.append(row);
+        });
+        document.getElementById('libraryDetail').hidden = false;
+        document.getElementById('libraryDetailBackdrop').hidden = false;
+        document.body.style.overflow = 'hidden';
+        renderLibraryPage();
+      }
+
+      function closeLibraryDetail() {
+        document.getElementById('libraryDetail').hidden = true;
+        document.getElementById('libraryDetailBackdrop').hidden = true;
+        document.body.style.overflow = '';
+      }
+
+      function showLibraryToast(text) {
+        var toast = document.getElementById('libraryToast');
+        toast.textContent = text;
+        toast.hidden = false;
+        clearTimeout(showLibraryToast.timer);
+        showLibraryToast.timer = setTimeout(function () { toast.hidden = true; }, 2600);
+      }
+
+      async function deleteLibraryImage() {
+        if (!librarySelectedMedia) return;
+        var item = librarySelectedMedia;
+        if (!await modernConfirm({
+          title: 'Xóa ảnh khỏi thư viện?',
+          message: item.name + ' sẽ bị xóa vĩnh viễn. Các bài viết đang dùng URL này có thể mất ảnh.',
+          confirmText: 'Xóa ảnh'
+        })) return;
+        var result = await supabaseClient.storage.from(imageBucket).remove([item.path]);
+        if (result.error) {
+          showLibraryToast('Không xóa được ảnh: ' + result.error.message);
+          return;
+        }
+        closeLibraryDetail();
+        librarySelectedMedia = null;
+        libraryLoaded = false;
+        await loadLibraryPage(true);
+        showLibraryToast('Đã xóa ảnh khỏi thư viện.');
+      }
+
+      async function uploadLibraryFiles(files) {
+        var accepted = Array.from(files || []).filter(function (file) {
+          return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type) && file.size <= 5 * 1024 * 1024;
+        });
+        if (!accepted.length) {
+          showLibraryToast('Chỉ hỗ trợ JPEG, PNG, WebP hoặc GIF tối đa 5 MB.');
+          return;
+        }
+        showLibraryToast('Đang tải ' + accepted.length + ' ảnh…');
+        try {
+          for (var index = 0; index < accepted.length; index += 1) {
+            await uploadImage(accepted[index], slugify(accepted[index].name.replace(/\.[^.]+$/, '')) || 'image');
+          }
+          libraryLoaded = false;
+          await loadLibraryPage(true);
+          showLibraryToast('Đã tải lên ' + accepted.length + ' ảnh.');
+        } catch (error) {
+          showLibraryToast('Không tải được ảnh: ' + error.message);
+        } finally {
+          document.getElementById('libraryUploadInput').value = '';
+        }
+      }
+
       async function openMediaLibrary(purpose) {
         mediaPurpose = purpose === 'inline' ? 'inline' : 'cover';
         var modal = document.getElementById('mediaLibraryModal');
@@ -2427,6 +2790,51 @@
       });
       document.getElementById('mediaLibraryModal').addEventListener('click', function (event) {
         if (event.target === event.currentTarget) closeMediaLibrary();
+      });
+      document.getElementById('libraryRefreshButton').addEventListener('click', function () {
+        libraryLoaded = false;
+        loadLibraryPage(true);
+      });
+      document.getElementById('libraryUploadInput').addEventListener('change', function (event) {
+        uploadLibraryFiles(event.target.files);
+      });
+      ['librarySearchInput', 'libraryTypeFilter', 'librarySort', 'libraryDateFrom', 'libraryDateTo'].forEach(function (id) {
+        document.getElementById(id).addEventListener(id === 'librarySearchInput' ? 'input' : 'change', renderLibraryPage);
+      });
+      document.getElementById('libraryTimeFilter').addEventListener('change', function (event) {
+        document.getElementById('libraryCustomDates').hidden = event.target.value !== 'custom';
+        renderLibraryPage();
+      });
+      document.getElementById('libraryClearFilters').addEventListener('click', function () {
+        document.getElementById('librarySearchInput').value = '';
+        document.getElementById('libraryTimeFilter').value = 'all';
+        document.getElementById('libraryTypeFilter').value = 'all';
+        document.getElementById('librarySort').value = 'newest';
+        document.getElementById('libraryDateFrom').value = '';
+        document.getElementById('libraryDateTo').value = '';
+        document.getElementById('libraryCustomDates').hidden = true;
+        renderLibraryPage();
+      });
+      document.getElementById('libraryDetailClose').addEventListener('click', closeLibraryDetail);
+      document.getElementById('libraryDetailBackdrop').addEventListener('click', closeLibraryDetail);
+      document.getElementById('libraryDeleteButton').addEventListener('click', deleteLibraryImage);
+      document.getElementById('libraryCopyButton').addEventListener('click', async function () {
+        if (!librarySelectedMedia) return;
+        try {
+          await navigator.clipboard.writeText(librarySelectedMedia.url);
+          showLibraryToast('Đã sao chép URL ảnh.');
+        } catch (error) {
+          showLibraryToast('Trình duyệt không cho phép sao chép tự động.');
+        }
+      });
+      document.getElementById('libraryDownloadButton').addEventListener('click', function () {
+        if (!librarySelectedMedia) return;
+        var link = document.createElement('a');
+        link.href = librarySelectedMedia.url;
+        link.download = librarySelectedMedia.name;
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.click();
       });
 
       document.querySelector('input[name="title"]').addEventListener('input', function (event) {
