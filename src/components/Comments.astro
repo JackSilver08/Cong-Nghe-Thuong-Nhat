@@ -54,7 +54,13 @@ const { slug } = Astro.props;
     padding-block: 34px 52px;
   }
   .comments .comments-inner {
-    max-width: 760px;
+    max-width: var(--maxw);
+    display: grid;
+    grid-template-columns: minmax(0, 820px) minmax(260px, 320px);
+    column-gap: clamp(32px, 4vw, 64px);
+  }
+  .comments .comments-inner > * {
+    grid-column: 1;
   }
   .comments .comments-title {
     font-size: 1.4rem;
@@ -302,6 +308,12 @@ const { slug } = Astro.props;
     }
     .comments .comment-composer .composer-actions button {
       width: 100%;
+    }
+  }
+  @media (max-width: 1279px) {
+    .comments .comments-inner {
+      display: block;
+      max-width: 760px;
     }
   }
 </style>
