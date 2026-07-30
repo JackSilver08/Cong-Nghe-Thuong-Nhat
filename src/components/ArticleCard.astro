@@ -130,6 +130,21 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
   .card-title a:hover {
     color: var(--primary);
   }
+  /* Mở rộng vùng chạm của tiêu đề ra toàn thẻ: chữ trong tiêu đề là inline nên
+     chỉ bấm trúng đúng nét chữ, khe giữa hai dòng thì trượt. Lớp phủ này trỏ
+     đúng URL cũ, không thêm hành vi mới. */
+  .card-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  /* Chip chuyên mục và phần meta phải nằm trên lớp phủ để vẫn bấm được. */
+  .card-meta-top,
+  .card-meta {
+    position: relative;
+    z-index: 2;
+  }
   .card-excerpt {
     margin: 0;
     color: var(--text-soft);

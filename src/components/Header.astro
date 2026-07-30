@@ -333,16 +333,19 @@ const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
     display: none !important;
   }
   /* Lớp bọc cố định + cắt tràn: panel nằm ngoài màn hình khi đóng nên không
-     được phép tính vào chiều rộng cuộn của tài liệu. */
+     được phép tính vào chiều rộng cuộn của tài liệu.
+     Vì lớp này phủ kín màn hình nên nó KHÔNG được nhận sự kiện chuột — chỉ
+     backdrop (khi mở) và chính panel mới bật lại pointer-events. Tuyệt đối
+     không dùng rule gộp kiểu `.drawer-layer > *`: Astro thêm data-astro-cid vào
+     cả hai vế nên nó có specificity cao hơn rule của .drawer-backdrop, ghi đè
+     `pointer-events: none` và khiến backdrop trong suốt nuốt hết click toàn
+     site. */
   .drawer-layer {
     position: fixed;
     inset: 0;
     z-index: 55;
     overflow: hidden;
     pointer-events: none;
-  }
-  .drawer-layer > * {
-    pointer-events: auto;
   }
   .drawer-backdrop {
     position: absolute;
@@ -360,6 +363,7 @@ const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
     position: absolute;
     top: 0;
     right: 0;
+    pointer-events: auto;
     display: flex;
     flex-direction: column;
     width: min(86vw, 340px);
