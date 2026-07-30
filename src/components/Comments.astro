@@ -64,6 +64,9 @@ const { slug } = Astro.props;
 <!-- Style global (khóa trong .comments) vì các thẻ bình luận được tạo động
      bằng JS nên không nhận được style scoped của Astro. -->
 <style is:global>
+  .comments [hidden] {
+    display: none !important;
+  }
   .comments {
     background: var(--bg);
     border-top: 1px solid var(--border);
