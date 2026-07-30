@@ -2,6 +2,7 @@
 import BaseLayout from './BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import Comments from '../components/Comments.astro';
+import MushroomieAd from '../components/MushroomieAd.astro';
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
 import { categoryLabel } from '../lib/categories';
@@ -100,6 +101,8 @@ const jsonLd = {
       <div class="article-content">
         <slot />
       </div>
+
+      <MushroomieAd />
 
       {data.tags.length > 0 && (
         <div class="article-tags" aria-label="Thẻ">
@@ -477,6 +480,14 @@ const jsonLd = {
 </style>
 
 <script>
+  // Đặt quảng cáo native sau đoạn thứ ba để không ngắt phần mở đầu bài viết.
+  const articleContent = document.querySelector('.article-content');
+  const mushroomieAd = document.querySelector('[data-mushroomie-ad]');
+  const thirdParagraph = articleContent?.querySelectorAll(':scope > p')[2];
+  if (thirdParagraph && mushroomieAd) {
+    thirdParagraph.insertAdjacentElement('afterend', mushroomieAd);
+  }
+
   // Copy link
   const copyBtn = document.querySelector<HTMLButtonElement>('.action-copy');
   copyBtn?.addEventListener('click', async () => {

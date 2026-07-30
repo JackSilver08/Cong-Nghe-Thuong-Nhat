@@ -1,0 +1,139 @@
+---
+const destination =
+  'https://mushroomie.io.vn/?utm_source=congnghethuongnhat&utm_medium=native_banner&utm_campaign=handmade_custom';
+---
+
+<aside class="mushroomie-ad" data-mushroomie-ad aria-label="Quảng cáo từ Mushroomie">
+  <a href={destination} target="_blank" rel="sponsored noopener">
+    <img
+      src="/assets/mushroomie-native-banner.png"
+      alt=""
+      width="1792"
+      height="1024"
+      loading="lazy"
+    />
+    <span class="ad-shade" aria-hidden="true"></span>
+    <span class="ad-copy">
+      <span class="ad-label">Quảng cáo · Mushroomie</span>
+      <strong>Biến chiếc vòng thành câu chuyện của riêng bạn</strong>
+      <span class="ad-description">Chọn màu, chọn charm — Mushroomie làm riêng bằng tay.</span>
+      <span class="ad-cta">Khám phá &amp; custom <span aria-hidden="true">→</span></span>
+    </span>
+  </a>
+</aside>
+
+<style>
+  .mushroomie-ad {
+    margin: 2rem 0;
+  }
+  .mushroomie-ad a {
+    position: relative;
+    display: block;
+    min-height: 280px;
+    overflow: hidden;
+    color: #33253b;
+    text-decoration: none;
+    border: 1px solid #eadde8;
+    border-radius: 20px;
+    box-shadow: 0 14px 36px rgba(104, 72, 111, 0.13);
+    isolation: isolate;
+  }
+  .mushroomie-ad img,
+  .ad-shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .mushroomie-ad img {
+    object-fit: cover;
+    transition: transform 0.45s ease;
+    z-index: -2;
+  }
+  .ad-shade {
+    background: linear-gradient(90deg, rgba(255, 250, 246, 0.98) 0%, rgba(255, 250, 246, 0.9) 43%, rgba(255, 250, 246, 0.08) 70%);
+    z-index: -1;
+  }
+  .ad-copy {
+    display: flex;
+    width: min(56%, 440px);
+    min-height: 280px;
+    padding: clamp(24px, 4vw, 38px);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .ad-label {
+    margin-bottom: 12px;
+    color: #765d78;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ad-copy strong {
+    max-width: 390px;
+    color: #3d2b43;
+    font-family: var(--font-head);
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    line-height: 1.2;
+  }
+  .ad-description {
+    max-width: 360px;
+    margin-top: 10px;
+    color: #66556a;
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+  .ad-cta {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 18px;
+    padding: 10px 17px;
+    color: #fff;
+    background: #745178;
+    border-radius: 999px;
+    font-family: var(--font-head);
+    font-size: 0.86rem;
+    font-weight: 700;
+    box-shadow: 0 6px 16px rgba(116, 81, 120, 0.22);
+  }
+  .mushroomie-ad a:hover img {
+    transform: scale(1.025);
+  }
+  .mushroomie-ad a:hover .ad-cta {
+    background: #5f4064;
+  }
+  .mushroomie-ad a:focus-visible {
+    outline: 3px solid #8d6592;
+    outline-offset: 3px;
+  }
+  @media (max-width: 600px) {
+    .mushroomie-ad a {
+      min-height: 390px;
+    }
+    .mushroomie-ad img {
+      object-position: 67% center;
+    }
+    .ad-shade {
+      background: linear-gradient(0deg, rgba(255, 250, 246, 0.99) 0%, rgba(255, 250, 246, 0.94) 52%, rgba(255, 250, 246, 0.06) 82%);
+    }
+    .ad-copy {
+      width: 100%;
+      min-height: 390px;
+      padding: 170px 22px 24px;
+      justify-content: flex-end;
+    }
+    .ad-copy strong {
+      font-size: 1.35rem;
+    }
+    .ad-description {
+      font-size: 0.9rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mushroomie-ad img {
+      transition: none;
+    }
+  }
+</style>
