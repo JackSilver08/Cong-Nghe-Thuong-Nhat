@@ -1,0 +1,74 @@
+<dialog class="confirm-dialog" id="siteConfirmDialog" aria-labelledby="siteConfirmTitle" aria-describedby="siteConfirmMessage">
+  <form method="dialog" class="confirm-dialog__panel">
+    <div class="confirm-dialog__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 8v5m0 3.5v.01M10.3 3.8 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z" /></svg>
+    </div>
+    <div class="confirm-dialog__content">
+      <p class="confirm-dialog__eyebrow">Xác nhận thao tác</p>
+      <h2 id="siteConfirmTitle">Bạn có chắc chắn?</h2>
+      <p id="siteConfirmMessage"></p>
+    </div>
+    <div class="confirm-dialog__actions">
+      <button class="confirm-dialog__cancel" value="cancel">Hủy</button>
+      <button class="confirm-dialog__confirm" value="confirm">Xác nhận</button>
+    </div>
+  </form>
+</dialog>
+
+<script is:inline>
+  (function () {
+    var dialog = document.getElementById('siteConfirmDialog');
+    if (!dialog) return;
+    var title = dialog.querySelector('#siteConfirmTitle');
+    var message = dialog.querySelector('#siteConfirmMessage');
+    var confirmButton = dialog.querySelector('.confirm-dialog__confirm');
+    var activeResolver = null;
+    var previousFocus = null;
+    window.siteConfirm = function (options) {
+      options = typeof options === 'string' ? { message: options } : (options || {});
+      if (dialog.open) dialog.close('cancel');
+      title.textContent = options.title || 'Bạn có chắc chắn?';
+      message.textContent = options.message || '';
+      confirmButton.textContent = options.confirmText || 'Xác nhận';
+      dialog.dataset.tone = options.tone || 'danger';
+      previousFocus = document.activeElement;
+      dialog.showModal();
+      document.body.classList.add('confirm-dialog-open');
+      return new Promise(function (resolve) { activeResolver = resolve; });
+    };
+    dialog.addEventListener('click', function (event) {
+      if (event.target === dialog) dialog.close('cancel');
+    });
+    dialog.addEventListener('close', function () {
+      document.body.classList.remove('confirm-dialog-open');
+      var resolve = activeResolver;
+      activeResolver = null;
+      if (resolve) resolve(dialog.returnValue === 'confirm');
+      if (previousFocus && previousFocus.focus) previousFocus.focus();
+    });
+  })();
+</script>
+
+<style>
+  :global(body.confirm-dialog-open) { overflow: hidden; }
+  .confirm-dialog { width: min(440px, calc(100vw - 32px)); padding: 0; border: 1px solid rgba(148,163,184,.2); border-radius: 24px; color: #e8edf8; background: rgba(15,22,42,.97); box-shadow: 0 30px 90px rgba(2,6,23,.62), 0 0 0 1px rgba(255,255,255,.04) inset; opacity: 0; transform: translateY(12px) scale(.96); transition: opacity .18s ease, transform .18s ease, display .18s allow-discrete, overlay .18s allow-discrete; }
+  .confirm-dialog[open] { opacity: 1; transform: none; }
+  @starting-style { .confirm-dialog[open] { opacity: 0; transform: translateY(12px) scale(.96); } }
+  .confirm-dialog::backdrop { background: rgba(3,7,18,.72); backdrop-filter: blur(8px); }
+  .confirm-dialog__panel { display: grid; grid-template-columns: 48px 1fr; gap: 16px; padding: 26px; }
+  .confirm-dialog__icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; color: #fb7185; background: rgba(244,63,94,.13); box-shadow: 0 0 0 1px rgba(251,113,133,.22) inset; }
+  .confirm-dialog[data-tone="primary"] .confirm-dialog__icon { color: #818cf8; background: rgba(99,102,241,.14); }
+  .confirm-dialog__icon svg { width: 24px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+  .confirm-dialog__eyebrow { margin: 1px 0 6px; color: #94a3b8; font-size: 11px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+  .confirm-dialog h2 { margin: 0; color: #fff; font: 800 21px/1.3 'Be Vietnam Pro', sans-serif; }
+  .confirm-dialog__content > p:last-child { margin: 9px 0 0; color: #aeb9ce; font-size: 14px; line-height: 1.65; }
+  .confirm-dialog__actions { grid-column: 1/-1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+  .confirm-dialog button { min-height: 42px; padding: 0 18px; border: 0; border-radius: 12px; cursor: pointer; font: 700 14px 'Inter', sans-serif; }
+  .confirm-dialog__cancel { color: #cbd5e1; background: rgba(148,163,184,.1); }
+  .confirm-dialog__confirm { color: #fff; background: linear-gradient(135deg,#f43f5e,#e11d48); box-shadow: 0 9px 22px rgba(225,29,72,.25); }
+  .confirm-dialog[data-tone="primary"] .confirm-dialog__confirm { background: linear-gradient(135deg,#6366f1,#4648d4); }
+  .confirm-dialog button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .confirm-dialog button:focus-visible { outline: 3px solid rgba(129,140,248,.4); outline-offset: 2px; }
+  @media (max-width: 480px) { .confirm-dialog__panel { grid-template-columns: 42px 1fr; padding: 20px; } .confirm-dialog__icon { width: 42px; height: 42px; } .confirm-dialog__actions { display: grid; grid-template-columns: 1fr 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .confirm-dialog { transition: none; } .confirm-dialog button:hover { transform: none; } }
+</style>

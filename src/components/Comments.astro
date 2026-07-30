@@ -792,7 +792,12 @@ const { slug } = Astro.props;
     }
 
     async function deleteComment(id: string) {
-      if (!window.confirm('Xóa bình luận này?')) return;
+      const confirmed = await (window as any).siteConfirm({
+        title: 'Xóa bình luận?',
+        message: 'Bình luận này sẽ bị xóa và không thể khôi phục.',
+        confirmText: 'Xóa bình luận',
+      });
+      if (!confirmed) return;
       const { error } = await supabaseBrowser.from('comments').delete().eq('id', id);
       if (error) {
         showFeedback('Không thể xóa bình luận. Vui lòng thử lại.', true);

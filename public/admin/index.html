@@ -513,6 +513,28 @@
       .detail-value.muted {
         color: var(--muted);
       }
+      .confirm-dialog {
+        width: min(440px, calc(100vw - 32px)); padding: 0; border: 1px solid rgba(148,163,184,.22);
+        border-radius: 24px; color: #e8edf8; background: rgba(15,22,42,.98);
+        box-shadow: 0 30px 90px rgba(2,6,23,.62); opacity: 0; transform: translateY(12px) scale(.96);
+        transition: opacity .18s ease, transform .18s ease, display .18s allow-discrete, overlay .18s allow-discrete;
+      }
+      .confirm-dialog[open] { opacity: 1; transform: none; }
+      .confirm-dialog::backdrop { background: rgba(3,7,18,.72); backdrop-filter: blur(8px); }
+      .confirm-panel { display: grid; grid-template-columns: 48px 1fr; gap: 16px; padding: 26px; }
+      .confirm-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; color: #fb7185; background: rgba(244,63,94,.13); }
+      .confirm-dialog[data-tone="primary"] .confirm-icon { color: #818cf8; background: rgba(99,102,241,.14); }
+      .confirm-icon svg { width: 24px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+      .confirm-eyebrow { margin: 1px 0 6px; color: #94a3b8; font-size: 11px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+      .confirm-dialog h2 { margin: 0; color: #fff; font-size: 21px; }
+      .confirm-message { margin: 9px 0 0; color: #aeb9ce; font-size: 14px; line-height: 1.65; }
+      .confirm-actions { grid-column: 1/-1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+      .confirm-actions button { min-height: 42px; padding: 0 18px; border: 0; border-radius: 12px; cursor: pointer; font-weight: 800; }
+      .confirm-cancel { color: #cbd5e1; background: rgba(148,163,184,.1); }
+      .confirm-accept { color: #fff; background: linear-gradient(135deg,#f43f5e,#e11d48); box-shadow: 0 9px 22px rgba(225,29,72,.25); }
+      .confirm-dialog[data-tone="primary"] .confirm-accept { background: linear-gradient(135deg,#6366f1,#4648d4); }
+      @media (max-width: 480px) { .confirm-panel { grid-template-columns: 42px 1fr; padding: 20px; } .confirm-icon { width: 42px; height: 42px; } .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; } }
+
       .modal-backdrop {
         position: fixed;
         inset: 0;
@@ -881,6 +903,13 @@
     </style>
   </head>
   <body>
+    <dialog class="confirm-dialog" id="adminConfirmDialog" aria-labelledby="adminConfirmTitle" aria-describedby="adminConfirmMessage">
+      <form method="dialog" class="confirm-panel">
+        <div class="confirm-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 8v5m0 3.5v.01M10.3 3.8 2.6 17.2A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z"/></svg></div>
+        <div><p class="confirm-eyebrow">Xác nhận thao tác</p><h2 id="adminConfirmTitle">Bạn có chắc chắn?</h2><p class="confirm-message" id="adminConfirmMessage"></p></div>
+        <div class="confirm-actions"><button class="confirm-cancel" value="cancel">Hủy</button><button class="confirm-accept" value="confirm">Xác nhận</button></div>
+      </form>
+    </dialog>
     <div class="admin-app">
       <aside class="sidebar">
         <a class="brand" href="/">
@@ -1245,6 +1274,32 @@
       var selectedMedia = null;
       var mediaPurpose = 'cover';
 
+      function modernConfirm(options) {
+        var dialog = document.getElementById('adminConfirmDialog');
+        var title = document.getElementById('adminConfirmTitle');
+        var message = document.getElementById('adminConfirmMessage');
+        var accept = dialog.querySelector('.confirm-accept');
+        options = typeof options === 'string' ? { message: options } : (options || {});
+        title.textContent = options.title || 'Bạn có chắc chắn?';
+        message.textContent = options.message || '';
+        accept.textContent = options.confirmText || 'Xác nhận';
+        dialog.dataset.tone = options.tone || 'danger';
+        var previousFocus = document.activeElement;
+        dialog.showModal();
+        return new Promise(function (resolve) {
+          function finish() {
+            dialog.removeEventListener('close', finish);
+            resolve(dialog.returnValue === 'confirm');
+            if (previousFocus && previousFocus.focus) previousFocus.focus();
+          }
+          dialog.addEventListener('close', finish);
+        });
+      }
+
+      document.getElementById('adminConfirmDialog').addEventListener('click', function (event) {
+        if (event.target === event.currentTarget) event.currentTarget.close('cancel');
+      });
+
       function goToLogin() {
         window.location.replace('/login?next=/admin/index.html');
       }
@@ -1428,10 +1483,13 @@
           roleSelect.addEventListener('change', async function () {
             var previousRole = user.role;
             var nextRole = roleSelect.value;
-            var confirmed = window.confirm(
-              'Đổi quyền của ' + (user.email || user.name || 'tài khoản') +
-              ' từ “' + roleLabel(previousRole) + '” thành “' + roleLabel(nextRole) + '”?',
-            );
+            var confirmed = await modernConfirm({
+              title: 'Thay đổi quyền tài khoản?',
+              message: 'Quyền của ' + (user.email || user.name || 'tài khoản') +
+                ' sẽ đổi từ “' + roleLabel(previousRole) + '” thành “' + roleLabel(nextRole) + '”.',
+              confirmText: 'Cập nhật quyền',
+              tone: 'primary'
+            });
             if (!confirmed) {
               roleSelect.value = previousRole;
               return;
@@ -1549,7 +1607,7 @@
           del.type = 'button';
           del.textContent = 'Xóa';
           del.addEventListener('click', async function () {
-            if (!window.confirm('Xóa bình luận này?')) return;
+            if (!await modernConfirm({ title: 'Xóa bình luận?', message: 'Bình luận này sẽ bị xóa và không thể khôi phục.', confirmText: 'Xóa bình luận' })) return;
             var d = await supabaseClient.from('comments').delete().eq('id', row.id);
             if (d.error) {
               showNotice('Không xóa được: ' + d.error.message, 'error');
@@ -1607,7 +1665,7 @@
       async function deleteUserAccount(user) {
         if (user.role === 'admin') return;
         var label = user.email || user.name || 'tài khoản này';
-        if (!window.confirm('Xóa vĩnh viễn ' + label + '? Thao tác này không thể hoàn tác.')) return;
+        if (!await modernConfirm({ title: 'Xóa vĩnh viễn tài khoản?', message: label + ' sẽ bị xóa. Thao tác này không thể hoàn tác.', confirmText: 'Xóa tài khoản' })) return;
         try {
           await manageUser({ action: 'delete', userId: user.id });
           showNotice('Đã xóa tài khoản ' + label + '.', 'success');
@@ -2128,7 +2186,7 @@
 
       async function deletePost(id) {
         if (!supabaseClient || !id) return;
-        if (!window.confirm('Xóa bài viết này?')) return;
+        if (!await modernConfirm({ title: 'Xóa bài viết?', message: 'Bài viết này sẽ bị xóa và không thể khôi phục.', confirmText: 'Xóa bài viết' })) return;
 
         var result = await supabaseClient.from('posts').delete().eq('id', id);
         if (result.error) {
