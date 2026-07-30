@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import SearchBox from '../components/SearchBox.astro';
-import CategoryNav from '../components/CategoryNav.astro';
 import { getPublishedPosts, postSlug } from '../lib/posts';
 import { categoryLabel } from '../lib/categories';
 
@@ -32,9 +31,6 @@ const items = posts.map((p) => ({
       <h1>Tìm kiếm bài viết</h1>
       <div class="search-input-wrap">
         <SearchBox variant="page" />
-      </div>
-      <div class="cat-row">
-        <CategoryNav />
       </div>
     </header>
 
@@ -71,9 +67,6 @@ const items = posts.map((p) => ({
   }
   .search-input-wrap {
     max-width: 560px;
-  }
-  .cat-row {
-    margin-top: var(--space-4);
   }
   .search-status {
     color: var(--text-muted);
