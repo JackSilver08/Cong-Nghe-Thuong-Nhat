@@ -97,7 +97,7 @@ const { slug } = Astro.props;
     align-items: end;
     justify-content: space-between;
     gap: 20px;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
   }
   .comments .comments-eyebrow {
     margin: 0 0 3px;
@@ -110,9 +110,9 @@ const { slug } = Astro.props;
 
   /* Ô soạn bình luận */
   .comments .comment-composer {
-    grid-template-columns: 42px minmax(0, 1fr);
+    display: flex;
     align-items: start;
-    gap: 11px;
+    gap: 12px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -120,6 +120,8 @@ const { slug } = Astro.props;
     margin-bottom: 30px;
   }
   .comments .composer-main {
+    flex: 1 1 auto;
+    width: 0;
     min-width: 0;
   }
   .comments .composer-avatar {
@@ -141,10 +143,10 @@ const { slug } = Astro.props;
     font: inherit;
     color: var(--text);
     background: #fff;
-    min-height: 46px;
+    min-height: 48px;
     max-height: 180px;
     resize: none;
-    overflow-y: auto;
+    overflow-y: hidden;
   }
   .comments textarea:focus {
     outline: 2px solid var(--ring);
@@ -494,7 +496,7 @@ const { slug } = Astro.props;
       align-items: flex-start;
     }
     .comments .comment-composer {
-      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 9px;
       padding: 11px;
     }
     .comments .composer-avatar,
@@ -739,6 +741,7 @@ const { slug } = Astro.props;
       textarea.addEventListener('input', () => {
         textarea.style.height = 'auto';
         textarea.style.height = `${Math.min(textarea.scrollHeight, 180)}px`;
+        textarea.style.overflowY = textarea.scrollHeight > 180 ? 'auto' : 'hidden';
       });
       textarea.addEventListener('keydown', (event) => {
         if (event.ctrlKey && event.key === 'Enter') form.requestSubmit();
@@ -890,6 +893,7 @@ const { slug } = Astro.props;
       const syncComposer = () => {
         composerTextarea.style.height = 'auto';
         composerTextarea.style.height = `${Math.min(composerTextarea.scrollHeight, 180)}px`;
+        composerTextarea.style.overflowY = composerTextarea.scrollHeight > 180 ? 'auto' : 'hidden';
         composerButton.disabled = !composerTextarea.value.trim() || composer.classList.contains('is-submitting');
       };
       composerTextarea.addEventListener('input', syncComposer);
