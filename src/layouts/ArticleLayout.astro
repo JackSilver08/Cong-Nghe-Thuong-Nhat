@@ -102,8 +102,6 @@ const jsonLd = {
         <slot />
       </div>
 
-      <MushroomieAd />
-
       {data.tags.length > 0 && (
         <div class="article-tags" aria-label="Thẻ">
           {data.tags.map((tag) => (
@@ -115,6 +113,7 @@ const jsonLd = {
 
       <aside class="article-rail" aria-label="Bài viết được đề xuất">
         <div class="rail-inner">
+          <MushroomieAd />
           <p class="rail-heading">Bài viết gợi ý</p>
           {sideRecommendations.map((item) => (
             <a class="rail-card" href={`/article/${postSlug(item)}`}>
@@ -480,14 +479,6 @@ const jsonLd = {
 </style>
 
 <script>
-  // Đặt quảng cáo native sau đoạn thứ ba để không ngắt phần mở đầu bài viết.
-  const articleContent = document.querySelector('.article-content');
-  const mushroomieAd = document.querySelector('[data-mushroomie-ad]');
-  const thirdParagraph = articleContent?.querySelectorAll(':scope > p')[2];
-  if (thirdParagraph && mushroomieAd) {
-    thirdParagraph.insertAdjacentElement('afterend', mushroomieAd);
-  }
-
   // Copy link
   const copyBtn = document.querySelector<HTMLButtonElement>('.action-copy');
   copyBtn?.addEventListener('click', async () => {
