@@ -21,10 +21,6 @@ const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
           height="70"
         />
       </a>
-
-      <div class="header-search">
-        <SearchBox variant="header" />
-      </div>
     </div>
 
     <div class="header-right">
@@ -195,10 +191,6 @@ const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
     height: 44px;
     object-fit: contain;
     object-position: left center;
-  }
-  .header-search {
-    flex: 0 1 360px;
-    min-width: 200px;
   }
   .header-right {
     flex: 0 0 auto;
@@ -622,11 +614,6 @@ const activeCategory = path.startsWith('/category/') ? path.split('/')[2] : '';
     }
     .nav-toggle {
       display: flex;
-    }
-  }
-  @media (max-width: 460px) {
-    .header-search {
-      display: none;
     }
   }
 </style>
