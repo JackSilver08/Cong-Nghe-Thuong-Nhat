@@ -7,40 +7,57 @@ const { slug } = Astro.props;
 
 <section class="comments" aria-label="Bình luận" data-comments data-slug={slug}>
   <div class="container comments-inner">
-    <h2 class="comments-title">Bình luận <span data-comment-count></span></h2>
+    <div class="comments-header">
+      <div>
+        <p class="comments-eyebrow">Thảo luận</p>
+        <h2 class="comments-title">Bình luận <span data-comment-count></span></h2>
+      </div>
+      <div class="comment-toolbar" data-toolbar hidden>
+        <label>
+          <span class="visually-hidden">Sắp xếp bình luận</span>
+          <select data-sort aria-label="Sắp xếp bình luận">
+            <option value="newest">Mới nhất</option>
+            <option value="oldest">Cũ nhất</option>
+          </select>
+        </label>
+      </div>
+    </div>
 
-    <!-- Ô soạn bình luận (chỉ khi đã đăng nhập) -->
     <form class="comment-composer" data-composer hidden>
-      <textarea
-        name="content"
-        rows="3"
-        maxlength="4000"
-        placeholder="Chia sẻ suy nghĩ của bạn…"
-        required
-      ></textarea>
-      <div class="composer-actions">
-        <span class="composer-as">Bình luận với tên <strong data-me-name></strong></span>
-        <button type="submit">Gửi bình luận</button>
+      <span class="composer-avatar" data-me-avatar aria-hidden="true">U</span>
+      <div class="composer-main">
+        <label class="visually-hidden" for={`comment-${slug}`}>Viết bình luận của bạn</label>
+        <textarea
+          id={`comment-${slug}`}
+          name="content"
+          rows="1"
+          maxlength="4000"
+          placeholder="Viết bình luận của bạn…"
+          aria-describedby={`comment-hint-${slug}`}
+          required
+        ></textarea>
+        <div class="composer-actions">
+          <span id={`comment-hint-${slug}`} class="composer-as">
+            <strong data-me-name></strong> · Ctrl + Enter để gửi
+          </span>
+          <button type="submit" disabled>
+            <span data-submit-label>Đăng</span>
+            <span class="button-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
       </div>
     </form>
 
-    <!-- Nhắc đăng nhập -->
     <p class="comment-login" data-login-prompt hidden>
       <a data-login-link href="/login">Đăng nhập</a> để tham gia bình luận.
     </p>
-
-    <div class="comment-toolbar" data-toolbar hidden>
-      <label>
-        Sắp xếp
-        <select data-sort>
-          <option value="newest">Mới nhất</option>
-          <option value="oldest">Cũ nhất</option>
-        </select>
-      </label>
+    <p class="comment-feedback" data-feedback role="status" aria-live="polite" hidden></p>
+    <div class="comment-status" data-status role="status" aria-live="polite">
+      <span class="status-spinner" aria-hidden="true"></span>
+      <span data-status-text>Đang tải bình luận…</span>
     </div>
-
-    <p class="comment-status" data-status>Đang tải bình luận…</p>
-    <div class="comment-list" data-list></div>
+    <div class="comment-list" data-list aria-live="polite"></div>
+    <button type="button" class="load-more" data-load-more hidden>Xem thêm bình luận</button>
   </div>
 </section>
 
@@ -74,16 +91,47 @@ const { slug } = Astro.props;
     font-weight: 600;
     font-size: 1rem;
   }
+  .comments .comments-header {
+    grid-column: 1;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 22px;
+  }
+  .comments .comments-eyebrow {
+    margin: 0 0 3px;
+    color: var(--nh-purple);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
   /* Ô soạn bình luận */
   .comments .comment-composer {
-    display: grid;
-    gap: 12px;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: start;
+    gap: 11px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 16px;
+    padding: 14px;
     margin-bottom: 30px;
+  }
+  .comments .composer-main {
+    min-width: 0;
+  }
+  .comments .composer-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--nh-grad);
+    color: #fff;
+    font-family: var(--font-head);
+    font-weight: 800;
   }
   .comments textarea {
     width: 100%;
@@ -93,7 +141,10 @@ const { slug } = Astro.props;
     font: inherit;
     color: var(--text);
     background: #fff;
-    resize: vertical;
+    min-height: 46px;
+    max-height: 180px;
+    resize: none;
+    overflow-y: auto;
   }
   .comments textarea:focus {
     outline: 2px solid var(--ring);
@@ -105,6 +156,7 @@ const { slug } = Astro.props;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+    margin-top: 9px;
   }
   .comments .composer-as {
     font-size: 0.86rem;
@@ -137,6 +189,27 @@ const { slug } = Astro.props;
       box-shadow 0.15s ease,
       opacity 0.15s ease;
   }
+  .comments .comment-composer .composer-actions button:disabled {
+    background: var(--surface-container);
+    color: var(--text-muted);
+    box-shadow: none;
+  }
+  .comments .comment-composer.is-submitting .button-spinner {
+    display: block;
+  }
+  .comments .button-spinner,
+  .comments .status-spinner {
+    display: none;
+    width: 15px;
+    height: 15px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: comment-spin 0.7s linear infinite;
+  }
+  .comments .status-spinner {
+    display: inline-block;
+  }
   .comments .comment-composer .composer-actions button:hover,
   .comments .comment-reply button:hover {
     transform: translateY(-1px);
@@ -168,12 +241,30 @@ const { slug } = Astro.props;
     font-weight: 800;
   }
 
-  .comments .comment-status {
+  .comments .comment-status,
+  .comments .comment-feedback {
     color: var(--text-muted);
     font-size: 0.92rem;
   }
+  .comments .comment-status {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 58px;
+  }
+  .comments .comment-feedback {
+    padding: 10px 12px;
+    margin: -14px 0 20px 53px;
+    border-radius: 9px;
+    background: rgba(70, 72, 212, 0.08);
+    color: var(--text-soft);
+  }
+  .comments .comment-feedback.is-error {
+    background: #fff1f2;
+    color: #9f1239;
+  }
   .comments .comment-toolbar {
-    margin-bottom: 14px;
+    margin: 0;
   }
   .comments .comment-toolbar label {
     display: inline-flex;
@@ -201,6 +292,7 @@ const { slug } = Astro.props;
     display: flex;
     gap: 12px;
     align-items: flex-start;
+    position: relative;
   }
   .comments .comment-avatar {
     flex: 0 0 auto;
@@ -222,10 +314,8 @@ const { slug } = Astro.props;
     min-width: 0;
   }
   .comments .comment-bubble {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px 14px 14px 14px;
-    padding: 12px 16px;
+    padding: 1px 42px 0 0;
+    position: relative;
   }
   .comments .comment-head {
     display: flex;
@@ -262,16 +352,67 @@ const { slug } = Astro.props;
   .comments .comment-actions {
     display: flex;
     gap: 16px;
-    margin: 8px 2px 0;
+    margin: 7px 2px 0;
   }
   .comments .comment-actions button {
     background: none;
     border: 0;
-    padding: 0;
+    min-height: 32px;
+    padding: 0 4px;
     color: var(--text-muted);
     font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
+  }
+  .comments .comment-menu-button {
+    position: absolute;
+    right: 0;
+    top: -5px;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+  .comments .comment-menu-button:hover,
+  .comments .comment-menu-button[aria-expanded='true'] {
+    background: var(--surface-low);
+    color: var(--text);
+  }
+  .comments .comment-menu {
+    position: absolute;
+    z-index: 5;
+    right: 0;
+    top: 34px;
+    min-width: 170px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14);
+  }
+  .comments .comment-menu button {
+    display: block;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    font: inherit;
+    font-size: 0.84rem;
+    cursor: pointer;
+  }
+  .comments .comment-menu button:hover {
+    background: var(--surface-low);
+  }
+  .comments .comment-menu .link-danger {
+    color: #b91c1c;
   }
   .comments .comment-actions button:hover {
     color: var(--nh-purple);
@@ -288,6 +429,29 @@ const { slug } = Astro.props;
     padding-left: 20px;
     border-left: 2px solid var(--border);
   }
+  .comments .replies-toggle,
+  .comments .load-more {
+    min-height: 40px;
+    border: 0;
+    background: transparent;
+    color: var(--nh-purple);
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .comments .replies-toggle {
+    margin: 8px 0 0 43px;
+  }
+  .comments .load-more {
+    display: block;
+    margin: 26px auto 0;
+    padding: 8px 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface);
+  }
+  .comments .comment.is-new {
+    animation: comment-arrive 0.4s ease both;
+  }
   .comments .comment-replies .comment-avatar {
     width: 32px;
     height: 32px;
@@ -300,8 +464,55 @@ const { slug } = Astro.props;
     gap: 8px;
     margin-top: 12px;
   }
+  .comments .replying-to {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+  }
+  .comments .reply-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .comments .reply-cancel {
+    background: transparent !important;
+    color: var(--text-soft) !important;
+    box-shadow: none !important;
+  }
+  @keyframes comment-spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes comment-arrive {
+    from { opacity: 0; transform: translateY(8px); }
+  }
 
   @media (max-width: 520px) {
+    .comments {
+      padding-block: 26px 38px;
+    }
+    .comments .comments-header {
+      align-items: flex-start;
+    }
+    .comments .comment-composer {
+      grid-template-columns: 34px minmax(0, 1fr);
+      padding: 11px;
+    }
+    .comments .composer-avatar,
+    .comments .comment-avatar {
+      width: 34px;
+      height: 34px;
+      font-size: 0.85rem;
+    }
+    .comments .comment-feedback {
+      margin-left: 0;
+    }
+    .comments .comment {
+      gap: 9px;
+    }
+    .comments .comment-replies {
+      padding-left: 11px;
+      margin-left: -24px;
+    }
     .comments .composer-actions {
       align-items: stretch;
       flex-direction: column;
@@ -326,17 +537,25 @@ const { slug } = Astro.props;
     const slug = root.dataset.slug || '';
     const listEl = root.querySelector<HTMLElement>('[data-list]')!;
     const statusEl = root.querySelector<HTMLElement>('[data-status]')!;
+    const statusTextEl = root.querySelector<HTMLElement>('[data-status-text]')!;
+    const feedbackEl = root.querySelector<HTMLElement>('[data-feedback]')!;
     const countEl = root.querySelector<HTMLElement>('[data-comment-count]')!;
     const composer = root.querySelector<HTMLFormElement>('[data-composer]')!;
     const loginPrompt = root.querySelector<HTMLElement>('[data-login-prompt]')!;
     const loginLink = root.querySelector<HTMLAnchorElement>('[data-login-link]')!;
     const meNameEl = root.querySelector<HTMLElement>('[data-me-name]')!;
+    const meAvatarEl = root.querySelector<HTMLElement>('[data-me-avatar]')!;
     const toolbar = root.querySelector<HTMLElement>('[data-toolbar]')!;
     const sortSelect = root.querySelector<HTMLSelectElement>('[data-sort]')!;
+    const loadMoreBtn = root.querySelector<HTMLButtonElement>('[data-load-more]')!;
+    const PAGE_SIZE = 10;
+    let visibleRootCount = PAGE_SIZE;
+    let newlyAddedId = '';
 
     sortSelect.addEventListener('change', () => {
       sortNewest = sortSelect.value === 'newest';
-      loadComments();
+      visibleRootCount = PAGE_SIZE;
+      loadComments(false);
     });
 
     type Me = { id: string; name: string; role: string } | null;
@@ -357,19 +576,31 @@ const { slug } = Astro.props;
     const canModerate = () => me?.role === 'admin' || me?.role === 'moderator';
 
     function formatTime(iso: string): string {
-      const d = new Date(iso);
-      return d.toLocaleString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      const seconds = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+      if (seconds < 45) return 'Vừa xong';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)} phút`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ`;
+      if (seconds < 604800) return `${Math.floor(seconds / 86400)} ngày`;
+      return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        .format(new Date(iso));
     }
 
     function initial(name: string): string {
       const t = (name || '').trim();
       return t ? t.charAt(0).toUpperCase() : 'U';
+    }
+
+    function showFeedback(message: string, error = false) {
+      feedbackEl.textContent = message;
+      feedbackEl.classList.toggle('is-error', error);
+      feedbackEl.hidden = false;
+    }
+
+    function closeMenus() {
+      root.querySelectorAll<HTMLElement>('.comment-menu').forEach((menu) => menu.hidden = true);
+      root.querySelectorAll<HTMLButtonElement>('.comment-menu-button').forEach((button) => {
+        button.setAttribute('aria-expanded', 'false');
+      });
     }
 
     function buildComment(c: Comment, isReply: boolean): HTMLElement {
@@ -401,6 +632,7 @@ const { slug } = Astro.props;
       const time = document.createElement('span');
       time.className = 'comment-time';
       time.textContent = formatTime(c.created_at);
+      time.title = new Date(c.created_at).toLocaleString('vi-VN');
       head.appendChild(time);
 
       const body = document.createElement('div');
@@ -409,6 +641,48 @@ const { slug } = Astro.props;
 
       bubble.appendChild(head);
       bubble.appendChild(body);
+
+      const menuButton = document.createElement('button');
+      menuButton.type = 'button';
+      menuButton.className = 'comment-menu-button';
+      menuButton.setAttribute('aria-label', `Tùy chọn bình luận của ${c.author_name}`);
+      menuButton.setAttribute('aria-expanded', 'false');
+      menuButton.textContent = '•••';
+
+      const menu = document.createElement('div');
+      menu.className = 'comment-menu';
+      menu.hidden = true;
+      const copyButton = document.createElement('button');
+      copyButton.type = 'button';
+      copyButton.textContent = 'Sao chép nội dung';
+      copyButton.addEventListener('click', async () => {
+        await navigator.clipboard.writeText(c.content);
+        closeMenus();
+        showFeedback('Đã sao chép nội dung bình luận.');
+      });
+      menu.appendChild(copyButton);
+
+      if (me && (me.id === c.user_id || canModerate())) {
+        const delButton = document.createElement('button');
+        delButton.type = 'button';
+        delButton.className = 'link-danger';
+        delButton.textContent = 'Xóa bình luận';
+        delButton.addEventListener('click', () => {
+          closeMenus();
+          deleteComment(c.id);
+        });
+        menu.appendChild(delButton);
+      }
+      menuButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const willOpen = menu.hidden;
+        closeMenus();
+        menu.hidden = !willOpen;
+        menuButton.setAttribute('aria-expanded', String(willOpen));
+        if (willOpen) menu.querySelector<HTMLButtonElement>('button')?.focus();
+      });
+      bubble.appendChild(menuButton);
+      bubble.appendChild(menu);
       main.appendChild(bubble);
 
       const actions = document.createElement('div');
@@ -423,20 +697,11 @@ const { slug } = Astro.props;
         actions.appendChild(replyBtn);
       }
 
-      // Xóa: tác giả của mình hoặc admin/moderator.
-      if (me && (me.id === c.user_id || canModerate())) {
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'link-danger';
-        delBtn.textContent = 'Xóa';
-        delBtn.addEventListener('click', () => deleteComment(c.id));
-        actions.appendChild(delBtn);
-      }
-
       if (actions.childElementCount) main.appendChild(actions);
 
       wrap.appendChild(avatar);
       wrap.appendChild(main);
+      if (c.id === newlyAddedId) wrap.classList.add('is-new');
       return wrap;
     }
 
@@ -448,58 +713,88 @@ const { slug } = Astro.props;
       }
       const form = document.createElement('form');
       form.className = 'comment-reply';
+      const context = document.createElement('p');
+      context.className = 'replying-to';
+      context.textContent = `Đang trả lời ${parentEl.querySelector('.comment-author')?.textContent || 'bình luận này'}`;
       const textarea = document.createElement('textarea');
       textarea.rows = 2;
       textarea.maxLength = 4000;
       textarea.required = true;
       textarea.placeholder = 'Viết trả lời…';
+      textarea.setAttribute('aria-label', context.textContent);
       const btn = document.createElement('button');
       btn.type = 'submit';
       btn.textContent = 'Gửi trả lời';
+      const cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.className = 'reply-cancel';
+      cancel.textContent = 'Hủy';
+      cancel.addEventListener('click', () => form.remove());
+      const controls = document.createElement('div');
+      controls.className = 'reply-controls';
+      controls.append(cancel, btn);
+      form.appendChild(context);
       form.appendChild(textarea);
-      form.appendChild(btn);
+      form.appendChild(controls);
+      textarea.addEventListener('input', () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${Math.min(textarea.scrollHeight, 180)}px`;
+      });
+      textarea.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.key === 'Enter') form.requestSubmit();
+      });
       form.addEventListener('submit', async (event) => {
         event.preventDefault();
         const content = textarea.value.trim();
         if (!content) return;
         btn.disabled = true;
-        await insertComment(content, parentId);
+        btn.textContent = 'Đang gửi…';
+        const success = await insertComment(content, parentId);
         btn.disabled = false;
+        btn.textContent = 'Gửi trả lời';
+        if (success) form.remove();
       });
       parentEl.appendChild(form);
       textarea.focus();
     }
 
-    async function insertComment(content: string, parentId: string | null) {
-      if (!me) return;
-      const { error } = await supabaseBrowser.from('comments').insert({
+    async function insertComment(content: string, parentId: string | null): Promise<boolean> {
+      if (!me) return false;
+      feedbackEl.hidden = true;
+      const { data, error } = await supabaseBrowser.from('comments').insert({
         post_slug: slug,
         parent_id: parentId,
         user_id: me.id,
         author_name: me.name,
         author_role: me.role,
         content,
-      });
+      }).select('id').single();
       if (error) {
-        statusEl.hidden = false;
-        statusEl.textContent = 'Không gửi được bình luận: ' + error.message;
-        return;
+        showFeedback('Không gửi được bình luận. Nội dung của bạn vẫn được giữ lại để thử lại.', true);
+        return false;
       }
-      await loadComments();
+      newlyAddedId = data?.id || '';
+      await loadComments(false);
+      showFeedback(parentId ? 'Đã đăng câu trả lời.' : 'Đã đăng bình luận.');
+      return true;
     }
 
     async function deleteComment(id: string) {
       if (!window.confirm('Xóa bình luận này?')) return;
       const { error } = await supabaseBrowser.from('comments').delete().eq('id', id);
       if (error) {
-        statusEl.hidden = false;
-        statusEl.textContent = 'Không xóa được: ' + error.message;
+        showFeedback('Không thể xóa bình luận. Vui lòng thử lại.', true);
         return;
       }
-      await loadComments();
+      await loadComments(false);
+      showFeedback('Đã xóa bình luận.');
     }
 
-    async function loadComments() {
+    async function loadComments(showLoading = true) {
+      if (showLoading) {
+        statusEl.hidden = false;
+        statusTextEl.textContent = 'Đang tải bình luận…';
+      }
       const { data, error } = await supabaseBrowser
         .from('comments')
         .select('id, parent_id, user_id, author_name, author_role, content, created_at')
@@ -508,7 +803,8 @@ const { slug } = Astro.props;
 
       if (error) {
         statusEl.hidden = false;
-        statusEl.textContent = 'Không tải được bình luận.';
+        statusEl.querySelector('.status-spinner')?.remove();
+        statusTextEl.textContent = 'Không tải được bình luận. Vui lòng tải lại trang.';
         return;
       }
 
@@ -530,28 +826,50 @@ const { slug } = Astro.props;
       countEl.textContent = comments.length ? `(${comments.length})` : '';
       toolbar.hidden = roots.length === 0;
       listEl.innerHTML = '';
+      loadMoreBtn.hidden = roots.length <= visibleRootCount;
 
       if (!roots.length) {
         statusEl.hidden = false;
-        statusEl.textContent = 'Chưa có bình luận nào. Hãy là người đầu tiên!';
+        statusEl.querySelector('.status-spinner')?.remove();
+        statusTextEl.textContent = 'Chưa có bình luận nào. Hãy mở đầu cuộc trò chuyện!';
         return;
       }
       statusEl.hidden = true;
 
-      for (const root of roots) {
-        const node = buildComment(root, false);
-        const replies = repliesByParent.get(root.id) || [];
+      for (const rootComment of roots.slice(0, visibleRootCount)) {
+        const node = buildComment(rootComment, false);
+        const replies = repliesByParent.get(rootComment.id) || [];
         if (replies.length) {
           const repliesWrap = document.createElement('div');
           repliesWrap.className = 'comment-replies';
-          for (const r of replies) {
-            repliesWrap.appendChild(buildComment(r, true));
+          const initiallyVisible = 2;
+          for (const [index, r] of replies.entries()) {
+            const replyNode = buildComment(r, true);
+            replyNode.hidden = index >= initiallyVisible;
+            repliesWrap.appendChild(replyNode);
           }
           const main = node.querySelector('.comment-main');
           (main || node).appendChild(repliesWrap);
+          if (replies.length > initiallyVisible) {
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'replies-toggle';
+            toggle.textContent = `Xem thêm ${replies.length - initiallyVisible} câu trả lời`;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.addEventListener('click', () => {
+              const expanded = toggle.getAttribute('aria-expanded') === 'true';
+              repliesWrap.querySelectorAll<HTMLElement>('.comment').forEach((reply, index) => {
+                reply.hidden = !expanded ? false : index >= initiallyVisible;
+              });
+              toggle.setAttribute('aria-expanded', String(!expanded));
+              toggle.textContent = expanded ? `Xem thêm ${replies.length - initiallyVisible} câu trả lời` : 'Ẩn câu trả lời';
+            });
+            (main || node).appendChild(toggle);
+          }
         }
         listEl.appendChild(node);
       }
+      newlyAddedId = '';
     }
 
     // Khởi tạo
@@ -560,24 +878,48 @@ const { slug } = Astro.props;
       if (me) {
         composer.hidden = false;
         meNameEl.textContent = me.name;
+        meAvatarEl.textContent = initial(me.name);
       } else {
         loginPrompt.hidden = false;
         loginLink.href = '/login?next=' + encodeURIComponent(window.location.pathname);
       }
 
+      const composerTextarea = composer.querySelector<HTMLTextAreaElement>('textarea')!;
+      const composerButton = composer.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const submitLabel = composer.querySelector<HTMLElement>('[data-submit-label]')!;
+      const syncComposer = () => {
+        composerTextarea.style.height = 'auto';
+        composerTextarea.style.height = `${Math.min(composerTextarea.scrollHeight, 180)}px`;
+        composerButton.disabled = !composerTextarea.value.trim() || composer.classList.contains('is-submitting');
+      };
+      composerTextarea.addEventListener('input', syncComposer);
+      composerTextarea.addEventListener('keydown', (event) => {
+        if (event.ctrlKey && event.key === 'Enter') composer.requestSubmit();
+      });
       composer.addEventListener('submit', async (event) => {
         event.preventDefault();
-        const textarea = composer.querySelector('textarea')!;
-        const content = textarea.value.trim();
+        const content = composerTextarea.value.trim();
         if (!content) return;
-        const btn = composer.querySelector('button')!;
-        btn.disabled = true;
-        await insertComment(content, null);
-        textarea.value = '';
-        btn.disabled = false;
+        composer.classList.add('is-submitting');
+        composerButton.disabled = true;
+        submitLabel.textContent = 'Đang đăng';
+        const success = await insertComment(content, null);
+        if (success) composerTextarea.value = '';
+        composer.classList.remove('is-submitting');
+        submitLabel.textContent = 'Đăng';
+        syncComposer();
       });
 
       await loadComments();
     })();
+
+    loadMoreBtn.addEventListener('click', () => {
+      visibleRootCount += PAGE_SIZE;
+      loadComments(false);
+    });
+    document.addEventListener('click', closeMenus);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeMenus();
+    });
   }
 </script>
