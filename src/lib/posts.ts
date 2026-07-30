@@ -207,7 +207,6 @@ export function getRelatedPosts(current: Post, all: Post[], limit = 3): Post[] {
     return { p, score };
   });
   return scored
-    .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score || b.p.data.publishedAt.valueOf() - a.p.data.publishedAt.valueOf())
     .slice(0, limit)
     .map((s) => s.p);

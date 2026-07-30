@@ -14,6 +14,9 @@ export interface Props {
 const { post, related } = Astro.props;
 const { data } = post;
 const slug = postSlug(post);
+const leftRecommendations = related.slice(0, 2);
+const rightRecommendations = related.slice(2, 4);
+const footerRecommendations = related.slice(4, 7);
 const canonical = new URL(`/article/${slug}`, Astro.site).toString();
 const ogImage = data.image
   ? new URL(data.image, Astro.site).toString()
@@ -50,7 +53,24 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <article class="article">
-    <div class="container article-container">
+    <div class="container article-shell">
+      <aside class="article-rail article-rail-left" aria-label="Gợi ý đọc thêm">
+        <div class="rail-inner">
+          <p class="rail-heading">Đọc thêm</p>
+          {leftRecommendations.map((item) => (
+            <a class="rail-card" href={`/article/${postSlug(item)}`}>
+              {item.data.image && (
+                <img src={item.data.image} alt="" loading="lazy" />
+              )}
+              <span class="rail-category">{categoryLabel(item.data.category)}</span>
+              <strong>{item.data.title}</strong>
+              <span class="rail-time">{item.data.readingTime || 1} phút đọc</span>
+            </a>
+          ))}
+        </div>
+      </aside>
+
+      <div class="article-container">
       <!-- breadcrumb -->
       <nav class="breadcrumb" aria-label="Đường dẫn">
         <a href="/">Trang chủ</a>
@@ -105,18 +125,35 @@ const jsonLd = {
           ))}
         </div>
       )}
+      </div>
+
+      <aside class="article-rail article-rail-right" aria-label="Bài viết được đề xuất">
+        <div class="rail-inner">
+          <p class="rail-heading">Dành cho bạn</p>
+          {rightRecommendations.map((item) => (
+            <a class="rail-card" href={`/article/${postSlug(item)}`}>
+              {item.data.image && (
+                <img src={item.data.image} alt="" loading="lazy" />
+              )}
+              <span class="rail-category">{categoryLabel(item.data.category)}</span>
+              <strong>{item.data.title}</strong>
+              <span class="rail-time">{item.data.readingTime || 1} phút đọc</span>
+            </a>
+          ))}
+        </div>
+      </aside>
     </div>
 
     <Comments slug={slug} />
 
-    {related.length > 0 && (
+    {footerRecommendations.length > 0 && (
       <section class="related section" aria-label="Bài viết liên quan">
         <div class="container">
           <div class="section-head">
             <h2 class="section-title">Bài viết liên quan</h2>
           </div>
           <div class="grid grid-3">
-            {related.map((p) => <ArticleCard post={p} headingLevel={3} />)}
+            {footerRecommendations.map((p) => <ArticleCard post={p} headingLevel={3} />)}
           </div>
         </div>
       </section>
@@ -125,8 +162,90 @@ const jsonLd = {
 </BaseLayout>
 
 <style>
+  .article-shell {
+    display: grid;
+    grid-template-columns: minmax(190px, 230px) minmax(0, 760px) minmax(190px, 230px);
+    justify-content: center;
+    align-items: start;
+    gap: clamp(24px, 3vw, 48px);
+  }
   .article-container {
-    max-width: 760px;
+    width: 100%;
+    min-width: 0;
+  }
+  .article-rail {
+    padding-top: 112px;
+    min-width: 0;
+  }
+  .rail-inner {
+    position: sticky;
+    top: 92px;
+  }
+  .rail-heading {
+    margin: 0 0 14px;
+    padding-left: 10px;
+    border-left: 3px solid var(--nh-purple);
+    color: var(--text);
+    font-family: var(--font-head);
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+  .rail-card {
+    display: block;
+    padding: 10px;
+    margin-bottom: 14px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .rail-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(70, 72, 212, 0.3);
+    box-shadow: 0 12px 28px rgba(70, 72, 212, 0.12);
+  }
+  .rail-card img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 9px;
+  }
+  .rail-category,
+  .rail-time {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+  }
+  .rail-category {
+    margin-bottom: 4px;
+    color: var(--nh-purple);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .rail-card strong {
+    display: -webkit-box;
+    overflow: hidden;
+    margin-bottom: 7px;
+    color: var(--text);
+    font-family: var(--font-head);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  @media (max-width: 1279px) {
+    .article-shell {
+      display: block;
+    }
+    .article-container {
+      max-width: 760px;
+      margin-inline: auto;
+    }
+    .article-rail {
+      display: none;
+    }
   }
   .breadcrumb {
     display: flex;
