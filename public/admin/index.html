@@ -410,20 +410,33 @@
       .cover-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
       .cover-image[hidden], .cover-field.has-image .cover-empty { display: none; }
       .cover-actions { position: absolute; right: 10px; bottom: 10px; display: flex; gap: 8px; }
+      .cover-actions[hidden] { display: none; }
       .cover-actions .action-button {
         min-height: 32px; border-color: rgba(255,255,255,.4);
         background: rgba(11,16,32,.86); color: #fff; backdrop-filter: blur(8px);
       }
       .modal.media-modal {
         width: min(1320px, calc(100vw - 64px));
-        height: min(860px, calc(100vh - 56px));
-        max-height: calc(100vh - 56px);
-        display: grid; grid-template-rows: auto auto auto minmax(0,1fr) auto; overflow: hidden;
+        height: min(820px, calc(100vh - 32px));
+        height: min(820px, calc(100dvh - 32px));
+        max-height: calc(100vh - 32px);
+        max-height: calc(100dvh - 32px);
+        display: grid;
+        grid-template-areas:
+          "head"
+          "toolbar"
+          "progress"
+          "content"
+          "actions";
+        grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+        overflow: hidden;
       }
       #mediaLibraryModal {
         z-index: 300;
       }
+      .media-modal > .modal-head { grid-area: head; }
       .media-toolbar {
+        grid-area: toolbar;
         display: flex; align-items: center; gap: 12px; padding: 14px 20px;
         border-bottom: 1px solid var(--border); background: var(--surface-low);
       }
@@ -441,7 +454,7 @@
         line-height: 1;
         white-space: nowrap;
       }
-      .media-content { min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) 340px; }
+      .media-content { grid-area: content; min-height: 0; display: grid; grid-template-columns: minmax(0,1fr) 340px; }
       .media-browser { min-width: 0; overflow: auto; padding: 18px; }
       .media-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(165px,1fr)); gap: 14px; }
       .media-card {
@@ -472,9 +485,16 @@
       .media-meta div { display: grid; gap: 3px; }
       .media-meta span { color: var(--muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; }
       .media-meta strong { overflow-wrap: anywhere; font-size: .82rem; }
-      .media-progress { padding: 9px 20px; color: #3730a3; background: #eef2ff; font-size: .82rem; font-weight: 700; }
+      .media-progress { grid-area: progress; padding: 9px 20px; color: #3730a3; background: #eef2ff; font-size: .82rem; font-weight: 700; }
       .media-progress.error { color: #b91c1c; background: #fee2e2; }
       .media-progress[hidden] { display: none; }
+      .media-modal > .modal-actions {
+        grid-area: actions;
+        position: relative;
+        z-index: 2;
+        border-top: 1px solid var(--border);
+        background: #fff;
+      }
       .media-modal .modal-actions .muted-note { margin-right: auto; }
       .library-page { display: grid; gap: 18px; }
       .library-hero {
@@ -2933,12 +2953,17 @@
         'blockquote', 'ul', 'ol', 'li',
         'a', 'img', 'figure', 'figcaption',
         'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
-        'br', 'hr', 'pre', 'code', 'sup', 'sub',
+        'br', 'pre', 'code', 'sup', 'sub',
       ]);
       var SOURCE_DROP_TAGS = new Set([
         'script', 'style', 'link', 'iframe', 'object', 'embed', 'svg',
         'canvas', 'form', 'input', 'button', 'select', 'textarea',
-        'video', 'audio', 'source', 'track', 'meta', 'base',
+        'video', 'audio', 'source', 'track', 'meta', 'base', 'hr',
+      ]);
+      var SOURCE_BLOCK_TAGS = new Set([
+        'p', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote',
+        'ul', 'ol', 'li', 'figure', 'figcaption',
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'pre',
       ]);
       var SOURCE_ALLOWED_ATTRIBUTES = {
         a: new Set(['href', 'title']),
@@ -2963,6 +2988,70 @@
         } catch (error) {
           return false;
         }
+      }
+
+      function formatArticleHtml(root) {
+        function indent(level) {
+          return '  '.repeat(level);
+        }
+
+        function formatElement(element, level) {
+          var tag = element.tagName.toLowerCase();
+          if (!SOURCE_BLOCK_TAGS.has(tag)) return indent(level) + element.outerHTML.trim();
+
+          // Nội dung code/pre phải được giữ nguyên khoảng trắng.
+          if (tag === 'pre') return indent(level) + element.outerHTML.trim();
+
+          var openTag = element.outerHTML.slice(0, element.outerHTML.indexOf('>') + 1);
+          var closeTag = '</' + tag + '>';
+          var children = Array.from(element.childNodes);
+          var hasBlockChild = children.some(function (child) {
+            return child.nodeType === Node.ELEMENT_NODE &&
+              SOURCE_BLOCK_TAGS.has(child.tagName.toLowerCase());
+          });
+
+          // Đoạn chỉ có chữ và định dạng inline được giữ trên một dòng.
+          if (!hasBlockChild) {
+            return indent(level) + openTag + element.innerHTML.trim() + closeTag;
+          }
+
+          var lines = [indent(level) + openTag];
+          var inlineBuffer = '';
+
+          function flushInline() {
+            var content = inlineBuffer.replace(/\s+/g, ' ').trim();
+            if (content) lines.push(indent(level + 1) + content);
+            inlineBuffer = '';
+          }
+
+          children.forEach(function (child) {
+            if (child.nodeType === Node.TEXT_NODE) {
+              inlineBuffer += child.textContent || '';
+              return;
+            }
+            if (child.nodeType !== Node.ELEMENT_NODE) return;
+            var childTag = child.tagName.toLowerCase();
+            if (SOURCE_BLOCK_TAGS.has(childTag)) {
+              flushInline();
+              lines.push(formatElement(child, level + 1));
+            } else {
+              inlineBuffer += child.outerHTML;
+            }
+          });
+          flushInline();
+          lines.push(indent(level) + closeTag);
+          return lines.join('\n');
+        }
+
+        return Array.from(root.childNodes)
+          .map(function (node) {
+            if (node.nodeType === Node.ELEMENT_NODE) return formatElement(node, 0);
+            if (node.nodeType === Node.TEXT_NODE) return String(node.textContent || '').trim();
+            return '';
+          })
+          .filter(Boolean)
+          .join('\n\n')
+          .trim();
       }
 
       function sanitizeArticleHtml(input) {
@@ -3044,7 +3133,7 @@
         comments.forEach(function (comment) { comment.remove(); });
 
         return {
-          html: doc.body.innerHTML.trim(),
+          html: formatArticleHtml(doc.body),
           removedCss: removedCss,
           removedUnsafe: removedUnsafe,
         };
