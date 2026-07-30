@@ -14,8 +14,7 @@ export interface Props {
 const { post, related } = Astro.props;
 const { data } = post;
 const slug = postSlug(post);
-const leftRecommendations = related.slice(0, 2);
-const rightRecommendations = related.slice(2, 4);
+const sideRecommendations = related.slice(0, 4);
 const footerRecommendations = related.slice(4, 7);
 const canonical = new URL(`/article/${slug}`, Astro.site).toString();
 const ogImage = data.image
@@ -54,22 +53,6 @@ const jsonLd = {
 >
   <article class="article">
     <div class="container article-shell">
-      <aside class="article-rail article-rail-left" aria-label="Gợi ý đọc thêm">
-        <div class="rail-inner">
-          <p class="rail-heading">Đọc thêm</p>
-          {leftRecommendations.map((item) => (
-            <a class="rail-card" href={`/article/${postSlug(item)}`}>
-              {item.data.image && (
-                <img src={item.data.image} alt="" loading="lazy" />
-              )}
-              <span class="rail-category">{categoryLabel(item.data.category)}</span>
-              <strong>{item.data.title}</strong>
-              <span class="rail-time">{item.data.readingTime || 1} phút đọc</span>
-            </a>
-          ))}
-        </div>
-      </aside>
-
       <div class="article-container">
       <!-- breadcrumb -->
       <nav class="breadcrumb" aria-label="Đường dẫn">
@@ -127,10 +110,10 @@ const jsonLd = {
       )}
       </div>
 
-      <aside class="article-rail article-rail-right" aria-label="Bài viết được đề xuất">
+      <aside class="article-rail" aria-label="Bài viết được đề xuất">
         <div class="rail-inner">
-          <p class="rail-heading">Dành cho bạn</p>
-          {rightRecommendations.map((item) => (
+          <p class="rail-heading">Bài viết gợi ý</p>
+          {sideRecommendations.map((item) => (
             <a class="rail-card" href={`/article/${postSlug(item)}`}>
               {item.data.image && (
                 <img src={item.data.image} alt="" loading="lazy" />
@@ -164,17 +147,17 @@ const jsonLd = {
 <style>
   .article-shell {
     display: grid;
-    grid-template-columns: minmax(190px, 230px) minmax(0, 760px) minmax(190px, 230px);
-    justify-content: center;
+    grid-template-columns: minmax(0, 820px) minmax(260px, 320px);
+    justify-content: space-between;
     align-items: start;
-    gap: clamp(24px, 3vw, 48px);
+    gap: clamp(32px, 4vw, 64px);
   }
   .article-container {
     width: 100%;
     min-width: 0;
   }
   .article-rail {
-    padding-top: 112px;
+    padding-top: 76px;
     min-width: 0;
   }
   .rail-inner {
