@@ -101,6 +101,17 @@ const { data: posts, error: postsError } = await client
   .select('id,image_url,content');
 if (postsError) throw postsError;
 
+// Static article images may have been converted in the repository while old
+// database rows still point at their .png/.jpg names. Repair those references
+// without uploading duplicates to Storage.
+for (const post of posts || []) {
+  const oldUrl = String(post.image_url || '');
+  if (!oldUrl.startsWith('/') || oldUrl.toLowerCase().endsWith('.webp')) continue;
+  const newUrl = oldUrl.replace(/\.[^./]+$/, '.webp');
+  const localFile = path.join(process.cwd(), 'public', newUrl.replace(/^\/+/, ''));
+  if (fs.existsSync(localFile)) replacements.set(oldUrl, newUrl);
+}
+
 for (const post of posts || []) {
   let imageUrl = post.image_url || '';
   let content = post.content || '';
