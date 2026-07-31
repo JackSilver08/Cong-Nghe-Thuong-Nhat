@@ -1177,8 +1177,8 @@
             <div class="grid">
               <section class="panel">
                 <div class="panel-head">
-                  <h2>Bài viết gần đây</h2>
-                  <a href="/search">Xem tất cả</a>
+                  <h2>Tất cả bài viết</h2>
+                  <span class="muted-note" id="postTableCount"></span>
                 </div>
                 <table class="recent-posts-table">
                   <colgroup>
@@ -2879,6 +2879,7 @@
         currentPosts = items;
         var table = document.getElementById('postTable');
         table.innerHTML = '';
+        document.getElementById('postTableCount').textContent = items.length + ' bài';
         document.getElementById('postCount').textContent = String(
           items.filter(function (item) {
             return item.status !== 'draft';
@@ -2890,7 +2891,7 @@
           }).length,
         );
 
-        items.slice(0, 8).forEach(function (item) {
+        items.forEach(function (item) {
           var row = document.createElement('tr');
           var title = document.createElement('td');
           var category = document.createElement('td');
@@ -2999,8 +3000,7 @@
           var result = await supabaseClient
             .from('posts')
             .select('id,title,slug,excerpt,content,category,tags,author,author_id,status,image_url,image_alt,sections,section_priority,popular_score,featured,trending,published_at,created_at')
-            .order('created_at', { ascending: false })
-            .limit(30);
+            .order('created_at', { ascending: false });
 
           if (!result.error) {
             renderPosts(

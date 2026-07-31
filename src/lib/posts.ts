@@ -57,8 +57,8 @@ function toDate(value: unknown, fallback = new Date()): Date {
   return value ? new Date(String(value)) : fallback;
 }
 
-async function getSupabasePublishedPosts(): Promise<SupabasePost[]> {
-  if (!supabase) return [];
+async function getSupabasePublishedPosts(): Promise<SupabasePost[] | null> {
+  if (!supabase) return null;
 
   const { data, error } = await supabase
     .from('posts')
@@ -90,7 +90,7 @@ async function getSupabasePublishedPosts(): Promise<SupabasePost[]> {
 
   if (error || !data) {
     if (error) console.warn('Supabase posts unavailable:', error.message);
-    return [];
+    return null;
   }
 
   return data.map((row: any) => {
@@ -130,18 +130,12 @@ export async function getPublishedPosts(): Promise<Post[]> {
     return isProd ? data.draft !== true : true;
   });
   const supabasePosts = await getSupabasePublishedPosts();
-  const merged: Post[] = [];
-  const used = new Set<string>();
 
-  for (const post of [...supabasePosts, ...localPosts]) {
-    const slug = postSlug(post);
-    if (!used.has(slug)) {
-      merged.push(post);
-      used.add(slug);
-    }
-  }
-
-  return merged.sort(
+  // Once Supabase is reachable it is the single source of truth managed by
+  // the admin. Local Markdown is only a development/outage fallback; merging
+  // it here would make deleted admin posts silently reappear on the website.
+  const posts: Post[] = supabasePosts ?? localPosts;
+  return posts.sort(
     (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf(),
   );
 }
