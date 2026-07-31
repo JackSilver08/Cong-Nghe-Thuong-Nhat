@@ -7,7 +7,7 @@ tags: ["devops", "ci/cd", "tự động hoá", "hạ tầng"]
 author: "Trọng Nghĩa"
 publishedAt: 2026-07-01
 readingTime: 5
-image: "/assets/post-devops.png"
+image: "/assets/post-devops.webp"
 imageAlt: "Sơ đồ pipeline CI/CD tự động hoá triển khai"
 featured: false
 trending: false

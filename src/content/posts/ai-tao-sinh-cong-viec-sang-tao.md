@@ -7,7 +7,7 @@ tags: ["ai tạo sinh", "sáng tạo", "bản quyền", "công cụ"]
 author: "Ngọc Anh"
 publishedAt: 2026-07-02
 readingTime: 5
-image: "/assets/post-ai-model.png"
+image: "/assets/post-ai-model.webp"
 imageAlt: "Minh hoạ AI tạo sinh cho nội dung hình ảnh và văn bản"
 featured: false
 trending: false

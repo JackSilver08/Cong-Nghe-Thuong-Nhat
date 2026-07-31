@@ -8,7 +8,7 @@ author: "Ngọc Anh"
 publishedAt: 2026-07-07
 updatedAt: 2026-07-07
 readingTime: 6
-image: "/assets/post-hero.png"
+image: "/assets/post-hero.webp"
 imageAlt: "Minh hoạ mạng nơ-ron của mô hình AI thế hệ mới"
 featured: true
 trending: true

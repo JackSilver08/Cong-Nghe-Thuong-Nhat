@@ -7,7 +7,7 @@ tags: ["ai agent", "tự động hoá", "công cụ", "năng suất"]
 author: "Minh Quân"
 publishedAt: 2026-07-06
 readingTime: 5
-image: "/assets/post-ai-agent.png"
+image: "/assets/post-ai-agent.webp"
 imageAlt: "Sơ đồ AI agent điều phối nhiều công cụ tự động"
 featured: false
 trending: true

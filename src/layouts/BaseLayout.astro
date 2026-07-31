@@ -18,7 +18,7 @@ export interface Props {
 const {
   title,
   description = 'Công Nghệ Thường Nhật cập nhật tin công nghệ, AI, thiết bị và an toàn số dễ hiểu mỗi ngày.',
-  image = '/assets/post-hero.png',
+  image = '/assets/post-hero.webp',
   type = 'website',
   jsonLd,
   appendSiteName = true,
@@ -45,8 +45,8 @@ const ogImage = new URL(image, Astro.site).toString();
         }
       } catch (e) {}
     </script>
-    <link rel="icon" href="/favicon.png" type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.webp" type="image/webp" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.webp" />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" type="application/rss+xml" title="Công Nghệ Thường Nhật RSS" href="/rss.xml" />
 

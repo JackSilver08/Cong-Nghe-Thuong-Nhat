@@ -7,7 +7,7 @@ tags: ["laptop", "npu", "đánh giá", "thời lượng pin"]
 author: "Gia Bảo"
 publishedAt: 2026-07-04
 readingTime: 6
-image: "/assets/post-laptop.png"
+image: "/assets/post-laptop.webp"
 imageAlt: "Chiếc laptop mỏng nhẹ đặt trên bàn làm việc"
 featured: false
 trending: false

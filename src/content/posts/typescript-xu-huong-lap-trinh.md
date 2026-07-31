@@ -7,7 +7,7 @@ tags: ["typescript", "javascript", "web", "developer"]
 author: "Hoàng Nam"
 publishedAt: 2026-07-03
 readingTime: 5
-image: "/assets/post-code.png"
+image: "/assets/post-code.webp"
 imageAlt: "Màn hình hiển thị mã nguồn TypeScript"
 featured: false
 trending: false

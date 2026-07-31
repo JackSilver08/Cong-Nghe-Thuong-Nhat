@@ -78,7 +78,7 @@ values (
   'post-images',
   true,
   10485760,
-  array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
+  array['image/webp']
 )
 on conflict (id) do update set
   public = excluded.public,

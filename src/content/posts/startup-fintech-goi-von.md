@@ -7,7 +7,7 @@ tags: ["fintech", "gọi vốn", "startup việt", "đầu tư"]
 author: "Thu Hà"
 publishedAt: 2026-06-30
 readingTime: 5
-image: "/assets/post-review.png"
+image: "/assets/post-review.webp"
 imageAlt: "Biểu đồ tăng trưởng của một startup fintech"
 featured: false
 trending: false

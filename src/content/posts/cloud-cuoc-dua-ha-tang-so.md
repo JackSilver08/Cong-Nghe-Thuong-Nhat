@@ -7,7 +7,7 @@ tags: ["cloud", "hạ tầng", "ai", "trung tâm dữ liệu"]
 author: "Trọng Nghĩa"
 publishedAt: 2026-07-02
 readingTime: 6
-image: "/assets/post-cloud.png"
+image: "/assets/post-cloud.webp"
 imageAlt: "Minh hoạ hạ tầng đám mây kết nối toàn cầu"
 featured: false
 trending: false

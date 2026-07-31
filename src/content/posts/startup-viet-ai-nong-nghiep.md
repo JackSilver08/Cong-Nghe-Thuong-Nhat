@@ -7,7 +7,7 @@ tags: ["startup việt", "nông nghiệp", "iot", "dữ liệu"]
 author: "Thu Hà"
 publishedAt: 2026-07-05
 readingTime: 5
-image: "/assets/post-startup.png"
+image: "/assets/post-startup.webp"
 imageAlt: "Cánh đồng thông minh với cảm biến và thiết bị giám sát"
 featured: false
 trending: false

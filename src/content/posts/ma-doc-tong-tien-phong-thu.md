@@ -8,7 +8,7 @@ author: "Đức Toàn"
 publishedAt: 2026-07-04
 updatedAt: 2026-07-05
 readingTime: 6
-image: "/assets/post-security.png"
+image: "/assets/post-security.webp"
 imageAlt: "Biểu tượng khoá bảo mật trên nền dữ liệu số"
 featured: false
 trending: true

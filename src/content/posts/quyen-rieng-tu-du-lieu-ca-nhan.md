@@ -7,7 +7,7 @@ tags: ["quyền riêng tư", "dữ liệu cá nhân", "ai", "bảo mật"]
 author: "Lan Phương"
 publishedAt: 2026-07-03
 readingTime: 5
-image: "/assets/post-privacy.png"
+image: "/assets/post-privacy.webp"
 imageAlt: "Minh hoạ dữ liệu cá nhân được bảo vệ bằng khoá số"
 featured: false
 trending: false

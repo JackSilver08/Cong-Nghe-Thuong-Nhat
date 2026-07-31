@@ -7,7 +7,7 @@ tags: ["điện thoại", "màn hình gập", "gadget", "di động"]
 author: "Gia Bảo"
 publishedAt: 2026-07-01
 readingTime: 5
-image: "/assets/post-device.png"
+image: "/assets/post-device.webp"
 imageAlt: "Chiếc điện thoại màn hình gập đang mở ra"
 featured: false
 trending: false

@@ -7,7 +7,7 @@ tags: ["chip ai", "phần cứng", "gpu", "trung tâm dữ liệu"]
 author: "Hải Đăng"
 publishedAt: 2026-07-05
 readingTime: 6
-image: "/assets/post-ai-chip.png"
+image: "/assets/post-ai-chip.webp"
 imageAlt: "Cận cảnh một con chip tăng tốc AI trên bo mạch"
 featured: false
 trending: true
