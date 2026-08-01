@@ -1,6 +1,7 @@
 ---
 import { getCategories } from '../lib/categories';
 import SearchBox from './SearchBox.astro';
+import { observationClock, observationDate } from '../lib/signal';
 
 // Đánh dấu mục điều hướng đang mở (chỉ phục vụ hiển thị, không đổi route).
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
@@ -10,11 +11,35 @@ const categories = (await getCategories()).filter((category) => category.showInH
 const primaryCategories = categories.slice(0, 7);
 const moreCategories = categories.slice(7);
 const moreIsActive = moreCategories.some((category) => category.slug === activeCategory);
+
+// Mốc thời gian dựng ở máy chủ theo giờ Việt Nam để trang có nội dung ngay cả
+// khi không có JavaScript; phía trình duyệt sẽ đổi sang giờ máy người đọc.
+const vnNow = new Date(
+  new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }),
+);
+const bootDate = observationDate(vnNow);
+const bootClock = observationClock(vnNow);
 ---
 
 <!-- Điều hướng: ≥1081px dùng hàng chuyên mục trong header; nhỏ hơn thì dùng
      drawer + dải chip trên trang. -->
 <header class="site-header">
+  <div class="obs-status">
+    <div class="container obs-status-inner">
+      <p class="obs-live">
+        <span class="signal-dot" aria-hidden="true"></span>
+        <span class="obs-live-long">Nhịp công nghệ</span>
+        <b>đang hoạt động</b>
+      </p>
+      <p class="obs-clock">
+        <span class="obs-clock-long">Phiên quan sát</span>
+        <time data-obs-date>{bootDate}</time>
+        <span aria-hidden="true">·</span>
+        <time data-obs-clock>{bootClock}</time>
+      </p>
+    </div>
+  </div>
+
   <div class="container header-inner">
     <div class="header-left">
       <a href="/" class="logo" aria-label="Công Nghệ Thường Nhật - Trang chủ">
@@ -25,9 +50,17 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
           height="70"
         />
       </a>
+      <span class="header-tagline" aria-hidden="true">Đài quan sát công nghệ</span>
     </div>
 
     <div class="header-right">
+      <a href="/search" class="header-search" aria-label="Tìm kiếm bài viết">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <span>Tìm kiếm</span>
+      </a>
       <div class="auth-actions" aria-label="Tài khoản">
         <a href="/login" class="auth-login" data-auth-login>Đăng nhập</a>
         <a href="/login?mode=signup" class="auth-signup" data-auth-signup>Đăng ký</a>
@@ -47,6 +80,7 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
   <!-- Điều hướng chuyên mục cho màn hình rộng -->
   <nav class="primary-nav" aria-label="Chuyên mục">
     <div class="container primary-nav-inner">
+      <span class="nav-zone-label" aria-hidden="true">Kênh</span>
       <ul>
         <li><a href="/" aria-current={isHome ? 'page' : undefined}>Trang chủ</a></li>
         {primaryCategories.map((cat) => (
@@ -88,6 +122,8 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
       <a href="/search" class="primary-nav-search">Tìm kiếm nâng cao →</a>
     </div>
   </nav>
+
+  <div class="scroll-line" aria-hidden="true"><span data-scroll-progress></span></div>
 
   <!-- Lớp chứa drawer: fixed + overflow hidden nên panel off-canvas không bao
        giờ nới rộng chiều ngang tài liệu. -->
@@ -187,14 +223,82 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
 </header>
 
 <style>
+  /* ===== Dải trạng thái đài quan sát =====
+     Dải này nằm trong landmark banner, nhưng header dính với offset âm đúng
+     bằng chiều cao của nó nên khi cuộn nó trôi lên khỏi khung nhìn. Phần dính
+     lại vẫn cao đúng --header-h, không mốc sticky nào khác phải tính lại. */
+  .obs-status {
+    background: var(--color-surface-dark);
+    color: var(--color-text-on-dark-muted);
+  }
+  .obs-status-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--obs-status-h);
+  }
+  .obs-status p {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 500;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .obs-live b {
+    color: var(--color-accent-bright);
+    font-weight: 700;
+  }
+  .obs-clock {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .obs-clock time {
+    color: var(--color-text-on-dark);
+  }
+  @media (max-width: 560px) {
+    .obs-live-long,
+    .obs-clock-long {
+      display: none;
+    }
+  }
+
   .site-header {
     position: sticky;
-    top: 0;
-    z-index: 50;
+    top: calc(var(--obs-status-h) * -1);
+    z-index: var(--z-header);
     background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
+  }
+  /* Thanh tiến trình cuộn: nằm đè lên viền dưới, chỉ scale theo trục X. */
+  .scroll-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    pointer-events: none;
+  }
+  .scroll-line span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--color-brand-primary),
+      var(--color-brand-secondary) 55%,
+      var(--color-accent-bright)
+    );
+    transform: scaleX(var(--scroll-progress, 0));
+    transform-origin: left center;
   }
   .header-inner {
     display: flex;
@@ -223,11 +327,69 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
     object-fit: contain;
     object-position: left center;
   }
+  /* Dòng định vị thương hiệu, chỉ hiện khi còn chỗ. */
+  .header-tagline {
+    position: relative;
+    padding-left: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 500;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .header-tagline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1px;
+    height: 20px;
+    transform: translateY(-50%);
+    background: var(--color-border-strong);
+  }
+  @media (max-width: 1180px) {
+    .header-tagline {
+      display: none;
+    }
+  }
   .header-right {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
     gap: var(--space-2);
+  }
+  .header-search {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 40px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-control);
+    background: var(--color-surface-sunken);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 500;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+  }
+  .header-search:hover {
+    border-color: var(--color-brand-primary);
+    color: var(--color-brand-primary);
+  }
+  @media (max-width: 480px) {
+    .header-search span {
+      display: none;
+    }
+    .header-search {
+      width: 44px;
+      justify-content: center;
+      padding: 0;
+    }
   }
   .auth-actions {
     display: flex;
@@ -269,20 +431,30 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
   .primary-nav-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-5);
+    gap: var(--space-4);
+  }
+  .nav-zone-label {
+    flex: 0 0 auto;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--color-brand-primary);
   }
   .primary-nav ul {
     display: flex;
     align-items: center;
     gap: var(--space-1);
     margin: 0;
+    margin-right: auto;
     padding: 0;
     list-style: none;
     min-width: 0;
     flex-wrap: wrap;
   }
   .primary-nav a {
+    position: relative;
     display: inline-flex;
     align-items: center;
     min-height: 46px;
@@ -299,10 +471,21 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
     color: var(--primary);
     background: var(--primary-softer);
   }
-  .primary-nav a[aria-current='page'] {
+  /* Mục đang mở được đánh dấu bằng crosshair + gạch dưới, không chỉ bằng màu. */
+  .primary-nav > .container > ul > li > a[aria-current='page'] {
     color: var(--primary);
     box-shadow: inset 0 -2px 0 var(--primary);
     border-radius: var(--radius-control) var(--radius-control) 0 0;
+  }
+  .primary-nav > .container > ul > li > a[aria-current='page']::before {
+    content: '+';
+    position: absolute;
+    top: 6px;
+    left: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    line-height: 1;
+    color: var(--color-accent);
   }
   .primary-nav-more {
     position: relative;
@@ -402,9 +585,12 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    color: var(--text-muted);
-    font-size: 0.86rem;
-    font-weight: 600;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 500;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
     white-space: nowrap;
   }
   .primary-nav-search:hover {
@@ -743,6 +929,57 @@ const moreIsActive = moreCategories.some((category) => category.slug === activeC
 </style>
 
 <script>
+  // ---- Thanh tiến trình cuộn ----
+  // Trên trang bài viết thì đo theo phần thân bài (chính xác với việc đọc);
+  // các trang khác đo theo chiều cao tài liệu. Chỉ ghi một biến CSS điều khiển
+  // scaleX nên không có reflow.
+  const scrollBar = document.querySelector<HTMLElement>('[data-scroll-progress]');
+  if (scrollBar) {
+    const article = document.querySelector<HTMLElement>('[data-article-content]');
+    let scrollTicking = false;
+
+    const paintProgress = () => {
+      scrollTicking = false;
+      let ratio: number;
+      if (article) {
+        const span = article.offsetHeight - window.innerHeight * 0.4;
+        ratio = span > 0 ? (window.scrollY - article.offsetTop) / span : 0;
+      } else {
+        const span = document.documentElement.scrollHeight - window.innerHeight;
+        ratio = span > 0 ? window.scrollY / span : 0;
+      }
+      const clamped = Math.min(1, Math.max(0, ratio));
+      scrollBar.style.setProperty('--scroll-progress', clamped.toFixed(4));
+    };
+
+    const onScroll = () => {
+      if (scrollTicking) return;
+      scrollTicking = true;
+      requestAnimationFrame(paintProgress);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    paintProgress();
+  }
+
+  // ---- Đồng hồ phiên quan sát ----
+  // Máy chủ đã dựng sẵn giờ Việt Nam; ở đây đổi sang giờ máy người đọc và nhích
+  // mỗi phút. Không gọi mạng, không ảnh hưởng nội dung được lập chỉ mục.
+  const obsDate = document.querySelector<HTMLTimeElement>('[data-obs-date]');
+  const obsClock = document.querySelector<HTMLTimeElement>('[data-obs-clock]');
+  if (obsDate && obsClock) {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const tick = () => {
+      const now = new Date();
+      obsDate.textContent = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+      obsClock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      obsClock.dateTime = now.toISOString();
+    };
+    tick();
+    setInterval(tick, 30_000);
+  }
+
   // ---- Mở/đóng sidebar ----
   const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
   const drawer = document.querySelector<HTMLElement>('#mobile-nav');

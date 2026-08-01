@@ -35,7 +35,7 @@ const ogImage = new URL(image, Astro.site).toString();
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0B1020" />
+    <meta name="theme-color" content="#0d1526" />
     <script is:inline>
       // Bật scroll-reveal sớm để tránh nháy nội dung; tắt nếu người dùng
       // yêu cầu giảm chuyển động.
@@ -70,8 +70,11 @@ const ogImage = new URL(image, Astro.site).toString();
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- JetBrains Mono chỉ dùng cho metadata/mã tín hiệu nên chỉ lấy 2 nét.
+         Google Fonts tách subset tiếng Việt theo unicode-range, phần dấu chỉ
+         tải khi thực sự cần. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
       rel="stylesheet"
     />
 
@@ -89,13 +92,41 @@ const ogImage = new URL(image, Astro.site).toString();
     <Footer />
 
     <script>
+      // Hiệu ứng lặp (đường quét radar, sóng tín hiệu…) chỉ chạy khi phần tử
+      // còn trong khung nhìn, và không chạy khi người dùng yêu cầu giảm
+      // chuyển động. CSS gắn animation vào .is-live nên ở đây chỉ bật/tắt lớp.
+      (function () {
+        const nodes = Array.prototype.slice.call(
+          document.querySelectorAll('[data-live-anim]'),
+        );
+        if (!nodes.length) return;
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (reduce.matches) return;
+        if (!('IntersectionObserver' in window)) {
+          nodes.forEach((el) => el.classList.add('is-live'));
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              entry.target.classList.toggle('is-live', entry.isIntersecting);
+            });
+          },
+          { threshold: 0 },
+        );
+        nodes.forEach((el) => io.observe(el));
+        reduce.addEventListener('change', (event) => {
+          if (event.matches) nodes.forEach((el) => el.classList.remove('is-live'));
+        });
+      })();
+
       // Scroll reveal: gắn .in-view khi phần tử lọt vào khung nhìn.
       (function () {
         const html = document.documentElement;
         if (!html.classList.contains('js-reveal')) return;
         // Chỉ vài khối lớn được fade nhẹ. Feed bài viết không animate để nội
         // dung hiện ngay và không tạo mảng trống khi cuộn nhanh.
-        const selector = ['.hero', '.section-head', '.brief', '[data-reveal]'].join(', ');
+        const selector = ['.zone-head', '.brief', '[data-reveal]'].join(', ');
         const els = Array.prototype.slice.call(document.querySelectorAll(selector));
         const revealAll = () => els.forEach((el) => el.classList.add('in-view'));
         try {

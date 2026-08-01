@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import { getCategories } from '../../lib/categories';
 import { getPostsByCategory } from '../../lib/posts';
+import { categoryPrefix } from '../../lib/signal';
 
 const categories = await getCategories();
 const category = categories.find((item) => item.slug === Astro.params.slug);
@@ -10,6 +11,7 @@ if (!category) {
   return Astro.redirect('/404', 302);
 }
 const posts = await getPostsByCategory(category.slug);
+const maxScore = posts.reduce((max, p) => Math.max(max, p.data.popularScore), 0);
 ---
 
 <BaseLayout
@@ -24,14 +26,26 @@ const posts = await getPostsByCategory(category.slug);
     </nav>
 
     <header class="cat-header">
-      <p class="cat-kicker">Chuyên mục</p>
+      <p class="cat-kicker">
+        <span class="cat-code">{categoryPrefix(category.slug)}</span>
+        Vùng quan sát
+        <em aria-hidden="true"></em>
+        <span class="cat-count">{posts.length} bài</span>
+      </p>
       <h1>{category.label}</h1>
       <p class="cat-desc">{category.description}</p>
     </header>
 
     {posts.length > 0 ? (
       <div class="grid grid-3 cat-grid">
-        {posts.map((p) => <ArticleCard post={p} headingLevel={2} />)}
+        {posts.map((p, i) => (
+          <ArticleCard
+            post={p}
+            headingLevel={2}
+            variant={i === 0 ? 'feature' : 'standard'}
+            maxScore={maxScore}
+          />
+        ))}
       </div>
     ) : (
       <div class="state-block">
@@ -72,24 +86,59 @@ const posts = await getPostsByCategory(category.slug);
     text-underline-offset: 3px;
   }
   .cat-header {
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-text-primary);
   }
   .cat-kicker {
-    color: var(--primary);
-    font-family: var(--font-head);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-3);
+    color: var(--color-brand-primary);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.8rem;
-    margin: 0 0 var(--space-1);
+    letter-spacing: var(--tracking-mono);
+  }
+  .cat-code {
+    padding: 3px 7px;
+    background: var(--color-brand-primary);
+    color: var(--primary-contrast);
+  }
+  .cat-kicker em {
+    flex: 1;
+    max-width: 200px;
+    height: 1px;
+    background: var(--color-border);
+    font-style: normal;
+  }
+  .cat-count {
+    color: var(--color-text-muted);
+    font-weight: 500;
   }
   .cat-header h1 {
-    font-size: var(--fs-h1);
-    margin: 0 0 var(--space-2);
+    font-size: var(--fs-display-sm);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    margin: 0 0 var(--space-3);
   }
   .cat-desc {
-    color: var(--text-soft);
+    color: var(--color-text-secondary);
     max-width: 60ch;
     margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.65;
+  }
+  /* Bài đầu tiên của chuyên mục là bài dẫn, chiếm trọn hàng đầu. */
+  .cat-grid > :global(*:first-child) {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 961px) {
+    .cat-grid > :global(*:first-child) {
+      grid-column: span 2;
+    }
   }
 </style>

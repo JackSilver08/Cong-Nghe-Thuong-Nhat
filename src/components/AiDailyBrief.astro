@@ -1,212 +1,327 @@
 ---
 import type { Post } from '../lib/posts';
 import { postSlug } from '../lib/posts';
+import { observationDate, readingLabel, signalCode } from '../lib/signal';
 
 export interface Props {
   posts: Post[];
 }
 
 const { posts } = Astro.props;
+
+// Ba làn quan sát của bản tin. Mỗi làn gắn với một bài thật đã được chọn ở
+// trang chủ; phần mô tả là lời dẫn cố định của chuyên mục, không phải nội dung
+// bài viết.
+const lanes = [
+  {
+    key: '60S',
+    title: 'Tóm tắt 60 giây',
+    lead: 'Những gì đã xảy ra trong ngày, gói lại đủ ngắn để đọc trước khi vào việc.',
+    post: posts[0],
+  },
+  {
+    key: 'SÂU',
+    title: 'Góc nhìn chuyên sâu',
+    lead: 'Đặt tin tức vào bối cảnh tác động đến doanh nghiệp, developer và người dùng cuối.',
+    post: posts[1],
+  },
+  {
+    key: 'XH',
+    title: 'Theo dõi xu hướng',
+    lead: 'Các chủ đề đang tăng tốc: AI agent, chip AI, dữ liệu cá nhân và tự động hoá.',
+    post: posts[2],
+  },
+].filter((lane) => lane.post);
 ---
 
-{posts.length > 0 && (
-  <section class="brief" aria-label="Bản tin AI hằng ngày">
-    <div class="brief-bg">
-      <div class="brief-head">
-        <div>
-          <span class="brief-kicker"><span></span>Bản tin AI hằng ngày</span>
-          <h2>Tổng hợp AI trong ngày</h2>
-          <p>
-            Những chuyển động đáng chú ý nhất về mô hình, hạ tầng và ứng dụng AI,
-            được chắt lọc để đọc nhanh nhưng vẫn có ngữ cảnh.
-          </p>
-        </div>
-        <a href="/category/ai" class="brief-link">Xem thêm tin AI →</a>
-      </div>
+{lanes.length > 0 && (
+  <section class="brief obs-grid obs-grid-dark" aria-labelledby="brief-title">
+    <span class="obs-marks brief-marks" aria-hidden="true"></span>
 
-      <div class="brief-grid">
-        <article class="brief-card">
-          <div class="brief-icon">60</div>
-          <h3>Tóm tắt 60 giây</h3>
-          <p>{posts[0]?.data.excerpt}</p>
-          {posts[0] && <a href={`/article/${postSlug(posts[0])}`}>{posts[0].data.title}</a>}
-        </article>
-        <article class="brief-card">
-          <div class="brief-icon">AI</div>
-          <h3>Góc nhìn chuyên sâu</h3>
-          <p>
-            Đặt tin tức vào bối cảnh tác động đến doanh nghiệp, developer và người dùng cuối.
-          </p>
-          {posts[1] && <a href={`/article/${postSlug(posts[1])}`}>{posts[1].data.title}</a>}
-        </article>
-        <article class="brief-card">
-          <div class="brief-icon">↗</div>
-          <h3>Theo dõi xu hướng</h3>
-          <p>
-            Theo dõi các chủ đề nóng như AI agent, chip AI, dữ liệu cá nhân và tự động hóa.
-          </p>
-          {posts[2] && <a href={`/article/${postSlug(posts[2])}`}>{posts[2].data.title}</a>}
-        </article>
-      </div>
+    <div class="brief-head">
+      <span class="brief-code">
+        Khu vực 03
+        <em aria-hidden="true"></em>
+        <span class="signal-dot"></span>
+        Trạm đang thu
+      </span>
+      <h2 class="brief-title" id="brief-title">
+        <span class="brief-title-en">AI Daily Briefing</span>{' '}
+        <span class="brief-title-vi">Bản tin AI hằng ngày</span>
+      </h2>
+      <p class="brief-lead">
+        Trạm tổng hợp những tín hiệu AI đáng chú ý nhất trong ngày
+        {' '}<time datetime={new Date().toISOString().slice(0, 10)}>{observationDate(new Date())}</time>.
+      </p>
+      <a href="/category/ai" class="brief-link">Toàn bộ tin AI</a>
     </div>
+
+    <div class="brief-wave" aria-hidden="true">
+      <svg viewBox="0 0 240 24" preserveAspectRatio="none" focusable="false">
+        <path
+          data-live-anim
+          d="M0 12 Q 5 12 10 12 T 20 12 Q 25 3 30 12 T 40 12 Q 45 20 50 12 T 60 12 Q 65 6 70 12 T 80 12 Q 85 12 90 12 T 100 12 Q 105 17 110 12 T 120 12 Q 125 12 130 12 T 140 12 Q 145 3 150 12 T 160 12 Q 165 20 170 12 T 180 12 Q 185 6 190 12 T 200 12 Q 205 12 210 12 T 220 12 Q 225 17 230 12 T 240 12"
+        />
+      </svg>
+    </div>
+
+    <ol class="brief-lanes">
+      {lanes.map((lane) => (
+        <li class="brief-lane">
+          <span class="brief-lane-key">{lane.key}</span>
+          <h3 class="brief-lane-title">{lane.title}</h3>
+          <p class="brief-lane-lead">{lane.lead}</p>
+          <a href={`/article/${postSlug(lane.post!)}`} class="brief-lane-link">
+            {lane.post!.data.title}
+          </a>
+          <p class="brief-lane-meta mono">
+            <span class="signal-code">{signalCode(lane.post!.data.category, postSlug(lane.post!))}</span>
+            <span>{readingLabel(lane.post!.data.readingTime)}</span>
+          </p>
+        </li>
+      ))}
+    </ol>
   </section>
 )}
 
 <style>
+  /* ============================================================
+     TRẠM AI
+     Nền navy có lưới toạ độ, một đường sóng tín hiệu chạy ngang, ba làn quan
+     sát xếp cạnh nhau. Không dùng hiệu ứng "hacker" hay chữ chạy liên tục.
+     ============================================================ */
   .brief {
-    padding: var(--space-6) 0 var(--space-7);
-  }
-  .brief-bg {
     position: relative;
-    overflow: hidden;
-    border-radius: 6px 32px 6px 32px;
-    padding: clamp(24px, 4vw, 48px);
-    color: #fff;
-    background: var(--nh-dark);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-block: var(--space-7);
+    padding: clamp(28px, 4vw, 52px);
+    background: var(--color-surface-dark);
+    color: var(--color-text-on-dark);
+    /* Cắt vát góc dưới trái, cùng một motif hình học với hero và thẻ bài. */
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 64px 100%, 0 calc(100% - 64px));
   }
-  .brief-bg::after {
-    content: '02';
-    position: absolute;
-    right: clamp(18px, 3vw, 42px);
-    top: -0.25em;
-    color: rgba(255, 255, 255, 0.045);
-    font-family: var(--font-head);
-    font-size: clamp(7rem, 15vw, 12rem);
-    font-weight: 800;
-    line-height: 1;
-    pointer-events: none;
+  /* clip-path của .brief cắt mất góc, nên crosshair phải lùi vào trong lề. */
+  .brief-marks {
+    inset: var(--space-4);
+    color: var(--color-accent-bright);
+    opacity: 0.5;
   }
+
   .brief-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--space-5);
-    margin-bottom: var(--space-6);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--space-3) var(--space-5);
+    padding-bottom: var(--space-5);
+    border-bottom: 1px solid var(--color-border-on-dark);
   }
-  .brief-kicker {
+  .brief-code {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--color-accent-bright);
+  }
+  .brief-code em {
+    flex: 1;
+    max-width: 180px;
+    height: 1px;
+    background: var(--color-border-on-dark);
+    font-style: normal;
+  }
+  .brief-title {
+    grid-column: 1;
+    margin: 0;
+    color: #fff;
+    font-size: var(--fs-display-sm);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  .brief-title-en,
+  .brief-title-vi {
+    display: block;
+  }
+  .brief-title-vi {
+    color: var(--color-text-on-dark-muted);
+    font-weight: 600;
+  }
+  .brief-lead {
+    grid-column: 1;
+    margin: 0;
+    max-width: 56ch;
+    color: var(--color-text-on-dark-muted);
+    font-size: 0.96rem;
+    line-height: 1.6;
+  }
+  .brief-lead time {
+    color: var(--color-text-on-dark);
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    letter-spacing: 0.06em;
+  }
+  .brief-link {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    align-self: end;
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    color: #cdcefb;
-    font-family: var(--font-head);
-    font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .brief-kicker span {
-    flex: 0 0 auto;
-    width: 7px;
-    height: 7px;
-    border-radius: var(--radius-pill);
-    background: #8f91f0;
-  }
-  .brief-head h2 {
-    color: #fff;
-    font-size: var(--fs-section);
-    margin: var(--space-3) 0 var(--space-2);
-  }
-  .brief-head p {
-    max-width: 62ch;
-    margin: 0;
-    color: #cbd5e1;
-    font-size: 0.98rem;
-  }
-  .brief-link {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
     min-height: 44px;
-    padding-inline: var(--space-2);
-    border-radius: var(--radius-control);
+    padding: 0 var(--space-4);
+    border: 1px solid var(--color-border-on-dark);
     color: #fff;
-    font-family: var(--font-head);
-    font-weight: 600;
-    font-size: 0.92rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
     white-space: nowrap;
-  }
-  .brief-link:hover {
-    color: #cdcefb;
-  }
-  .brief-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-4);
-  }
-  .brief-card {
-    position: relative;
-    z-index: 1;
-    min-width: 0;
-    padding: var(--space-5);
-    border-radius: var(--radius-card);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
     transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
   }
-  .brief-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
+  .brief-link::after {
+    content: '→';
   }
-  .brief-icon {
+  .brief-link:hover {
+    background: rgba(148, 197, 255, 0.1);
+    border-color: var(--color-accent-bright);
+  }
+
+  .brief-wave {
+    height: 24px;
+    margin: var(--space-4) 0 var(--space-5);
+    overflow: hidden;
+  }
+  .brief-wave svg {
+    display: block;
+    width: 200%;
+    height: 100%;
+  }
+  .brief-wave path {
+    fill: none;
+    stroke: var(--color-accent-bright);
+    stroke-width: 1;
+    opacity: 0.55;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .brief-wave path.is-live {
+      animation: brief-wave 14s linear infinite;
+    }
+  }
+  @keyframes brief-wave {
+    to {
+      /* 120 = một nửa chiều dài path, nên vòng lặp liền mạch. */
+      transform: translateX(-120px);
+    }
+  }
+
+  .brief-lanes {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    counter-reset: lane;
+  }
+  .brief-lane {
+    position: relative;
+    min-width: 0;
+    padding: var(--space-4) var(--space-5) var(--space-2) 0;
+  }
+  .brief-lane + .brief-lane {
+    padding-left: var(--space-5);
+    border-left: 1px solid var(--color-border-on-dark);
+  }
+  .brief-lane-key {
     display: inline-flex;
-    width: 40px;
-    height: 40px;
     align-items: center;
-    justify-content: center;
-    margin-bottom: var(--space-4);
-    border-radius: var(--radius-control);
-    background: var(--primary);
-    color: var(--primary-contrast);
-    font-family: var(--font-head);
-    font-weight: 700;
-  }
-  .brief-card h3 {
+    height: 22px;
+    padding: 0 7px;
+    background: var(--color-brand-primary);
     color: #fff;
-    font-size: 1.08rem;
-    margin-bottom: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: 0.1em;
   }
-  .brief-card p {
-    color: #cbd5e1;
-    font-size: 0.93rem;
-    line-height: 1.65;
+  .brief-lane-title {
+    margin: var(--space-3) 0 var(--space-2);
+    color: #fff;
+    font-size: 1.12rem;
+    letter-spacing: -0.015em;
   }
-  .brief-card a {
-    display: inline-block;
-    color: #7ee7f6;
-    font-family: var(--font-head);
+  .brief-lane-lead {
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-on-dark-muted);
     font-size: 0.92rem;
-    font-weight: 600;
-    line-height: 1.5;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    overflow-wrap: break-word;
+    line-height: 1.62;
   }
-  .brief-card a:hover {
-    color: #c8f7fc;
+  .brief-lane-link {
+    display: -webkit-box;
+    color: var(--color-accent-bright);
+    font-family: var(--font-head);
+    font-size: 0.96rem;
+    font-weight: 600;
+    line-height: 1.45;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: rgba(34, 211, 238, 0.4);
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    transition: color var(--dur-fast) ease;
+  }
+  .brief-lane-link:hover {
+    color: #a5f3fc;
+    text-decoration-color: currentColor;
+  }
+  .brief-lane-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-on-dark-muted);
+  }
+  .brief-lane-meta .signal-code {
+    color: var(--color-accent-bright);
   }
 
   @media (max-width: 900px) {
-    .brief-grid {
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    .brief-lanes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .brief-lane {
+      padding: var(--space-4) 0;
+      border-top: 1px solid var(--color-border-on-dark);
+    }
+    .brief-lane + .brief-lane {
+      padding-left: 0;
+      border-left: 0;
     }
   }
-  @media (max-width: 820px) {
+  @media (max-width: 760px) {
     .brief-head {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: var(--space-3);
+      grid-template-columns: minmax(0, 1fr);
     }
     .brief-link {
-      margin-left: calc(var(--space-2) * -1);
+      grid-column: 1;
+      grid-row: auto;
+      justify-self: start;
+      margin-top: var(--space-2);
     }
   }
   @media (max-width: 640px) {
     .brief {
-      padding: var(--space-5) 0 var(--space-6);
-    }
-    .brief-grid {
-      grid-template-columns: minmax(0, 1fr);
+      margin-block: var(--space-6);
+      padding: var(--space-5) var(--space-4);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 40px 100%, 0 calc(100% - 40px));
     }
   }
 </style>

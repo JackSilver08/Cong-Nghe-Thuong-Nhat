@@ -10,7 +10,10 @@ const { posts } = Astro.props;
 
 {posts.length > 0 && (
   <div class="ticker" role="region" aria-label="Tin nóng mới nhất">
-    <span class="ticker-label">Tin nóng</span>
+    <span class="ticker-label">
+      <span class="signal-dot" aria-hidden="true"></span>
+      Tín hiệu nóng
+    </span>
     <div class="ticker-viewport">
       <ul class="ticker-track">
         {posts.map((p) => (
@@ -30,33 +33,29 @@ const { posts } = Astro.props;
     display: flex;
     align-items: stretch;
     gap: 0;
-    background: var(--nh-dark);
-    border-radius: var(--radius-card);
+    background: var(--color-surface-dark);
     overflow: hidden;
     border: 0;
     box-shadow: none;
-    min-height: 48px;
+    min-height: 46px;
+    /* Vát góc dưới trái — cùng motif hình học với hero, thẻ bài và trạm AI. */
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 20px 100%, 0 calc(100% - 20px));
   }
   .ticker-label {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
+    gap: var(--space-2);
     padding: 0 var(--space-4);
-    font-family: var(--font-head);
+    font-family: var(--font-mono);
     font-weight: 700;
-    font-size: 0.78rem;
+    font-size: var(--fs-mono);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: var(--tracking-mono);
     color: var(--primary-contrast);
-    background: var(--primary);
+    background: var(--color-brand-primary);
   }
-  .ticker-label::before {
-    content: '';
-    flex: 0 0 auto;
-    width: 7px;
-    height: 7px;
-    margin-right: var(--space-2);
-    border-radius: var(--radius-pill);
+  .ticker-label .signal-dot {
     background: #fff;
   }
   .ticker-viewport {
@@ -96,18 +95,21 @@ const { posts } = Astro.props;
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-on-dark);
     font-size: 0.9rem;
     font-weight: 600;
   }
   .ticker-track a::before {
-    content: '›';
-    color: #cdcefb;
-    margin-right: var(--space-2);
-    font-weight: 700;
+    content: '';
+    flex: 0 0 auto;
+    width: 5px;
+    height: 5px;
+    margin-right: var(--space-3);
+    background: var(--color-accent-bright);
+    rotate: 45deg;
   }
   .ticker-track a:hover {
-    color: #cdcefb;
+    color: var(--color-accent-bright);
   }
   @keyframes ticker-scroll {
     from {

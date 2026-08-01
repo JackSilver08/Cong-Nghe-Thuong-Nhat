@@ -15,7 +15,7 @@
 
   --nh-cyan: #22d3ee; /* accent duy nhất */
 
-  --nh-dark: #131b2e;
+  --nh-dark: #0d1526;
   --nh-dark-soft: #2d3133;
   --nh-ink: #0f172a;
   --nh-white: #f8fafc;
@@ -60,9 +60,12 @@
   --space-8: 64px;
   --space-9: 80px;
 
-  /* --- radius: control 6 / card 10 / pill --- */
-  --radius-control: 6px;
-  --radius-card: 10px;
+  /* --- radius ---
+     Ngôn ngữ hình học của đài quan sát là góc vuông và góc vát, không phải bo
+     tròn. Control giữ 2px để cạnh không bị răng cưa, card về 0. Chỉ những thứ
+     vốn dĩ tròn (avatar, chấm trạng thái, nút lên đầu trang) mới dùng pill. */
+  --radius-control: 2px;
+  --radius-card: 0px;
   --radius-pill: 999px;
   /* alias giữ tương thích với code cũ */
   --radius: var(--radius-card);
@@ -83,19 +86,75 @@
   /* --- typography scale --- */
   --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-head: 'Be Vietnam Pro', 'Inter', sans-serif;
+  /* Mono chỉ dành cho metadata, timestamp và mã tín hiệu — không dùng cho
+     nội dung đọc. JetBrains Mono có đủ bộ dấu tiếng Việt. */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   --fs-hero: clamp(1.9rem, 1.35rem + 2.4vw, 3rem); /* 30px → 48px */
   --fs-h1: clamp(1.9rem, 1.4rem + 2.1vw, 2.75rem); /* 30px → 44px */
   --fs-section: clamp(1.5rem, 1.3rem + 0.8vw, 1.85rem); /* 24px → 30px */
-  --fs-card-title: 1.09rem; /* ~17.5px */
+  --fs-card-title: clamp(1.04rem, 0.98rem + 0.28vw, 1.2rem);
   --fs-body: 1rem;
   --fs-lead: 1.09rem;
   --fs-meta: 0.82rem; /* ~13px */
 
+  /* Bậc chữ display cho hero và tiêu đề khu vực — đây là nơi tạo nhịp điệu,
+     nên biên độ rộng hơn hẳn thang chữ thường. */
+  --fs-display: clamp(2.4rem, 1.1rem + 5.4vw, 5.5rem);
+  --fs-display-sm: clamp(1.85rem, 1.1rem + 3.2vw, 3.25rem);
+  --fs-mono: 0.73rem; /* ~11.7px — mono viết hoa có x-height lớn nên vẫn đọc rõ */
+  --tracking-mono: 0.14em;
+
   /* --- layout --- */
   --maxw: 1280px;
   --measure: 68ch; /* độ dài dòng đọc thoải mái ~65-75 ký tự */
+  /* Chiều cao phần header CÒN DÍNH sau khi cuộn. Dải trạng thái phía trên
+     không tính vào đây vì nó trôi khỏi khung nhìn (xem Header.astro). */
   --header-h: 64px;
+  --obs-status-h: 28px;
+
+  /* ======================================================================
+     LỚP TOKEN "ĐÀI QUAN SÁT"
+     Đặt tên theo vai trò (background/surface/signal) thay vì theo màu, để
+     component không cần biết màu cụ thể. Các token --nh-*, --primary*, --bg,
+     --surface* ở trên được giữ nguyên và ánh xạ vào đây, nên mọi component cũ
+     vẫn chạy y hệt.
+     ====================================================================== */
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: #fdfeff;
+  --color-surface-sunken: var(--surface-low);
+  /* Nền tối dùng cho các khối "trạm quan sát": navy sâu, không phải đen tuyệt đối. */
+  --color-surface-dark: #0d1526;
+  --color-surface-dark-raised: #131d33;
+  --color-text-primary: var(--text);
+  --color-text-secondary: var(--text-soft);
+  --color-text-muted: var(--text-muted);
+  --color-text-on-dark: #e8edf7;
+  --color-text-on-dark-muted: #94a3bd;
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-on-dark: rgba(148, 175, 226, 0.18);
+
+  --color-brand-primary: #4648d4;
+  --color-brand-secondary: #6d5ce7;
+  --color-accent: #0891a8; /* cyan đã hạ sáng để đạt tương phản trên nền sáng */
+  --color-accent-bright: #22d3ee; /* chỉ dùng trên nền tối */
+
+  /* Màu tín hiệu: mỗi màu một ý nghĩa cố định, không dùng lẫn. */
+  --color-signal-active: #0d9488; /* đang hoạt động / trực tuyến */
+  --color-signal-warning: #b45309; /* nội dung nóng */
+  --color-signal-alert: #b91c1c; /* cảnh báo, dữ liệu quan trọng */
+
+  /* --- motif đồ hoạ: lưới toạ độ + crosshair --- */
+  --grid-unit: 28px;
+  --grid-line: rgba(70, 72, 212, 0.055);
+  --grid-line-dark: rgba(148, 197, 255, 0.07);
+  --crosshair-size: 9px;
+
+  --z-header: 50;
+  --z-drawer: 55;
+  --z-overlay: 70;
 }
 
 /* Từ 1081px trở lên header có thêm hàng chuyên mục nên cao hơn; các khối
@@ -115,13 +174,19 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  /* Nền tĩnh, rất nhạt — thay cho lớp aurora động phủ toàn trang trước đây. */
+  /* Nền của toàn đài quan sát: một lưới toạ độ rất thưa và rất nhạt, đủ để
+     nhận ra nhưng không cạnh tranh với chữ, cộng thêm hai vệt sáng ở đỉnh
+     trang. Tất cả bằng gradient nên không thêm request ảnh nào.
+     Không dùng background-attachment: fixed — lưới lặp mà đứng yên khi cuộn
+     trông sai, và nó buộc trình duyệt vẽ lại nền ở mỗi khung hình. */
   background-color: var(--bg);
   background-image:
+    linear-gradient(to right, rgba(70, 72, 212, 0.032) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(70, 72, 212, 0.032) 1px, transparent 1px),
     radial-gradient(60rem 32rem at 12% -6%, rgba(70, 72, 212, 0.07), transparent 62%),
     radial-gradient(52rem 30rem at 92% -2%, rgba(34, 211, 238, 0.06), transparent 60%);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-size: 56px 56px, 56px 56px, 100% 100%, 100% 100%;
+  background-repeat: repeat, repeat, no-repeat, no-repeat;
 }
 
 body {
@@ -187,48 +252,6 @@ p {
   padding-block: var(--space-7);
 }
 
-.section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-5);
-}
-
-.section-title {
-  font-size: var(--fs-section);
-  margin: 0;
-  position: relative;
-  padding-left: var(--space-3);
-}
-
-.section-title::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.16em;
-  bottom: 0.16em;
-  width: 4px;
-  border-radius: var(--radius-pill);
-  background: var(--primary);
-}
-
-.section-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding-inline: var(--space-2);
-  margin-right: calc(var(--space-2) * -1);
-  border-radius: var(--radius-control);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-soft);
-  white-space: nowrap;
-}
-.section-link:hover {
-  color: var(--primary);
-}
-
 .grid {
   display: grid;
   gap: var(--space-5);
@@ -255,12 +278,12 @@ p {
   max-width: 100%;
   gap: var(--space-1);
   min-height: 24px;
-  font-family: var(--font-head);
-  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: var(--tracking-mono);
   text-transform: uppercase;
-  padding: 3px 10px;
+  padding: 4px 9px;
   border-radius: var(--radius-control);
   background: var(--primary-soft);
   border: 0;
@@ -446,6 +469,229 @@ a.chip:hover {
   }
 }
 
+/* ============================================================================
+   HỆ ĐỒ HOẠ NHẬN DIỆN — "LƯỚI QUAN SÁT"
+   Ba motif dùng lại khắp site: lưới toạ độ, crosshair ở góc khối, và dải chữ
+   mono cho metadata. Tất cả bằng CSS thuần: không ảnh, không JS, không thư viện.
+   ========================================================================== */
+
+/* --- 1. Lưới toạ độ --- */
+/* Đặt trên phần tử làm nền. Lưới vẽ bằng gradient nên không tốn request nào và
+   không tham gia layout (chỉ là background-image). */
+.obs-grid {
+  position: relative;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-unit) var(--grid-unit);
+}
+.obs-grid-dark {
+  --grid-line: var(--grid-line-dark);
+}
+
+/* --- 2. Crosshair ở bốn góc --- */
+/* Dùng ::before/::after của một phần tử con rỗng để không chiếm mất pseudo của
+   khối chính. Khối cha chỉ cần position: relative. */
+.obs-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--color-brand-primary);
+  opacity: 0.35;
+}
+.obs-marks::before,
+.obs-marks::after {
+  content: '';
+  position: absolute;
+  width: var(--crosshair-size);
+  height: var(--crosshair-size);
+  background-image: linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to bottom, currentColor 1px, transparent 1px);
+  background-size: 100% 1px, 1px 100%;
+  background-position: center, center;
+  background-repeat: no-repeat;
+}
+.obs-marks::before {
+  top: calc(var(--crosshair-size) / -2);
+  left: calc(var(--crosshair-size) / -2);
+}
+.obs-marks::after {
+  right: calc(var(--crosshair-size) / -2);
+  bottom: calc(var(--crosshair-size) / -2);
+}
+
+/* --- 3. Chữ mono cho metadata / mã tín hiệu --- */
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: 500;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+}
+.mono-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}
+/* Dấu phân cách dạng dấu cộng — thay cho dấu chấm tròn quen thuộc. */
+.mono-row > * + *::before {
+  content: '+';
+  margin-right: var(--space-2);
+  color: var(--color-border-strong);
+}
+.mono-key {
+  color: var(--color-text-muted);
+}
+.mono-val {
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+/* Mã tín hiệu của bài viết: AI-026 */
+.signal-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-brand-primary);
+  font-variant-numeric: tabular-nums;
+}
+.signal-code::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  /* Ô vuông xoay 45° — dấu nhận diện của "điểm quan sát". */
+  transform: rotate(45deg);
+}
+
+/* Chấm trạng thái đang hoạt động. Thông tin không chỉ nằm ở màu: luôn có
+   nhãn chữ đi kèm ở mọi nơi dùng class này. */
+.signal-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-signal-active);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .signal-dot {
+    animation: signal-pulse 2.4s ease-in-out infinite;
+  }
+}
+@keyframes signal-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.82);
+  }
+}
+
+/* Thanh cường độ tín hiệu — suy ra từ dữ liệu thật, luôn kèm số phần trăm. */
+.signal-bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+.signal-bar > i {
+  display: block;
+  height: 100%;
+  width: var(--strength, 0%);
+  background: var(--color-brand-primary);
+}
+
+/* --- 4. Tiêu đề khu vực --- */
+/* Thay cho .section-title có gạch dọc 4px: mỗi khu vực là một "vùng quan sát"
+   có mã số riêng, tiêu đề lớn, và một đường kẻ kéo hết chiều ngang. */
+.zone-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-3) var(--space-5);
+  margin-bottom: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-text-primary);
+}
+.zone-code {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: 700;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-brand-primary);
+}
+.zone-code em {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+  font-style: normal;
+}
+.zone-title {
+  margin: 0;
+  font-size: var(--fs-display-sm);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.zone-note {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.zone-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono);
+  font-weight: 700;
+  letter-spacing: var(--tracking-mono);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.zone-link::after {
+  content: '→';
+  transition: transform var(--dur-fast) var(--ease);
+}
+.zone-link:hover {
+  color: var(--color-brand-primary);
+}
+.zone-link:hover::after {
+  transform: translateX(3px);
+}
+
+@media (max-width: 640px) {
+  .zone-head {
+    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: var(--space-5);
+  }
+  .zone-link {
+    justify-self: start;
+  }
+}
+
 /* ============ responsive ============ */
 @media (max-width: 1024px) {
   .grid-4 {
@@ -476,20 +722,19 @@ a.chip:hover {
   .section {
     padding-block: var(--space-6);
   }
-  .section-head {
-    margin-bottom: var(--space-4);
-  }
 }
 
 /* ============ chuyển động ============ */
-/* Chỉ vài khối lớn được fade nhẹ khi cuộn tới; feed bài viết KHÔNG animate. */
+/* Chỉ vài khối lớn được fade nhẹ khi cuộn tới; feed bài viết KHÔNG animate.
+   Hero cố tình không nằm trong danh sách này: nó chứa H1 và ảnh lớn nhất của
+   trang (phần tử LCP), che nó đi rồi mới hiện sẽ làm chậm chính chỉ số đó. */
 @media (prefers-reduced-motion: no-preference) {
-  html.js-reveal :where(.hero, .brief, .section-head, [data-reveal]) {
+  html.js-reveal :where(.brief, .zone-head, [data-reveal]) {
     opacity: 0;
     transform: translateY(10px);
     transition: opacity var(--dur-normal) ease, transform var(--dur-normal) var(--ease);
   }
-  html.js-reveal :where(.hero, .brief, .section-head, [data-reveal]).in-view {
+  html.js-reveal :where(.brief, .zone-head, [data-reveal]).in-view {
     opacity: 1;
     transform: none;
   }

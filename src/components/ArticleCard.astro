@@ -2,6 +2,7 @@
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
 import { categoryLabelFrom, getCategories } from '../lib/categories';
+import { readingLabel, signalCode, signalStrength } from '../lib/signal';
 
 export interface Props {
   post: Post;
@@ -9,81 +10,114 @@ export interface Props {
   headingLevel?: 2 | 3;
   /** Compact horizontal layout (used in lists). */
   horizontal?: boolean;
+  /**
+   * Biến thể trình bày. Tất cả dùng chung một bộ dữ liệu bài viết, chỉ khác
+   * cách bố trí — `standard` là mặc định nên mọi nơi đang gọi component này
+   * vẫn hiển thị như cũ.
+   */
+  variant?: 'standard' | 'feature' | 'compact' | 'text' | 'data';
+  /** Điểm phổ biến cao nhất đang hiển thị, cần cho biến thể `data`. */
+  maxScore?: number;
 }
 
-const { post, headingLevel = 3, horizontal = false } = Astro.props;
+const {
+  post,
+  headingLevel = 3,
+  horizontal = false,
+  variant = 'standard',
+  maxScore,
+} = Astro.props;
 const { data } = post;
 const slug = postSlug(post);
 const url = `/article/${slug}`;
 const Heading = `h${headingLevel}` as 'h2' | 'h3';
 const categories = await getCategories();
 const categoryName = categoryLabelFrom(categories, data.category);
+const code = signalCode(data.category, slug);
+const strength = signalStrength(data.popularScore, maxScore ?? data.popularScore);
+
+const hasMedia = variant !== 'text' && variant !== 'data';
+const hasExcerpt = !horizontal && (variant === 'standard' || variant === 'feature' || variant === 'text');
 ---
 
-<article class={`card ${horizontal ? 'card-horizontal' : ''}`}>
-  <a href={url} class="card-media" aria-hidden="true" tabindex="-1">
-    {data.image ? (
-      <img src={data.image} alt={data.imageAlt || ''} loading="lazy" data-card-image />
-    ) : (
-      <span class="card-media-fallback">{categoryName}</span>
-    )}
-    {data.image && (
-      <span class="card-media-fallback" data-card-image-fallback hidden>
-        {categoryName}
-      </span>
-    )}
-  </a>
+<article class:list={['card', `card-${variant}`, { 'card-horizontal': horizontal }]}>
+  {hasMedia && (
+    <a href={url} class="card-media" aria-hidden="true" tabindex="-1">
+      {data.image ? (
+        <img src={data.image} alt={data.imageAlt || ''} loading="lazy" decoding="async" data-card-image />
+      ) : (
+        <span class="card-media-fallback">{categoryName}</span>
+      )}
+      {data.image && (
+        <span class="card-media-fallback" data-card-image-fallback hidden>
+          {categoryName}
+        </span>
+      )}
+    </a>
+  )}
+
   <div class="card-body">
     <div class="card-meta-top">
       <a href={`/category/${data.category}`} class="chip">{categoryName}</a>
+      <span class="signal-code">{code}</span>
       {data.trending && <span class="dot-trend">Xu hướng</span>}
     </div>
+
     <Heading class="card-title">
       <a href={url}>{data.title}</a>
     </Heading>
-    {!horizontal && <p class="card-excerpt">{data.excerpt}</p>}
-    <p class="card-meta">
+
+    {hasExcerpt && <p class="card-excerpt">{data.excerpt}</p>}
+
+    {variant === 'data' && (
+      <p class="card-strength">
+        <span class="card-strength-label mono">Cường độ {strength}%</span>
+        <span class="signal-bar" style={`--strength:${strength}%`} aria-hidden="true"><i></i></span>
+      </p>
+    )}
+
+    <p class="card-meta mono">
       <span>{data.author}</span>
-      <span aria-hidden="true">•</span>
-      <time datetime={data.publishedAt.toISOString()}>{formatDate(data.publishedAt)}</time>
-      {data.readingTime && (
-        <>
-          <span aria-hidden="true">•</span>
-          <span>{data.readingTime} phút đọc</span>
-        </>
-      )}
+      <span><time datetime={data.publishedAt.toISOString()}>{formatDate(data.publishedAt)}</time></span>
+      <span>{readingLabel(data.readingTime)}</span>
     </p>
   </div>
 </article>
 
 <style>
+  /* ============================================================
+     HỆ THẺ BÀI VIẾT
+     Năm biến thể dùng chung một cấu trúc DOM: khác nhau ở cỡ chữ, tỉ lệ ảnh và
+     việc hiện/ẩn tóm tắt. Không thẻ nào bo tròn — góc dưới trái của ảnh được
+     vát, lặp lại đúng motif của bảng tín hiệu.
+     ============================================================ */
   .card {
     position: relative;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     min-width: 0;
-    box-shadow: var(--shadow-subtle);
-    transition: box-shadow var(--dur-fast) ease, border-color var(--dur-fast) ease;
     height: 100%;
-  }
-  .card:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow-elevated);
+    background: transparent;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
   }
   .card-media {
     display: block;
     aspect-ratio: 16 / 9;
-    background: var(--surface-container);
+    margin-bottom: var(--space-4);
     overflow: hidden;
+    background: var(--surface-container);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 24px 100%, 0 calc(100% - 24px));
   }
   .card-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform var(--dur-normal) var(--ease);
+  }
+  .card:hover .card-media img {
+    transform: scale(1.04);
   }
   .card-media-fallback {
     display: flex;
@@ -92,13 +126,17 @@ const categoryName = categoryLabelFrom(categories, data.category);
     height: 100%;
     padding: var(--space-3);
     text-align: center;
-    font-family: var(--font-head);
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: var(--grid-unit) var(--grid-unit);
   }
   .card-body {
-    padding: var(--space-4);
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
@@ -110,27 +148,30 @@ const categoryName = categoryLabelFrom(categories, data.category);
     align-items: center;
     flex-wrap: wrap;
     gap: var(--space-2);
+    position: relative;
+    z-index: 2;
+  }
+  .card-meta-top .chip {
+    border-radius: 0;
   }
   .dot-trend {
-    font-size: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
     font-weight: 700;
-    color: var(--warning);
+    letter-spacing: var(--tracking-mono);
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    color: var(--color-signal-warning);
   }
   .card-title {
     font-size: var(--fs-card-title);
-    line-height: 1.38;
+    line-height: 1.28;
+    letter-spacing: -0.018em;
     margin: 0;
-    /* clamp to keep text inside the card */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: break-word;
-  }
-  .card-title a:hover {
-    color: var(--primary);
   }
   /* Mở rộng vùng chạm của tiêu đề ra toàn thẻ: chữ trong tiêu đề là inline nên
      chỉ bấm trúng đúng nét chữ, khe giữa hai dòng thì trượt. Lớp phủ này trỏ
@@ -141,34 +182,113 @@ const categoryName = categoryLabelFrom(categories, data.category);
     inset: 0;
     z-index: 1;
   }
-  /* Chip chuyên mục và phần meta phải nằm trên lớp phủ để vẫn bấm được. */
-  .card-meta-top,
-  .card-meta {
-    position: relative;
-    z-index: 2;
+  .card-title a:hover {
+    color: var(--color-brand-primary);
   }
   .card-excerpt {
     margin: 0;
-    color: var(--text-soft);
+    color: var(--color-text-secondary);
     font-size: 0.92rem;
-    line-height: 1.6;
+    line-height: 1.62;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
   .card-meta {
+    position: relative;
+    z-index: 2;
     margin: auto 0 0;
-    padding-top: var(--space-1);
+    padding-top: var(--space-3);
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1);
+    gap: var(--space-2);
     align-items: center;
-    color: var(--text-muted);
-    font-size: var(--fs-meta);
+    color: var(--color-text-muted);
+  }
+  .card-meta > * + *::before {
+    content: '+';
+    margin-right: var(--space-2);
+    color: var(--color-border-strong);
+  }
+  .card-strength {
+    display: grid;
+    gap: 5px;
+    margin: var(--space-1) 0 0;
+  }
+  .card-strength-label {
+    color: var(--color-text-secondary);
+    font-weight: 700;
   }
 
-  /* horizontal variant (lists) */
+  /* ---- feature: bài dẫn dắt của một khu vực ---- */
+  .card-feature {
+    border-top-color: var(--color-text-primary);
+    border-top-width: 2px;
+  }
+  .card-feature .card-media {
+    aspect-ratio: 16 / 10;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 40px 100%, 0 calc(100% - 40px));
+  }
+  .card-feature .card-title {
+    font-size: clamp(1.45rem, 1.1rem + 1.5vw, 2.1rem);
+    line-height: 1.1;
+    letter-spacing: -0.032em;
+    -webkit-line-clamp: 4;
+  }
+  .card-feature .card-excerpt {
+    font-size: 1rem;
+    -webkit-line-clamp: 3;
+    max-width: 58ch;
+  }
+
+  /* ---- compact: ảnh nhỏ bên phải, không tóm tắt ---- */
+  .card-compact {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  .card-compact .card-media {
+    flex: 0 0 92px;
+    aspect-ratio: 1;
+    margin-bottom: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+  }
+  .card-compact .card-title {
+    font-size: 0.99rem;
+    -webkit-line-clamp: 3;
+  }
+  .card-compact .card-meta {
+    padding-top: var(--space-2);
+  }
+
+  /* ---- text: chỉ chữ, dùng để phá nhịp giữa các ô có ảnh ---- */
+  .card-text {
+    padding: var(--space-4) var(--space-4) var(--space-4) 0;
+    border-top-color: var(--color-text-primary);
+  }
+  .card-text .card-title {
+    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem);
+    line-height: 1.2;
+    -webkit-line-clamp: 4;
+  }
+  .card-text .card-excerpt {
+    -webkit-line-clamp: 3;
+  }
+
+  /* ---- data: đưa chỉ số lên trước, không dùng ảnh ---- */
+  .card-data {
+    padding: var(--space-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-brand-primary);
+  }
+  .card-data .card-title {
+    font-size: 1.05rem;
+    -webkit-line-clamp: 3;
+  }
+
+  /* ---- horizontal: giữ nguyên API cũ ---- */
   .card-horizontal {
     flex-direction: row;
     align-items: stretch;
@@ -176,17 +296,33 @@ const categoryName = categoryLabelFrom(categories, data.category);
   .card-horizontal .card-media {
     flex: 0 0 110px;
     aspect-ratio: 1 / 1;
+    margin-bottom: 0;
+    margin-right: var(--space-3);
   }
   .card-horizontal .card-title {
     font-size: 0.98rem;
     -webkit-line-clamp: 2;
   }
-  .card-horizontal .card-body {
-    padding: var(--space-3);
-  }
 
   .card-media [hidden] {
     display: none;
+  }
+
+  @media (max-width: 640px) {
+    .card-compact .card-media {
+      flex-basis: 80px;
+    }
+    .card-text {
+      padding-right: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-media img,
+    .card:hover .card-media img {
+      transition: none;
+      transform: none;
+    }
   }
 </style>
 

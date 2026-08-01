@@ -1,0 +1,365 @@
+---
+import type { Post } from '../lib/posts';
+import { postSlug } from '../lib/posts';
+import { getCategories } from '../lib/categories';
+import { categoryPrefix, readingLabel, relativeTime } from '../lib/signal';
+
+export interface Props {
+  /** Toàn bộ bài đang xuất bản — dùng để đếm và lấy bài mới nhất mỗi vùng. */
+  posts: Post[];
+}
+
+const { posts } = Astro.props;
+const categories = await getCategories();
+
+// Mỗi chuyên mục là một vùng quan sát. Số bài và bài mới nhất đều lấy từ dữ
+// liệu thật đã tải sẵn ở trang chủ — không truy vấn thêm.
+const zones = categories
+  .map((category) => {
+    const items = posts.filter((post) => post.data.category === category.slug);
+    return { category, count: items.length, newest: items[0] };
+  })
+  .filter((zone) => zone.count > 0);
+
+const maxCount = zones.reduce((max, zone) => Math.max(max, zone.count), 0);
+
+/*
+ * Toạ độ node trên bản đồ: góc chia đều theo số vùng (bắt đầu từ 12 giờ), bán
+ * kính tỉ lệ nghịch với số bài — vùng nhiều bài nằm gần tâm hơn, tức "tín hiệu
+ * mạnh hơn". Tính sẵn ở máy chủ nên không cần JavaScript để vẽ.
+ */
+const plotted = zones.map((zone, index) => {
+  const angle = (index / zones.length) * Math.PI * 2 - Math.PI / 2;
+  const radius = 45 - (maxCount > 0 ? zone.count / maxCount : 0) * 27;
+  return {
+    ...zone,
+    x: Number((50 + Math.cos(angle) * radius).toFixed(2)),
+    y: Number((50 + Math.sin(angle) * radius).toFixed(2)),
+    share: maxCount > 0 ? Math.round((zone.count / maxCount) * 100) : 0,
+  };
+});
+---
+
+{plotted.length > 0 && (
+  <section class="radar" aria-labelledby="radar-title">
+    <div class="zone-head">
+      <span class="zone-code">
+        Khu vực 02
+        <em aria-hidden="true"></em>
+        Bản đồ vùng dữ liệu
+      </span>
+      <h2 class="zone-title" id="radar-title">
+        <span class="radar-title-en">Tech Radar</span>{' '}
+        <span class="radar-title-vi">Bản đồ công nghệ hôm nay</span>
+      </h2>
+      <p class="zone-note">
+        Vùng càng nhiều bài thì tín hiệu càng mạnh và nằm càng gần tâm. Chọn một
+        vùng để xem toàn bộ bài viết thuộc chuyên mục đó.
+      </p>
+    </div>
+
+    <div class="radar-body">
+      <div class="radar-plot" aria-hidden="true">
+        <svg class="radar-rings" viewBox="0 0 100 100" role="presentation" focusable="false">
+          <circle cx="50" cy="50" r="45.5" />
+          <circle cx="50" cy="50" r="31" />
+          <circle cx="50" cy="50" r="16.5" />
+          <line x1="50" y1="2" x2="50" y2="98" />
+          <line x1="2" y1="50" x2="98" y2="50" />
+          <circle class="radar-core" cx="50" cy="50" r="2.2" />
+        </svg>
+        <span class="radar-sweep" data-live-anim></span>
+        {plotted.map((zone) => (
+          <span
+            class="radar-node"
+            data-zone={zone.category.slug}
+            style={`--x:${zone.x}%;--y:${zone.y}%;--weight:${zone.share}`}
+          >
+            <span class="radar-dot"></span>
+            <span class="radar-label">
+              <b>{categoryPrefix(zone.category.slug)}</b>
+              {zone.count}
+            </span>
+          </span>
+        ))}
+      </div>
+
+      <ul class="radar-index">
+        {plotted.map((zone) => (
+          <li class="radar-row" data-zone-row={zone.category.slug}>
+            <a href={`/category/${zone.category.slug}`} class="radar-row-head">
+              <span class="radar-row-code mono">{categoryPrefix(zone.category.slug)}</span>
+              <span class="radar-row-name">{zone.category.label}</span>
+              <span class="radar-row-count mono">{zone.count} bài</span>
+            </a>
+            <span class="signal-bar" style={`--strength:${zone.share}%`} aria-hidden="true"><i></i></span>
+            {zone.newest && (
+              <p class="radar-row-lead">
+                <a href={`/article/${postSlug(zone.newest)}`}>{zone.newest.data.title}</a>
+                <span class="radar-row-meta mono">
+                  <span>{relativeTime(zone.newest.data.publishedAt)}</span>
+                  <span>{readingLabel(zone.newest.data.readingTime)}</span>
+                </span>
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .radar {
+    padding-block: var(--space-7);
+  }
+  .radar-title-en,
+  .radar-title-vi {
+    display: block;
+  }
+  .radar-title-vi {
+    color: var(--color-text-muted);
+    font-weight: 600;
+  }
+  .radar-body {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
+    gap: clamp(24px, 4vw, 56px);
+    align-items: start;
+  }
+
+  /* ---- bản đồ ----
+     Bản đồ chỉ minh hoạ cho danh sách bên cạnh: mọi thông tin và mọi liên kết
+     đều đã có trong .radar-index, nên phần này aria-hidden thay vì nhân đôi
+     nội dung cho trình đọc màn hình. */
+  .radar-plot {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    margin-inline: auto;
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+  .radar-rings {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--color-border-strong);
+    stroke-width: 0.35;
+  }
+  .radar-rings line {
+    stroke-dasharray: 1.6 2.4;
+  }
+  .radar-rings .radar-core {
+    fill: var(--color-brand-primary);
+    stroke: none;
+  }
+  /* Nêm quét: chỉ xoay, chạy trên compositor. Lớp .is-live do BaseLayout gắn
+     khi bản đồ vào khung nhìn. */
+  .radar-sweep {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    background: conic-gradient(
+      from 0deg,
+      rgba(70, 72, 212, 0) 0deg,
+      rgba(70, 72, 212, 0.14) 30deg,
+      rgba(34, 211, 238, 0.06) 46deg,
+      rgba(70, 72, 212, 0) 62deg
+    );
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .radar-sweep.is-live {
+      animation: radar-sweep 11s linear infinite;
+    }
+  }
+  @keyframes radar-sweep {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  .radar-node {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    translate: -50% -50%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .radar-dot {
+    flex: 0 0 auto;
+    width: 9px;
+    height: 9px;
+    background: var(--color-brand-primary);
+    /* Ô vuông xoay 45° — cùng ký hiệu "điểm quan sát" với .signal-code. */
+    rotate: 45deg;
+    outline: 1px solid var(--color-surface);
+    transition: scale var(--dur-normal) var(--ease), background var(--dur-fast) ease;
+  }
+  .radar-label {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 2px 5px;
+    background: var(--color-surface);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .radar-label b {
+    color: var(--color-text-primary);
+    font-weight: 700;
+  }
+  /* Vùng đang được trỏ tới trong danh sách sẽ sáng lên trên bản đồ. */
+  .radar-node.is-active .radar-dot {
+    background: var(--color-accent);
+    scale: 1.7;
+  }
+  .radar-node.is-active .radar-label {
+    color: var(--color-text-primary);
+  }
+  .radar-node.is-active .radar-label b {
+    color: var(--color-accent);
+  }
+
+  /* ---- danh sách vùng (là phần điều hướng thật) ---- */
+  .radar-index {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0;
+  }
+  .radar-row {
+    padding: var(--space-3) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .radar-row:last-child {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .radar-row-head {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-3);
+    min-height: 36px;
+  }
+  .radar-row-code {
+    color: var(--color-brand-primary);
+    font-weight: 700;
+  }
+  .radar-row-name {
+    font-family: var(--font-head);
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .radar-row-count {
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+  .radar-row-head:hover .radar-row-name,
+  .radar-row-head:focus-visible .radar-row-name {
+    color: var(--color-brand-primary);
+  }
+  .radar-row .signal-bar {
+    margin: var(--space-2) 0;
+  }
+  .radar-row-lead {
+    margin: 0;
+    display: grid;
+    gap: 4px;
+    padding-left: calc(44px + var(--space-3));
+  }
+  .radar-row-lead > a {
+    color: var(--color-text-secondary);
+    font-size: 0.93rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .radar-row-lead > a::before {
+    content: '↳ ';
+    color: var(--color-border-strong);
+  }
+  .radar-row-lead > a:hover {
+    color: var(--color-brand-primary);
+  }
+  .radar-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+  }
+  .radar-row-meta > * + *::before {
+    content: '+';
+    margin-right: var(--space-2);
+    color: var(--color-border-strong);
+  }
+
+  @media (max-width: 900px) {
+    .radar-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .radar-plot {
+      max-width: 320px;
+    }
+    /* Nhãn chữ trên bản đồ nhỏ sẽ chồng lên nhau; danh sách bên dưới đã có đủ
+       tên vùng và số bài nên chỉ giữ lại các điểm sáng. */
+    .radar-label {
+      display: none;
+    }
+    .radar-row-lead {
+      padding-left: 0;
+    }
+  }
+  @media (max-width: 640px) {
+    .radar {
+      padding-block: var(--space-6);
+    }
+    .radar-plot {
+      max-width: 260px;
+    }
+    .radar-row-head {
+      grid-template-columns: 40px minmax(0, 1fr);
+      row-gap: 2px;
+    }
+    .radar-row-count {
+      grid-column: 2;
+    }
+  }
+</style>
+
+<script>
+  // Trỏ hoặc tab vào một vùng trong danh sách thì điểm tương ứng trên bản đồ
+  // sáng lên. Chỉ là chỉ dẫn thị giác bổ trợ — mọi thông tin đã nằm sẵn trong
+  // danh sách nên không có gì phụ thuộc vào hover.
+  const rows = document.querySelectorAll<HTMLElement>('[data-zone-row]');
+  const nodes = document.querySelectorAll<HTMLElement>('[data-zone]');
+  if (rows.length && nodes.length) {
+    const setActive = (slug: string | null) => {
+      nodes.forEach((node) => {
+        node.classList.toggle('is-active', node.dataset.zone === slug);
+      });
+    };
+    rows.forEach((row) => {
+      const slug = row.dataset.zoneRow ?? null;
+      row.addEventListener('pointerenter', () => setActive(slug));
+      row.addEventListener('pointerleave', () => setActive(null));
+      row.addEventListener('focusin', () => setActive(slug));
+      row.addEventListener('focusout', () => setActive(null));
+    });
+  }
+</script>

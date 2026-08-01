@@ -2,392 +2,565 @@
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
 import { categoryLabelFrom, getCategories } from '../lib/categories';
+import { observationDate, readingLabel, relativeTime, signalCode, signalStrength } from '../lib/signal';
 
 export interface Props {
   post: Post;
-  /** Secondary posts shown in the side column of the hero. */
+  /** Các bài quan sát phụ, xếp thành hàng ngang phía dưới bảng tín hiệu. */
   side?: Post[];
+  /** Điểm phổ biến cao nhất đang hiển thị, dùng để quy đổi cường độ tín hiệu. */
+  maxScore?: number;
+  /** Tổng số bài đang theo dõi, hiển thị ở dải dữ liệu. */
+  totalPosts?: number;
 }
 
-const { post, side = [] } = Astro.props;
+const { post, side = [], maxScore, totalPosts } = Astro.props;
 const { data } = post;
 const url = `/article/${postSlug(post)}`;
 const categories = await getCategories();
 const categoryName = categoryLabelFrom(categories, data.category);
+const code = signalCode(data.category, postSlug(post));
+const strength = signalStrength(data.popularScore, maxScore ?? data.popularScore);
 ---
 
-<section class="hero" aria-label="Tin nổi bật">
-  <a href={url} class="hero-main">
-    <div class="hero-media">
-      {data.image && <img src={data.image} alt={data.imageAlt || ''} fetchpriority="high" />}
-      <div class="hero-overlay"></div>
-    </div>
-    <div class="hero-content">
-      <div class="hero-tags">
-        <span class="chip chip-solid">{categoryName}</span>
-        <span class="hero-badge">Tin nổi bật</span>
-      </div>
-      <h1 class="hero-title">{data.title}</h1>
-      <p class="hero-excerpt">{data.excerpt}</p>
-      <p class="hero-meta">
-        {data.author} • <time datetime={data.publishedAt.toISOString()}>{formatDate(data.publishedAt)}</time>
-        {data.readingTime && <> • {data.readingTime} phút đọc</>}
-      </p>
-    </div>
-  </a>
+<section class="hero obs-grid" aria-labelledby="hero-title">
+  <span class="obs-marks" aria-hidden="true"></span>
 
-  {side.length > 0 && (
-    <div class="hero-side">
-      <h2 class="hero-side-heading">Nổi bật</h2>
-      <div class="hero-side-list">
-        {side.map((p) => (
-          <a href={`/article/${postSlug(p)}`} class="hero-side-item">
-            <div class="hero-side-media">
-              {p.data.image && <img src={p.data.image} alt={p.data.imageAlt || ''} loading="lazy" />}
-            </div>
-            <div class="hero-side-body">
-              <h3 class="hero-side-title">{p.data.title}</h3>
-            </div>
-          </a>
-        ))}
-      </div>
+  <p class="hero-rail" aria-hidden="true">Tín hiệu chính</p>
+
+  <div class="hero-topline">
+    <span class="signal-code">{code}</span>
+    <span class="hero-topline-rule" aria-hidden="true"></span>
+    <span class="hero-topline-time">Ghi nhận {relativeTime(data.publishedAt)}</span>
+  </div>
+
+  <div class="hero-head">
+    <a href={`/category/${data.category}`} class="hero-cat">{categoryName}</a>
+    <h1 class="hero-title" id="hero-title">
+      <a href={url}>{data.title}</a>
+    </h1>
+  </div>
+
+  <div class="hero-media">
+    {data.image ? (
+      <img src={data.image} alt={data.imageAlt || ''} fetchpriority="high" decoding="async" />
+    ) : (
+      <span class="hero-media-blank">{categoryName}</span>
+    )}
+    <span class="hero-sweep" data-live-anim aria-hidden="true"></span>
+    <span class="hero-media-tag mono" aria-hidden="true">Điểm quan sát</span>
+  </div>
+
+  <div class="hero-panel">
+    <p class="hero-excerpt">{data.excerpt}</p>
+    <div class="hero-actions">
+      <a href={url} class="hero-cta">Đọc tín hiệu</a>
+      <span class="hero-byline">{data.author}</span>
     </div>
-  )}
+  </div>
+
+  <dl class="hero-data">
+    <div>
+      <dt>Chuyên mục</dt>
+      <dd>{categoryName}</dd>
+    </div>
+    <div>
+      <dt>Thời gian đọc</dt>
+      <dd>{readingLabel(data.readingTime)}</dd>
+    </div>
+    <div>
+      <dt>Ngày đăng</dt>
+      <dd><time datetime={data.publishedAt.toISOString()}>{observationDate(data.publishedAt)}</time></dd>
+    </div>
+    <div class="hero-data-strength">
+      <dt>Cường độ</dt>
+      <dd>
+        {strength}%
+        <span class="signal-bar" style={`--strength:${strength}%`} aria-hidden="true"><i></i></span>
+      </dd>
+    </div>
+    {typeof totalPosts === 'number' && (
+      <div class="hero-data-total">
+        <dt>Đang theo dõi</dt>
+        <dd>{totalPosts} bài</dd>
+      </div>
+    )}
+  </dl>
 </section>
 
+{side.length > 0 && (
+  <section class="hero-side" aria-label="Các tín hiệu nổi bật khác">
+    <h2 class="hero-side-heading mono">Tín hiệu song song</h2>
+    <ol class="hero-side-list">
+      {side.map((p, i) => (
+        <li class="hero-side-item">
+          <span class="hero-side-index" aria-hidden="true">{String(i + 2).padStart(2, '0')}</span>
+          <div class="hero-side-body">
+            <span class="signal-code">{signalCode(p.data.category, postSlug(p))}</span>
+            <h3 class="hero-side-title">
+              <a href={`/article/${postSlug(p)}`}>{p.data.title}</a>
+            </h3>
+            <p class="hero-side-meta mono">
+              <span>{categoryLabelFrom(categories, p.data.category)}</span>
+              <span>{readingLabel(p.data.readingTime)}</span>
+              <span><time datetime={p.data.publishedAt.toISOString()}>{formatDate(p.data.publishedAt)}</time></span>
+            </p>
+          </div>
+          <span class="hero-side-media" aria-hidden="true">
+            {p.data.image && <img src={p.data.image} alt="" loading="lazy" decoding="async" />}
+          </span>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
+
 <style>
+  /* ============================================================
+     BẢNG TÍN HIỆU
+     Lưới 12 cột: chữ nằm bên trái trên nền sáng, ảnh chiếm nửa phải và bị cắt
+     vát một góc. Khối tóm tắt là mặt đặc, đè lên mép ảnh — tạo chiều sâu mà
+     chữ vẫn luôn nằm trên nền đục, không phụ thuộc vào ảnh sáng hay tối.
+     ============================================================ */
   .hero {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.85fr);
-    gap: clamp(20px, 2.6vw, 36px);
-    padding-block: var(--space-7) 0;
+    grid-template-columns: 34px repeat(12, minmax(0, 1fr));
+    align-items: start;
+    column-gap: clamp(12px, 1.6vw, 24px);
+    margin-top: var(--space-6);
+    padding: var(--space-5) 0 0;
   }
-  .hero::before {
-    content: 'FEATURED';
-    position: absolute;
-    right: calc(100% + 8px);
-    top: 160px;
-    color: var(--border-strong);
-    font-family: var(--font-head);
-    font-size: 0.64rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
+
+  .hero-rail {
+    grid-column: 1;
+    grid-row: 2 / span 3;
+    align-self: stretch;
+    justify-self: center;
+    margin: 0;
     writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-border-strong);
   }
-  .hero-main {
-    position: relative;
-    isolation: isolate;
-    display: block;
-    border-radius: 26px 6px 26px 26px;
-    overflow: hidden;
-    min-height: 520px;
-    background: var(--nh-dark);
-    border: 0;
-    box-shadow: var(--shadow-subtle);
-  }
-  .hero-media,
-  .hero-media img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .hero-media {
-    overflow: hidden;
-    transform-origin: center;
-    z-index: 0;
-  }
-  .hero-media img {
-    transition: transform var(--dur-normal) ease;
-  }
-  .hero-main:hover .hero-media img {
-    transform: scale(1.02);
-  }
-  .hero-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    background: linear-gradient(
-      180deg,
-      rgba(12, 17, 30, 0.12) 0%,
-      rgba(12, 17, 30, 0.55) 52%,
-      rgba(12, 17, 30, 0.9) 100%
-    );
-  }
-  .hero-content {
-    position: absolute;
-    inset: auto 0 0 0;
-    z-index: 3;
-    padding: clamp(24px, 4vw, 48px);
-    color: #fff;
-  }
-  .hero-tags {
+
+  .hero-topline {
+    grid-column: 2 / -1;
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-3);
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
   }
-  .hero-badge {
-    font-family: var(--font-head);
-    font-weight: 600;
-    font-size: 0.74rem;
+  .hero-topline-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+  .hero-topline-time {
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    letter-spacing: var(--tracking-mono);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #cdcefb;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .hero-head {
+    grid-column: 2 / 8;
+    grid-row: 2;
+    z-index: 2;
+  }
+  .hero-cat {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    margin-bottom: var(--space-4);
+    padding: 0 10px;
+    background: var(--color-brand-primary);
+    color: var(--primary-contrast);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+  }
+  .hero-cat:hover {
+    background: var(--primary-strong);
   }
   .hero-title {
-    color: #fff;
-    font-size: var(--fs-hero);
-    line-height: 1.14;
-    margin: 0 0 var(--space-3);
-    max-width: 18ch;
+    margin: 0;
+    font-size: var(--fs-display);
     font-weight: 800;
-    letter-spacing: -0.035em;
-  }
-  .hero-excerpt {
-    color: rgba(255, 255, 255, 0.92);
-    max-width: 62ch;
-    margin: 0 0 var(--space-3);
-    font-size: 1rem;
-    line-height: 1.65;
+    line-height: 0.97;
+    letter-spacing: -0.045em;
+    text-wrap: balance;
+    /* Tiêu đề rất dài vẫn phải nằm gọn: giới hạn 5 dòng ở cỡ chữ này. */
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .hero-meta {
-    color: #d7dee9;
-    font-size: var(--fs-meta);
-    margin: 0;
+  .hero-title a:hover {
+    color: var(--color-brand-primary);
   }
 
-  .hero-side {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    align-self: start;
-    padding-top: 2px;
-    min-width: 0;
-  }
-  .hero-side-heading {
+  .hero-media {
     position: relative;
-    color: var(--text);
-    font-size: 1.35rem;
-    line-height: 1.2;
-    margin: 0 0 var(--space-1);
-    padding-left: var(--space-3);
-    font-weight: 700;
-  }
-  .hero-side-heading::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.16em;
-    bottom: 0.16em;
-    width: 4px;
-    border-radius: var(--radius-pill);
-    background: var(--primary);
-  }
-  .hero-side-list {
-    display: grid;
-    gap: var(--space-2);
-  }
-  .hero-side-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    min-width: 0;
-    background: transparent;
-    border: 0;
-    border-radius: var(--radius-card);
-    padding: var(--space-2);
-    transition: background var(--dur-fast) ease;
-  }
-  .hero-side-item:hover {
-    background: var(--surface);
-  }
-  .hero-side-item:first-child {
-    display: block;
-    padding: 0 0 var(--space-3);
-    margin-bottom: var(--space-1);
-    border-bottom: 1px solid var(--border);
-    border-radius: 0;
-  }
-  .hero-side-item:first-child:hover {
-    background: transparent;
-  }
-  .hero-side-item:first-child .hero-side-media {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 8.7;
-    margin-bottom: var(--space-3);
-    border-radius: 16px 4px 16px 16px;
-  }
-  .hero-side-item:first-child .hero-side-title {
-    font-size: 1.12rem;
-    -webkit-line-clamp: 2;
-  }
-  .hero-side-media {
-    flex: 0 0 112px;
-    height: 76px;
-    border-radius: var(--radius-control);
+    grid-column: 8 / -1;
+    grid-row: 2 / span 2;
+    align-self: start;
+    margin-top: calc(var(--space-4) * -1);
+    aspect-ratio: 4 / 5;
+    /* Trần chiều cao để hero không đẩy hết nội dung khác xuống dưới màn hình
+       trên các màn rất rộng. */
+    max-height: min(68vh, 620px);
     overflow: hidden;
-    background: var(--surface-container);
+    background: var(--color-surface-dark);
+    /* Góc dưới-trái vát: dấu hiệu hình học riêng, lặp lại ở các khối khác. */
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 56px 100%, 0 calc(100% - 56px));
   }
-  .hero-side-media img {
+  .hero-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .hero-side-body {
-    min-width: 0;
-    padding: 0;
+  .hero-media-blank {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--space-5);
+    text-align: center;
+    color: var(--color-text-on-dark-muted);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    background-image:
+      linear-gradient(to right, var(--grid-line-dark) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line-dark) 1px, transparent 1px);
+    background-size: var(--grid-unit) var(--grid-unit);
   }
-  .hero-side-title {
-    color: var(--text);
+  .hero-media-tag {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-4);
+    padding: 4px 8px;
+    background: rgba(13, 21, 38, 0.72);
+    color: var(--color-accent-bright);
+    font-weight: 700;
+  }
+  /* Đường quét radar: một nêm sáng xoay chậm. Chỉ animate transform nên chạy
+     trên compositor, không làm layout tính lại. */
+  .hero-sweep {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    pointer-events: none;
+    background: conic-gradient(
+      from 0deg,
+      rgba(34, 211, 238, 0) 0deg,
+      rgba(34, 211, 238, 0.16) 26deg,
+      rgba(34, 211, 238, 0) 52deg
+    );
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-sweep.is-live {
+      animation: hero-sweep 9s linear infinite;
+    }
+  }
+  @keyframes hero-sweep {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  .hero-panel {
+    grid-column: 2 / 9;
+    grid-row: 3;
+    z-index: 2;
+    margin-top: var(--space-5);
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-brand-primary);
+  }
+  .hero-excerpt {
+    margin: 0 0 var(--space-4);
+    max-width: 52ch;
+    color: var(--color-text-secondary);
     font-size: 1.02rem;
-    line-height: 1.35;
-    margin: 0;
+    line-height: 1.7;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+  .hero-cta {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 46px;
+    padding: 0 var(--space-5);
+    background: var(--color-text-primary);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    transition: background var(--dur-fast) ease;
+  }
+  .hero-cta::after {
+    content: '→';
+  }
+  .hero-cta:hover {
+    background: var(--color-brand-primary);
+  }
+  .hero-byline {
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Dải dữ liệu dưới cùng: các chỉ số đều lấy từ dữ liệu thật của bài. */
+  .hero-data {
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-4);
+    margin: var(--space-6) 0 0;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-text-primary);
+  }
+  .hero-data div {
+    min-width: 0;
+  }
+  .hero-data dt {
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .hero-data dd {
+    margin: 5px 0 0;
+    font-family: var(--font-head);
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+  .hero-data-strength dd {
+    display: grid;
+    gap: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ============ Tín hiệu song song ============ */
+  .hero-side {
+    margin-top: var(--space-7);
+  }
+  .hero-side-heading {
+    margin: 0 0 var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+  .hero-side-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .hero-side-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    min-width: 0;
+    padding: var(--space-4) var(--space-4) var(--space-4) 0;
+  }
+  .hero-side-item + .hero-side-item {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--color-border);
+  }
+  .hero-side-index {
+    flex: 0 0 auto;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-side-body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .hero-side-title {
+    margin: 6px 0 var(--space-2);
+    font-size: 1.04rem;
+    line-height: 1.32;
+    letter-spacing: -0.015em;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hero-side-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
   .hero-side-item:hover .hero-side-title {
-    color: var(--primary);
+    color: var(--color-brand-primary);
+  }
+  .hero-side-meta {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+  }
+  .hero-side-meta > * + *::before {
+    content: '+';
+    margin-right: var(--space-2);
+    color: var(--color-border-strong);
+  }
+  .hero-side-media {
+    flex: 0 0 62px;
+    height: 62px;
+    overflow: hidden;
+    background: var(--surface-container);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  }
+  .hero-side-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-normal) var(--ease);
+  }
+  .hero-side-item:hover .hero-side-media img {
+    transform: scale(1.06);
   }
 
-  @media (max-width: 900px) {
+  /* ============ Máy tính bảng ============ */
+  @media (max-width: 1023px) {
     .hero {
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: 28px repeat(12, minmax(0, 1fr));
     }
-    .hero-main {
-      min-height: 420px;
-    }
-    .hero-side {
-      padding-top: 0;
-    }
-    .hero::before {
-      display: none;
-    }
-    .hero-side-list {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: var(--space-4);
-    }
-    .hero-side-item,
-    .hero-side-item:first-child {
-      display: block;
-      padding: 0;
-      margin: 0;
-      border: 0;
-    }
-    .hero-side-item .hero-side-media,
-    .hero-side-item:first-child .hero-side-media {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 16 / 9;
-      margin-bottom: var(--space-2);
-    }
-  }
-
-  /* Mobile: tách ảnh và nội dung thành hai khối chồng nhau. Chữ nằm trên nền
-     đặc nên dễ đọc, còn ảnh không bị chữ che kín như bố cục phủ trước đây. */
-  @media (max-width: 640px) {
-    .hero {
-      padding-block: var(--space-4) var(--space-2);
-      gap: var(--space-5);
-    }
-    .hero-main {
-      min-height: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-    .hero-media,
-    .hero-media img {
-      position: static;
-      height: auto;
+    .hero-head {
+      grid-column: 2 / -1;
     }
     .hero-media {
+      grid-column: 2 / -1;
+      grid-row: 3;
+      margin-top: var(--space-5);
       aspect-ratio: 16 / 9;
-      width: 100%;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 44px 100%, 0 calc(100% - 44px));
     }
-    .hero-media img {
-      aspect-ratio: 16 / 9;
-      object-fit: cover;
+    .hero-panel {
+      grid-column: 2 / -1;
+      grid-row: 4;
+      margin-top: 0;
+      border-top: 0;
     }
-    .hero-overlay {
-      display: none;
-    }
-    .hero-content {
-      position: static;
-      padding: var(--space-4);
-      color: var(--text);
-    }
-    .hero-title {
-      color: var(--text);
-      font-size: clamp(1.85rem, 7.6vw, 2.15rem); /* 30-34px */
-      max-width: none;
-      margin-bottom: var(--space-2);
-    }
-    .hero-badge {
-      color: var(--primary);
-    }
-    .hero-excerpt {
-      color: var(--text-soft);
-      font-size: 0.98rem;
-      -webkit-line-clamp: 3;
-    }
-    .hero-meta {
-      color: var(--text-muted);
-    }
-    .hero-side-media {
-      flex-basis: 96px;
-      height: 68px;
-    }
-    .hero-side-title {
-      font-size: 0.98rem;
+    .hero-rail {
+      grid-row: 2 / span 3;
     }
     .hero-side-list {
       grid-template-columns: minmax(0, 1fr);
-      gap: var(--space-2);
     }
-    .hero-side-item,
-    .hero-side-item:first-child {
-      display: flex;
-      align-items: center;
+    .hero-side-item {
+      padding: var(--space-3) 0;
+      border-top: 1px solid var(--color-border);
+    }
+    .hero-side-item + .hero-side-item {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .hero-side-media {
+      flex-basis: 78px;
+      height: 62px;
+    }
+  }
+
+  /* ============ Điện thoại ============ */
+  @media (max-width: 640px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+    }
+    /* Cột chữ dọc chiếm chỗ quý ở màn hẹp; mã tín hiệu ở hàng trên đã đủ. */
+    .hero-rail {
+      display: none;
+    }
+    .hero-topline,
+    .hero-head,
+    .hero-media,
+    .hero-panel,
+    .hero-data {
+      grid-column: 1;
+      grid-row: auto;
+    }
+    .hero-topline {
+      margin-bottom: var(--space-4);
+    }
+    .hero-topline-time {
+      font-size: 0.62rem;
+    }
+    .hero-media {
+      margin-top: var(--space-4);
+      aspect-ratio: 4 / 3;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 32px 100%, 0 calc(100% - 32px));
+    }
+    .hero-panel {
+      margin-top: 0;
+      padding: var(--space-4);
+    }
+    .hero-actions {
       gap: var(--space-3);
-      padding: var(--space-2) 0;
-      border-bottom: 1px solid var(--border);
     }
-    .hero-side-item .hero-side-media,
-    .hero-side-item:first-child .hero-side-media {
-      flex: 0 0 96px;
-      width: 96px;
-      height: 68px;
-      margin: 0;
-      aspect-ratio: auto;
-      border-radius: var(--radius-control);
+    .hero-cta {
+      flex: 1 1 auto;
+      justify-content: center;
     }
-    .hero-side-item:first-child .hero-side-title {
-      font-size: 0.98rem;
-      -webkit-line-clamp: 3;
+    .hero-data {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+    }
+    .hero-side {
+      margin-top: var(--space-6);
     }
   }
 
   @media (max-width: 360px) {
-    .hero-side-item {
-      gap: var(--space-2);
-      padding: var(--space-1);
+    .hero-title {
+      -webkit-line-clamp: 6;
     }
     .hero-side-media {
-      flex-basis: 84px;
-      height: 60px;
-    }
-    .hero-side-title {
-      font-size: 0.94rem;
-      -webkit-line-clamp: 3;
+      flex-basis: 64px;
+      height: 52px;
     }
   }
 </style>

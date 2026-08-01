@@ -1,7 +1,8 @@
 ---
 import type { Post } from '../lib/posts';
-import { postSlug, formatDate } from '../lib/posts';
+import { postSlug } from '../lib/posts';
 import { categoryLabelFrom, getCategories } from '../lib/categories';
+import { readingLabel, relativeTime, signalStrength } from '../lib/signal';
 
 export interface Props {
   posts: Post[];
@@ -9,106 +10,146 @@ export interface Props {
 }
 const { posts, title = 'Đọc nhiều' } = Astro.props;
 const categories = await getCategories();
+const maxScore = posts.reduce((max, p) => Math.max(max, p.data.popularScore), 0);
 ---
 
-<section class="popular" aria-label={title}>
-  <h2 class="popular-title">{title}</h2>
-  <ol class="popular-list">
-    {posts.map((p, i) => (
-      <li class="popular-item">
-        <span class="popular-rank">{i + 1}</span>
-        <div class="popular-body">
-          <a href={`/article/${postSlug(p)}`} class="popular-link">{p.data.title}</a>
-          <p class="popular-meta">
-            <span class="popular-cat">{categoryLabelFrom(categories, p.data.category)}</span>
-            <span aria-hidden="true">•</span>
-            <time datetime={p.data.publishedAt.toISOString()}>{formatDate(p.data.publishedAt)}</time>
-          </p>
-        </div>
-      </li>
-    ))}
+<section class="rank" aria-labelledby="rank-title">
+  <div class="rank-head">
+    <span class="rank-code mono">Bảng xếp hạng tín hiệu</span>
+    <h2 class="rank-title" id="rank-title">{title}</h2>
+  </div>
+
+  <ol class="rank-list">
+    {posts.map((p, i) => {
+      const strength = signalStrength(p.data.popularScore, maxScore);
+      return (
+        <li class="rank-item">
+          <span class="rank-index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <div class="rank-body">
+            <h3 class="rank-headline">
+              <a href={`/article/${postSlug(p)}`}>{p.data.title}</a>
+            </h3>
+            <p class="rank-meta mono">
+              <span class="rank-cat">{categoryLabelFrom(categories, p.data.category)}</span>
+              <span>{readingLabel(p.data.readingTime)}</span>
+              <span><time datetime={p.data.publishedAt.toISOString()}>{relativeTime(p.data.publishedAt)}</time></span>
+            </p>
+            <span class="signal-bar" style={`--strength:${strength}%`} aria-hidden="true"><i></i></span>
+          </div>
+        </li>
+      );
+    })}
   </ol>
 </section>
 
 <style>
-  .popular {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    padding: var(--space-5);
-    box-shadow: var(--shadow-subtle);
-  }
-  .popular-title {
-    font-size: 1.05rem;
-    margin: 0 0 var(--space-4);
-    padding-left: var(--space-3);
+  /* Bảng xếp hạng: số thứ tự cỡ lớn làm điểm nhấn thị giác, mỗi dòng có thanh
+     cường độ quy từ điểm phổ biến thật của bài. Không dùng khung thẻ bo góc để
+     khối này không giống sidebar tin tức thông thường. */
+  .rank {
     position: relative;
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 2px solid var(--color-text-primary);
   }
-  .popular-title::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.14em;
-    bottom: 0.14em;
-    width: 4px;
-    border-radius: var(--radius-pill);
-    background: var(--primary);
+  .rank-head {
+    margin-bottom: var(--space-4);
   }
-  .popular-list {
+  .rank-code {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--color-brand-primary);
+    font-weight: 700;
+  }
+  .rank-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .rank-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: var(--space-3);
+    counter-reset: rank;
   }
-  .popular-item {
+  .rank-item {
+    position: relative;
     display: flex;
+    align-items: flex-start;
     gap: var(--space-3);
     min-width: 0;
-    padding-bottom: var(--space-3);
-    border-bottom: 1px solid var(--border);
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--color-border);
   }
-  .popular-item:last-child {
-    border-bottom: 0;
-    padding-bottom: 0;
-  }
-  .popular-rank {
+  .rank-index {
     flex: 0 0 auto;
-    font-family: var(--font-head);
+    font-family: var(--font-mono);
+    font-size: 1.55rem;
     font-weight: 700;
-    font-size: 1.25rem;
-    line-height: 1.3;
-    width: 1.6ch;
-    color: var(--primary);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    transition: color var(--dur-fast) ease;
   }
-  .popular-body {
+  /* Ba vị trí đầu được đánh dấu bằng màu thương hiệu; thứ hạng vẫn đọc được
+     bằng chính con số nên thông tin không phụ thuộc vào màu. */
+  .rank-item:nth-child(-n + 3) .rank-index {
+    color: var(--color-brand-primary);
+  }
+  .rank-item:hover .rank-index {
+    color: var(--color-accent);
+  }
+  .rank-body {
+    flex: 1 1 auto;
     min-width: 0;
   }
-  .popular-link {
+  .rank-headline {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.34;
+    letter-spacing: -0.012em;
     display: -webkit-box;
-    font-family: var(--font-head);
-    font-weight: 600;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: break-word;
   }
-  .popular-link:hover {
-    color: var(--primary);
+  .rank-headline a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
   }
-  .popular-meta {
-    margin: var(--space-1) 0 0;
-    font-size: var(--fs-meta);
-    color: var(--text-muted);
+  .rank-item:hover .rank-headline {
+    color: var(--color-brand-primary);
+  }
+  .rank-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-1);
-    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-3);
+    color: var(--color-text-muted);
   }
-  .popular-cat {
-    color: var(--primary);
-    font-weight: 600;
+  .rank-meta > * + *::before {
+    content: '+';
+    margin-right: var(--space-2);
+    color: var(--color-border-strong);
+  }
+  .rank-cat {
+    color: var(--color-brand-primary);
+    font-weight: 700;
+  }
+
+  @media (max-width: 640px) {
+    .rank {
+      padding: var(--space-4);
+    }
+    .rank-index {
+      font-size: 1.3rem;
+    }
   }
 </style>

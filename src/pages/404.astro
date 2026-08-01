@@ -7,6 +7,7 @@ const latest = (await getPublishedPosts()).slice(0, 4);
 
 <BaseLayout title="Không tìm thấy trang" description="Trang bạn tìm không tồn tại.">
   <div class="container notfound">
+    <p class="nf-status">Mất tín hiệu · Mã 404</p>
     <p class="nf-code">404</p>
     <h1>Không tìm thấy bài viết</h1>
     <p class="nf-desc">
@@ -15,6 +16,7 @@ const latest = (await getPublishedPosts()).slice(0, 4);
     </p>
     <a href="/" class="btn btn-primary">Về trang chủ</a>
 
+    <p class="nf-list-title">Tín hiệu gần đây</p>
     <ul class="nf-list">
       {latest.map((p) => (
         <li><a href={`/article/${postSlug(p)}`}>{p.data.title}</a></li>
@@ -29,46 +31,84 @@ const latest = (await getPublishedPosts()).slice(0, 4);
     text-align: center;
     max-width: 640px;
   }
-  .nf-code {
-    font-family: var(--font-head);
-    font-weight: 700;
-    font-size: clamp(4rem, 14vw, 7rem);
-    line-height: 1;
+  .nf-status {
+    display: inline-flex;
+    align-items: center;
     margin: 0;
-    color: var(--primary);
+    padding: 4px 10px;
+    background: var(--color-signal-alert);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+  }
+  .nf-code {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(4.5rem, 16vw, 8.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    margin: var(--space-4) 0 0;
+    color: var(--color-brand-primary);
+    font-variant-numeric: tabular-nums;
   }
   .notfound h1 {
-    font-size: var(--fs-section);
-    margin: var(--space-2) 0 var(--space-3);
+    font-size: var(--fs-display-sm);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    margin: var(--space-3) 0 var(--space-3);
   }
   .nf-desc {
-    color: var(--text-soft);
+    color: var(--color-text-secondary);
     margin-bottom: var(--space-5);
+    line-height: 1.65;
+  }
+  .nf-list-title {
+    margin: var(--space-8) 0 var(--space-3);
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-text-primary);
+    color: var(--color-brand-primary);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    text-align: left;
   }
   .nf-list {
     list-style: none;
     padding: 0;
-    margin: var(--space-7) auto 0;
+    margin: 0;
     display: grid;
-    gap: var(--space-2);
     text-align: left;
-    max-width: 460px;
   }
   .nf-list a {
     display: flex;
     align-items: center;
-    min-height: 44px;
-    padding: var(--space-2) var(--space-4);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
+    min-height: 48px;
+    padding: var(--space-2) 0;
+    border-top: 1px solid var(--color-border);
     font-family: var(--font-head);
     font-weight: 600;
-    font-size: 0.94rem;
-    transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+    font-size: 0.96rem;
+    line-height: 1.4;
+    transition: color var(--dur-fast) ease;
+  }
+  .nf-list li:last-child a {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .nf-list a::before {
+    content: '↳';
+    margin-right: var(--space-3);
+    color: var(--color-border-strong);
   }
   .nf-list a:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    color: var(--color-brand-primary);
+  }
+  .nf-list a:hover::before {
+    color: var(--color-brand-primary);
   }
 </style>

@@ -6,6 +6,7 @@ import MushroomieAd from '../components/MushroomieAd.astro';
 import type { Post } from '../lib/posts';
 import { postSlug, formatDate } from '../lib/posts';
 import { categoryLabelFrom, getCategories } from '../lib/categories';
+import { observationDate, readingLabel, relativeTime, signalCode } from '../lib/signal';
 
 export interface Props {
   post: Post;
@@ -19,6 +20,12 @@ const sideRecommendations = related.slice(0, 4);
 const footerRecommendations = related.slice(4, 7);
 const categories = await getCategories();
 const labelFor = (category: string) => categoryLabelFrom(categories, category);
+// Chỉ hiện mốc "Cập nhật" khi nó rơi vào một ngày khác ngày đăng — sửa bài
+// sau vài phút mà vẫn in ra hai lần cùng một ngày thì chỉ gây nhiễu.
+const showUpdated =
+  Boolean(data.updatedAt) &&
+  observationDate(data.updatedAt!) !== observationDate(data.publishedAt);
+
 const canonical = new URL(`/article/${slug}`, Astro.site).toString();
 const ogImage = data.image
   ? new URL(data.image, Astro.site).toString()
@@ -54,9 +61,7 @@ const jsonLd = {
   type="article"
   jsonLd={jsonLd}
 >
-  <!-- Thanh tiến độ đọc: thuần client, chỉ phản ánh vị trí cuộn. -->
-  <div class="reading-progress" aria-hidden="true"><span data-reading-progress></span></div>
-
+  <!-- Thanh tiến độ đọc nằm ở mép dưới header và tự đo theo [data-article-content]. -->
   <article class="article">
     <div class="container article-shell">
       <div class="article-container">
@@ -68,6 +73,12 @@ const jsonLd = {
       </nav>
 
       <header class="article-header">
+        <div class="article-signal">
+          <span class="signal-code">{signalCode(data.category, slug)}</span>
+          <span class="article-signal-rule" aria-hidden="true"></span>
+          <span class="article-signal-time mono">Ghi nhận {relativeTime(data.publishedAt)}</span>
+        </div>
+
         <a href={`/category/${data.category}`} class="chip chip-solid">{labelFor(data.category)}</a>
         <h1 class="article-title">{data.title}</h1>
         <p class="article-excerpt">{data.excerpt}</p>
@@ -75,12 +86,12 @@ const jsonLd = {
         <div class="article-meta">
           <div class="byline">
             <span class="byline-author">{data.author}</span>
-            <span class="byline-dates">
-              <time datetime={data.publishedAt.toISOString()}>Đăng {formatDate(data.publishedAt)}</time>
-              {data.updatedAt && data.updatedAt.valueOf() !== data.publishedAt.valueOf() && (
-                <> · <time datetime={data.updatedAt.toISOString()}>Cập nhật {formatDate(data.updatedAt)}</time></>
+            <span class="byline-dates mono">
+              <time datetime={data.publishedAt.toISOString()}>Đăng {observationDate(data.publishedAt)}</time>
+              {showUpdated && (
+                <> · <time datetime={data.updatedAt!.toISOString()}>Cập nhật {observationDate(data.updatedAt!)}</time></>
               )}
-              {data.readingTime && <> · {data.readingTime} phút đọc</>}
+              {data.readingTime && <> · {readingLabel(data.readingTime)} đọc</>}
             </span>
           </div>
           <div class="article-actions">
@@ -150,10 +161,14 @@ const jsonLd = {
     <Comments slug={slug} />
 
     {footerRecommendations.length > 0 && (
-      <section class="related section" aria-label="Bài viết liên quan">
+      <section class="related section" aria-labelledby="related-title">
         <div class="container">
-          <div class="section-head">
-            <h2 class="section-title">Bài viết liên quan</h2>
+          <div class="zone-head">
+            <span class="zone-code">
+              Tín hiệu liên quan
+              <em aria-hidden="true"></em>
+            </span>
+            <h2 class="zone-title" id="related-title">Đọc tiếp cùng chủ đề</h2>
           </div>
           <div class="grid grid-3">
             {footerRecommendations.map((p) => <ArticleCard post={p} headingLevel={3} />)}
@@ -178,21 +193,6 @@ const jsonLd = {
 </BaseLayout>
 
 <style>
-  .reading-progress {
-    position: sticky;
-    top: var(--header-h);
-    z-index: 40;
-    height: 3px;
-    background: transparent;
-  }
-  .reading-progress span {
-    display: block;
-    height: 100%;
-    width: var(--reading-progress, 0%);
-    background: var(--primary);
-    transition: width 90ms linear;
-  }
-
   .article-shell {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
@@ -216,45 +216,44 @@ const jsonLd = {
   }
   .rail-heading {
     margin: 0 0 var(--space-3);
-    padding-left: var(--space-3);
-    border-left: 3px solid var(--primary);
-    color: var(--text);
-    font-family: var(--font-head);
-    font-size: 0.9rem;
+    padding-top: var(--space-2);
+    border-top: 1px solid var(--color-text-primary);
+    color: var(--color-brand-primary);
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
     font-weight: 700;
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
   }
   .rail-card {
     display: block;
-    padding: var(--space-2);
-    margin-bottom: var(--space-3);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-subtle);
-    transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
+    padding: var(--space-3) 0;
+    border-top: 1px solid var(--color-border);
+    transition: border-color var(--dur-fast) ease;
   }
   .rail-card:hover {
-    border-color: var(--border-strong);
-    box-shadow: var(--shadow-elevated);
+    border-color: var(--color-brand-primary);
   }
   .rail-card img {
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
-    border-radius: var(--radius-control);
     margin-bottom: var(--space-2);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 18px 100%, 0 calc(100% - 18px));
   }
   .rail-category,
   .rail-time {
     display: block;
-    color: var(--text-muted);
-    font-size: 0.74rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
+    letter-spacing: var(--tracking-mono);
+    text-transform: uppercase;
+    color: var(--color-text-muted);
   }
   .rail-category {
     margin-bottom: var(--space-1);
-    color: var(--primary);
+    color: var(--color-brand-primary);
     font-weight: 700;
-    text-transform: uppercase;
   }
   .rail-card strong {
     display: -webkit-box;
@@ -302,10 +301,31 @@ const jsonLd = {
   .article-header {
     padding-block: var(--space-4) var(--space-2);
   }
+  /* Dòng mã tín hiệu mở đầu bài — cùng ngôn ngữ với thẻ bài và hero. */
+  .article-signal {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-text-primary);
+  }
+  .article-signal-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+  .article-signal-time {
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
   .article-title {
-    font-size: var(--fs-h1);
-    line-height: 1.18;
-    margin: var(--space-3) 0 var(--space-3);
+    font-size: clamp(2rem, 1.35rem + 2.9vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.038em;
+    text-wrap: balance;
+    margin: var(--space-3) 0 var(--space-4);
   }
   .article-excerpt {
     font-size: var(--fs-lead);
@@ -329,8 +349,9 @@ const jsonLd = {
     display: block;
   }
   .byline-dates {
-    font-size: var(--fs-meta);
-    color: var(--text-muted);
+    display: block;
+    margin-top: 3px;
+    color: var(--color-text-muted);
   }
   .article-actions {
     display: flex;
@@ -352,36 +373,39 @@ const jsonLd = {
   }
   .article-hero img {
     width: 100%;
-    border-radius: var(--radius-card);
     aspect-ratio: 16 / 9;
     object-fit: cover;
     background: var(--surface-container);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 40px 100%, 0 calc(100% - 40px));
   }
   .article-hero figcaption {
-    margin-top: var(--space-2);
+    margin-top: var(--space-3);
+    padding-left: var(--space-3);
+    border-left: 2px solid var(--color-border-strong);
     font-size: var(--fs-meta);
-    color: var(--text-muted);
-    text-align: center;
+    color: var(--color-text-muted);
+    text-align: left;
   }
 
   /* ------ mục lục ------ */
   .article-toc {
-    margin: var(--space-5) 0;
+    margin: var(--space-6) 0;
     padding: var(--space-4) var(--space-5);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    background: var(--surface);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-brand-primary);
+    background: var(--color-surface);
   }
   .article-toc[hidden] {
     display: none;
   }
   .article-toc h2 {
     margin: 0 0 var(--space-2);
-    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-mono);
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: var(--tracking-mono);
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: var(--color-brand-primary);
   }
   .article-toc ol {
     margin: 0;
@@ -447,18 +471,37 @@ const jsonLd = {
   .article-content :global(li) {
     margin-bottom: 0.5em;
   }
+  /* Trích dẫn: chữ lớn hơn thân bài và có dấu ngoặc kép làm mốc thị giác. */
   .article-content :global(blockquote) {
-    margin: 1.5em 0;
-    padding: var(--space-1) var(--space-5);
-    border-left: 4px solid var(--primary);
-    background: var(--primary-softer);
-    color: var(--text-soft);
-    font-style: italic;
-    border-radius: 0 var(--radius-control) var(--radius-control) 0;
+    position: relative;
+    margin: 1.9em 0;
+    padding: var(--space-2) 0 var(--space-2) var(--space-6);
+    border-left: 2px solid var(--color-brand-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-head);
+    font-size: 1.16em;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+  }
+  .article-content :global(blockquote)::before {
+    content: '“';
+    position: absolute;
+    left: var(--space-3);
+    top: -0.1em;
+    color: var(--color-brand-primary);
+    font-family: var(--font-head);
+    font-size: 2.2em;
+    line-height: 1;
+    opacity: 0.35;
+  }
+  .article-content :global(blockquote p:last-child) {
+    margin-bottom: 0;
   }
   .article-content :global(img) {
-    border-radius: var(--radius-card);
-    margin: 1.5em 0;
+    margin: 1.6em 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 28px 100%, 0 calc(100% - 28px));
   }
   .article-content :global(pre) {
     padding: var(--space-4);
@@ -682,28 +725,7 @@ const jsonLd = {
     });
   }
 
-  // ---- Thanh tiến độ đọc (chỉ dựa trên vị trí cuộn, không gọi API) ----
-  const progressBar = document.querySelector<HTMLElement>('[data-reading-progress]');
   const contentEl = document.querySelector<HTMLElement>('[data-article-content]');
-  if (progressBar && contentEl) {
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const start = contentEl.offsetTop;
-      const span = contentEl.offsetHeight - window.innerHeight * 0.4;
-      const done = span > 0 ? (window.scrollY - start) / span : 0;
-      const pct = Math.min(100, Math.max(0, done * 100));
-      progressBar.style.setProperty('--reading-progress', pct.toFixed(1) + '%');
-    };
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(update);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll, { passive: true });
-    update();
-  }
 
   // ---- Mục lục dựng từ heading của chính bài viết ----
   const tocNav = document.querySelector<HTMLElement>('[data-toc]');

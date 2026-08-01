@@ -6,6 +6,7 @@ import ArticleCard from '../components/ArticleCard.astro';
 import PopularList from '../components/PopularList.astro';
 import CategoryNav from '../components/CategoryNav.astro';
 import AiDailyBrief from '../components/AiDailyBrief.astro';
+import TechRadar from '../components/TechRadar.astro';
 import {
   getPublishedPosts,
   getTrendingPosts,
@@ -87,11 +88,17 @@ const aiBrief = getPostsForSection(allPosts, 'ai-daily-brief', 3, rank(fallbackA
 // với feed — lọc bớt sẽ làm sai ý nghĩa của danh sách.
 const fallbackPopular = await getPopularPosts(5);
 const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopular);
+
+// Mốc quy đổi "cường độ tín hiệu": điểm phổ biến cao nhất trong số bài đang có.
+// Chỉ dùng để hiển thị, không tác động tới thứ tự hay cách chọn bài.
+const maxScore = allPosts.reduce((max, p) => Math.max(max, p.data.popularScore), 0);
 ---
 
 <BaseLayout title="Tin tức công nghệ và AI" appendSiteName={false}>
   <div class="container">
-    {featured && <HeroNews post={featured} side={heroSide} />}
+    {featured && (
+      <HeroNews post={featured} side={heroSide} maxScore={maxScore} totalPosts={allPosts.length} />
+    )}
     <div class="ticker-wrap">
       <BreakingTicker posts={breaking} />
     </div>
@@ -100,18 +107,34 @@ const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopul
     </div>
   </div>
 
+  <div class="container">
+    <TechRadar posts={allPosts} />
+  </div>
+
   <div class="container layout-main">
     <div class="main-col">
-      <section class="section" aria-label="Cập nhật mới nhất">
-        <div class="section-head">
-          <div class="section-heading-group">
-            <span class="section-index">01 / Mới nhất</span>
-            <h2 class="section-title">Cập nhật mới nhất</h2>
-          </div>
-          <a href="/search" class="section-link">Xem tất cả →</a>
+      <section class="section" aria-labelledby="latest-title">
+        <div class="zone-head">
+          <span class="zone-code">
+            Khu vực 04
+            <em aria-hidden="true"></em>
+            Dòng quan sát
+          </span>
+          <h2 class="zone-title" id="latest-title">Cập nhật mới nhất</h2>
+          <a href="/search" class="zone-link">Toàn bộ bài viết</a>
         </div>
-        <div class="grid grid-3 latest-grid">
-          {latest.map((p) => <ArticleCard post={p} headingLevel={3} />)}
+
+        <div class="latest-grid">
+          {latest.map((p, i) => (
+            <div class={`latest-cell latest-cell-${i + 1}`}>
+              <ArticleCard
+                post={p}
+                headingLevel={3}
+                variant={i === 0 ? 'feature' : i === 3 ? 'text' : i === 5 ? 'compact' : 'standard'}
+                maxScore={maxScore}
+              />
+            </div>
+          ))}
         </div>
       </section>
     </div>
@@ -125,17 +148,25 @@ const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopul
     <AiDailyBrief posts={aiBrief} />
 
     {trending.length > 0 && (
-      <section class="section trend-section" aria-label="Xu hướng công nghệ">
-        <div class="section-head trend-head">
-          <div class="section-heading-group">
-            <span class="section-index">03 / Đáng chú ý</span>
-            <h2 class="section-title">Xu hướng công nghệ</h2>
-          </div>
-          <span class="section-rule" aria-hidden="true"></span>
+      <section class="section trend-section" aria-labelledby="trend-title">
+        <div class="zone-head">
+          <span class="zone-code">
+            Khu vực 05
+            <em aria-hidden="true"></em>
+            Đang tăng tốc
+          </span>
+          <h2 class="zone-title" id="trend-title">Xu hướng công nghệ</h2>
+          <p class="zone-note">Các chủ đề đang được nhắc tới nhiều nhất trong vài ngày qua.</p>
         </div>
-        <div class="grid trend-grid">
-          {trending.map((p) => <ArticleCard post={p} headingLevel={3} />)}
-        </div>
+
+        <ol class="trend-rail" tabindex="0" aria-label="Danh sách xu hướng, cuộn ngang được">
+          {trending.map((p, i) => (
+            <li class="trend-item">
+              <span class="trend-index mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <ArticleCard post={p} headingLevel={3} variant={i === 0 ? 'feature' : 'standard'} maxScore={maxScore} />
+            </li>
+          ))}
+        </ol>
       </section>
     )}
   </div>
@@ -143,7 +174,7 @@ const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopul
 
 <style>
   .ticker-wrap {
-    margin-top: var(--space-5);
+    margin-top: var(--space-6);
   }
   .cat-row {
     margin-top: var(--space-5);
@@ -157,46 +188,46 @@ const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopul
   .main-col {
     min-width: 0;
   }
-  .section-heading-group {
+
+  /* ============================================================
+     LƯỚI LỆCH — CẬP NHẬT MỚI NHẤT
+     Sáu ô với ba nhịp khác nhau. Chỉ đặt bằng grid-column, không dùng position
+     tuyệt đối, nên thứ tự DOM luôn đúng bằng thứ tự đọc và ở màn hẹp chỉ cần
+     bỏ template là về một cột sạch.
+     ============================================================ */
+  .latest-grid {
     display: grid;
-    gap: var(--space-2);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: var(--space-5);
+    row-gap: var(--space-6);
   }
-  .section-index {
-    color: var(--primary);
-    font-family: var(--font-head);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+  .latest-cell {
+    min-width: 0;
   }
-  .section-heading-group .section-title {
-    padding-left: 0;
-    font-size: clamp(1.65rem, 2.3vw, 2.15rem);
-    letter-spacing: -0.025em;
+  .latest-cell-1 {
+    grid-column: span 4;
   }
-  .section-heading-group .section-title::before {
-    display: none;
+  .latest-cell-2 {
+    grid-column: span 2;
   }
-  .latest-grid :global(.card),
-  .trend-grid :global(.card) {
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
+  .latest-cell-3 {
+    grid-column: span 3;
   }
-  .latest-grid :global(.card:hover),
-  .trend-grid :global(.card:hover) {
-    border-color: transparent;
-    box-shadow: none;
+  .latest-cell-4 {
+    grid-column: span 3;
   }
-  .latest-grid :global(.card-media),
-  .trend-grid :global(.card-media) {
-    border-radius: 18px 4px 18px 18px;
+  .latest-cell-5 {
+    grid-column: span 4;
   }
-  .latest-grid :global(.card-body),
-  .trend-grid :global(.card-body) {
-    padding-inline: 0;
+  .latest-cell-6 {
+    grid-column: span 2;
   }
+  /* Khoảng trắng có chủ đích: ô chỉ chữ được đẩy xuống một nhịp so với ô ảnh
+     bên cạnh, tạo bậc thang thay vì hàng ngang phẳng. */
+  .latest-cell-4 {
+    padding-top: var(--space-6);
+  }
+
   .sidebar {
     display: grid;
     gap: var(--space-5);
@@ -204,44 +235,93 @@ const popular = getPostsForSection(allPosts, 'popular-sidebar', 5, fallbackPopul
     position: sticky;
     top: calc(var(--header-h) + var(--space-5));
   }
-  .trend-head {
-    align-items: center;
-  }
-  .section-rule {
-    height: 1px;
-    flex: 1;
-    background: var(--border);
-  }
-  /* auto-fill: giữ nhịp 4 cột, nếu section có ít bài hơn thì card vẫn đúng cỡ
-     thay vì bị kéo giãn gấp đôi. */
-  .trend-grid {
-    grid-template-columns: minmax(280px, 1.35fr) repeat(3, minmax(0, 1fr));
-    align-items: stretch;
-  }
-  .trend-grid :global(.card:first-child .card-title) {
-    font-size: 1.28rem;
-  }
-  .trend-grid :global(.card:first-child .card-media) {
-    aspect-ratio: 16 / 10;
-  }
 
+  /* ============================================================
+     XU HƯỚNG — RAIL CUỘN NGANG
+     Vùng cuộn nằm gọn trong section. Trên mobile chuyển sang snap từng ô.
+     ============================================================ */
+  .trend-section {
+    padding-bottom: var(--space-8);
+  }
+  .trend-rail {
+    list-style: none;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+  }
+  .trend-item {
+    position: relative;
+    min-width: 0;
+    padding-top: var(--space-5);
+  }
+  .trend-index {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
   @media (max-width: 1120px) {
-    .trend-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .latest-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .latest-cell-1 {
+      grid-column: span 4;
+    }
+    .latest-cell-2,
+    .latest-cell-3,
+    .latest-cell-4,
+    .latest-cell-5,
+    .latest-cell-6 {
+      grid-column: span 2;
+    }
+    .latest-cell-4 {
+      padding-top: 0;
+    }
+    /* Rail thành vùng vuốt ngang có snap. */
+    .trend-rail {
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(260px, 78%);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      padding-bottom: var(--space-3);
+    }
+    .trend-item {
+      scroll-snap-align: start;
     }
   }
+
   @media (max-width: 960px) {
     .sidebar {
       position: static;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
   }
-  @media (max-width: 640px) {
-    .trend-grid {
+
+  @media (max-width: 720px) {
+    .latest-grid {
       grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-5);
     }
-    .section-heading-group .section-title {
-      font-size: 1.6rem;
+    .latest-cell-1,
+    .latest-cell-2,
+    .latest-cell-3,
+    .latest-cell-4,
+    .latest-cell-5,
+    .latest-cell-6 {
+      grid-column: 1;
+    }
+    .trend-rail {
+      grid-auto-columns: minmax(240px, 86%);
+    }
+    .trend-section {
+      padding-bottom: var(--space-7);
     }
   }
 </style>
