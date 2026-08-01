@@ -10,46 +10,63 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
 >
   <section class="auth-page" data-next={next}>
     <div class="auth-shell">
-      <div class="auth-visual" aria-hidden="true"></div>
+      <div class="auth-visual">
+        <div class="visual-brand">
+          <img src="/assets/cong-nghe-thuong-nhat-logo-white.webp" alt="Công Nghệ Thường Nhật" />
+        </div>
+        <div class="visual-copy">
+          <span class="visual-kicker">Không gian dành cho độc giả</span>
+          <h1>Công nghệ mỗi ngày,<br />dễ hiểu hơn mỗi ngày.</h1>
+          <p>Đăng nhập để lưu bài viết yêu thích, tham gia thảo luận và quản lý trải nghiệm đọc của bạn.</p>
+        </div>
+        <div class="visual-trust">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+          Kết nối an toàn và bảo mật
+        </div>
+      </div>
+
+      <div class="mobile-brand">
+        <img src="/assets/cong-nghe-thuong-nhat-logo.webp" alt="Công Nghệ Thường Nhật" />
+      </div>
 
       <form class="auth-card" id="loginForm" data-auth-panel="login" novalidate>
         <div class="form-head">
-          <span>Quản trị Công Nghệ Thường Nhật</span>
-          <h2>Chào mừng trở lại</h2>
+          <span>Chào mừng trở lại</span>
+          <h2>Đăng nhập tài khoản</h2>
+          <p>Nhập thông tin của bạn để tiếp tục.</p>
         </div>
 
-        <label>
-          Thư điện tử
-          <input
-            type="email"
-            name="email"
-            autocomplete="email"
-            placeholder="Nhập địa chỉ thư điện tử"
-            required
-          />
-        </label>
+        <div class="field">
+          <label for="loginEmail">Thư điện tử</label>
+          <div class="input-wrap">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="18" height="14" x="3" y="5" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg>
+            <input id="loginEmail" type="email" name="email" autocomplete="email" inputmode="email" placeholder="ban@example.com" required />
+          </div>
+        </div>
 
-        <label>
-          Mật khẩu
-          <input
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            placeholder="Nhập mật khẩu"
-            required
-          />
-        </label>
+        <div class="field">
+          <label for="loginPassword">Mật khẩu</label>
+          <div class="input-wrap">
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="16" height="12" x="4" y="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
+            <input id="loginPassword" type="password" name="password" autocomplete="current-password" placeholder="Nhập mật khẩu" required />
+            <button class="password-toggle" type="button" data-password-toggle aria-label="Hiện mật khẩu" aria-pressed="false">
+              <svg class="eye-open" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="eye-closed" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 3 18 18"></path><path d="M10.6 10.7a2 2 0 0 0 2.7 2.7"></path><path d="M9.9 4.2A10.8 10.8 0 0 1 12 4c6.5 0 10 8 10 8a16 16 0 0 1-2.1 3.2M6.6 6.6C3.5 8.5 2 12 2 12s3.5 8 10 8a9.8 9.8 0 0 0 4.1-.9"></path></svg>
+            </button>
+          </div>
+        </div>
 
         <p class="form-error" id="loginError" role="alert" hidden>Thư điện tử hoặc mật khẩu chưa đúng.</p>
 
-        <button type="submit">Đăng nhập</button>
-        <p class="form-note">Chưa có tài khoản ? <a href="?mode=signup" data-show-signup>Đăng kí</a></p>
+        <button class="submit-button" type="submit"><span>Đăng nhập</span><svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button>
+        <p class="form-note">Chưa có tài khoản? <a href="?mode=signup" data-show-signup>Đăng ký miễn phí</a></p>
       </form>
 
       <form class="auth-card" id="signupForm" data-auth-panel="signup" hidden novalidate>
         <div class="form-head">
-          <span>Tài khoản mới</span>
-          <h2>Đăng kí</h2>
+          <span>Bắt đầu ngay hôm nay</span>
+          <h2>Tạo tài khoản</h2>
+          <p>Chỉ mất một phút để tham gia cộng đồng.</p>
         </div>
 
         <label>
@@ -88,8 +105,8 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
 
         <p class="form-message" id="signupMessage" role="status" aria-live="polite" hidden></p>
 
-        <button type="submit">Tạo tài khoản</button>
-        <p class="form-note">Đã có tài khoản ? <a href="?mode=login" data-show-login>Đăng nhập</a></p>
+        <button class="submit-button" type="submit"><span>Tạo tài khoản</span><svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg></button>
+        <p class="form-note">Đã có tài khoản? <a href="?mode=login" data-show-login>Đăng nhập</a></p>
       </form>
     </div>
   </section>
@@ -102,29 +119,103 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     min-height: calc(100vh - var(--header-h));
     display: grid;
     place-items: center;
-    padding: var(--space-7) var(--space-5);
-    background: url('/assets/login-tech-news-hero.webp') center / cover no-repeat;
+    padding: clamp(32px, 6vw, 80px) var(--space-5);
+    background:
+      radial-gradient(circle at 8% 15%, rgb(74 79 226 / 10%), transparent 30%),
+      radial-gradient(circle at 92% 85%, rgb(14 165 233 / 9%), transparent 32%),
+      #f5f7fb;
+  }
+  .auth-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.45;
+    background-image: radial-gradient(rgb(79 70 229 / 25%) 0.7px, transparent 0.7px);
+    background-size: 22px 22px;
   }
   .auth-shell {
     position: relative;
     z-index: 1;
-    width: min(100%, 980px);
+    width: min(100%, 1080px);
+    min-height: 640px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 420px;
-    gap: var(--space-6);
-    align-items: center;
+    grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid rgb(203 213 225 / 75%);
+    border-radius: 24px;
+    box-shadow: 0 30px 80px rgb(15 23 42 / 14%);
   }
   .auth-visual {
-    min-height: 560px;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+    padding: clamp(32px, 4vw, 52px);
+    color: #fff;
+    background: #071a46 url('/assets/login-tech-news-hero.webp') 35% center / cover no-repeat;
+  }
+  .auth-visual::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: linear-gradient(155deg, rgb(5 18 55 / 40%) 0%, rgb(7 18 55 / 80%) 60%, rgb(39 27 105 / 92%) 100%);
+  }
+  .visual-brand img {
+    display: block;
+    width: min(230px, 60%);
+    height: auto;
+  }
+  .visual-copy {
+    max-width: 470px;
+  }
+  .visual-kicker {
+    display: inline-flex;
+    margin-bottom: var(--space-4);
+    padding: 7px 12px;
+    color: #dbeafe;
+    background: rgb(255 255 255 / 10%);
+    border: 1px solid rgb(255 255 255 / 20%);
+    border-radius: var(--radius-pill);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+  .visual-copy h1 {
+    margin: 0 0 var(--space-4);
+    color: #fff;
+    font-size: clamp(2rem, 3.2vw, 3rem);
+    line-height: 1.16;
+    letter-spacing: -0.035em;
+  }
+  .visual-copy p {
+    max-width: 430px;
+    margin: 0;
+    color: rgb(226 232 240 / 90%);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  .visual-trust {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: rgb(226 232 240 / 85%);
+    font-size: 0.82rem;
+  }
+  .mobile-brand {
+    display: none;
   }
   .auth-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.16);
-    padding: var(--space-6);
+    align-self: center;
+    padding: clamp(36px, 5vw, 64px);
     display: grid;
-    gap: var(--space-4);
+    gap: 20px;
     min-width: 0;
   }
   .auth-card[hidden] {
@@ -135,52 +226,129 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     color: var(--primary);
     font-family: var(--font-head);
     font-weight: 700;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-bottom: var(--space-2);
+    margin-bottom: 10px;
   }
   .form-head h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: clamp(1.65rem, 2.5vw, 2rem);
+    letter-spacing: -0.025em;
   }
-  label {
+  .form-head p {
+    margin: 9px 0 0;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  .field,
+  .auth-card > label {
     display: grid;
-    gap: var(--space-2);
+    gap: 8px;
+  }
+  .field > label,
+  .auth-card > label {
     color: var(--text-soft);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.86rem;
+  }
+  .input-wrap {
+    position: relative;
+  }
+  .input-wrap > svg {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    color: #94a3b8;
+    pointer-events: none;
+    transform: translateY(-50%);
   }
   input {
     width: 100%;
-    min-height: 48px;
+    min-height: 52px;
     border: 1px solid var(--border-strong);
-    border-radius: var(--radius-control);
-    padding: 0 var(--space-4);
+    border-radius: 10px;
+    padding: 0 15px;
     font: inherit;
-    font-size: 0.95rem;
+    font-size: 0.94rem;
     color: var(--text);
-    background: var(--surface);
+    background: #f8fafc;
+    transition: border-color var(--dur-fast) ease, box-shadow var(--dur-fast) ease, background var(--dur-fast) ease;
+  }
+  .input-wrap input {
+    padding-left: 46px;
+  }
+  .input-wrap input[type='password'],
+  .input-wrap input[type='text'] {
+    padding-right: 48px;
+  }
+  input::placeholder {
+    color: #94a3b8;
   }
   input:focus-visible {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px var(--ring);
+    background: var(--surface);
   }
-  button {
-    min-height: 48px;
+  .password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    padding: 0;
     border: 0;
-    border-radius: var(--radius-control);
+    place-items: center;
+    color: var(--text-muted);
+    background: transparent;
+    cursor: pointer;
+    transform: translateY(-50%);
+  }
+  .password-toggle:hover {
+    color: var(--primary);
+  }
+  .password-toggle:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -4px;
+    border-radius: 8px;
+  }
+  .password-toggle .eye-closed,
+  .password-toggle[aria-pressed='true'] .eye-open {
+    display: none;
+  }
+  .password-toggle[aria-pressed='true'] .eye-closed {
+    display: block;
+  }
+  .submit-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 52px;
+    margin-top: 2px;
+    border: 0;
+    border-radius: 10px;
     background: var(--primary);
     color: var(--primary-contrast);
     font-family: var(--font-head);
     font-size: 0.98rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background var(--dur-fast) ease;
+    box-shadow: 0 8px 20px rgb(79 70 229 / 22%);
+    transition: background var(--dur-fast) ease, transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
   }
-  button:hover {
+  .submit-button:hover {
     background: var(--primary-strong);
+    box-shadow: 0 10px 24px rgb(79 70 229 / 28%);
+    transform: translateY(-1px);
+  }
+  .submit-button:disabled {
+    cursor: wait;
+    opacity: 0.7;
+    transform: none;
   }
   .form-error {
     margin: 0;
@@ -205,7 +373,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     background: var(--error-bg);
   }
   .form-note {
-    margin: 0;
+    margin: 2px 0 0;
     color: var(--text-muted);
     text-align: center;
     font-size: 0.92rem;
@@ -222,15 +390,47 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
 
   @media (max-width: 820px) {
     .auth-page {
-      align-items: start;
-      padding-inline: var(--space-4);
-      background-position: 37% center;
+      min-height: auto;
+      padding: 32px 16px 48px;
     }
     .auth-shell {
       grid-template-columns: minmax(0, 1fr);
+      width: min(100%, 520px);
+      min-height: 0;
+      border-radius: 18px;
     }
     .auth-visual {
       display: none;
+    }
+    .mobile-brand {
+      display: flex;
+      justify-content: center;
+      padding: 30px 24px 0;
+    }
+    .mobile-brand img {
+      width: min(210px, 62vw);
+      height: auto;
+    }
+    .auth-card {
+      padding: 28px 24px 34px;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .auth-page {
+      padding-inline: 12px;
+    }
+    .auth-shell {
+      border-radius: 14px;
+    }
+    .auth-card {
+      padding-inline: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .submit-button {
+      transition: none;
     }
   }
 </style>
@@ -247,7 +447,18 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
   const signupMessage = document.querySelector<HTMLElement>('#signupMessage');
   const showSignup = document.querySelector<HTMLAnchorElement>('[data-show-signup]');
   const showLogin = document.querySelector<HTMLAnchorElement>('[data-show-login]');
+  const passwordToggle = document.querySelector<HTMLButtonElement>('[data-password-toggle]');
   const nextUrl = page?.dataset.next || '/admin/index.html';
+
+  passwordToggle?.addEventListener('click', () => {
+    const input = document.querySelector<HTMLInputElement>('#loginPassword');
+    if (!input) return;
+    const showPassword = input.type === 'password';
+    input.type = showPassword ? 'text' : 'password';
+    passwordToggle.setAttribute('aria-pressed', String(showPassword));
+    passwordToggle.setAttribute('aria-label', showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+    input.focus();
+  });
 
   /** Điều hướng sau khi đăng nhập theo role. */
   function redirectAfterAuth(role: string) {
@@ -291,7 +502,10 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
 
   function setBusy(form: HTMLFormElement, busy: boolean) {
     const button = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
-    if (button) button.disabled = busy;
+    if (button) {
+      button.disabled = busy;
+      button.setAttribute('aria-busy', String(busy));
+    }
   }
 
   showSignup?.addEventListener('click', (event) => {
