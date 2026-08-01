@@ -116,10 +116,10 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
   .auth-page {
     position: relative;
     overflow: hidden;
-    min-height: calc(100vh - var(--header-h));
+    min-height: calc(100svh - var(--header-h));
     display: grid;
     place-items: center;
-    padding: clamp(32px, 6vw, 80px) var(--space-5);
+    padding: 20px var(--space-5);
     background:
       radial-gradient(circle at 8% 15%, rgb(74 79 226 / 10%), transparent 30%),
       radial-gradient(circle at 92% 85%, rgb(14 165 233 / 9%), transparent 32%),
@@ -137,8 +137,9 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
   .auth-shell {
     position: relative;
     z-index: 1;
-    width: min(100%, 1080px);
-    min-height: 640px;
+    width: min(100%, 1040px);
+    height: min(620px, calc(100svh - var(--header-h) - 40px));
+    min-height: 560px;
     display: grid;
     grid-template-columns: minmax(0, 1.08fr) minmax(420px, 0.92fr);
     overflow: hidden;
@@ -154,7 +155,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     flex-direction: column;
     justify-content: space-between;
     min-width: 0;
-    padding: clamp(32px, 4vw, 52px);
+    padding: clamp(28px, 3vw, 40px);
     color: #fff;
     background: #071a46 url('/assets/login-tech-news-hero.webp') 35% center / cover no-repeat;
   }
@@ -167,7 +168,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
   }
   .visual-brand img {
     display: block;
-    width: min(230px, 60%);
+    width: min(205px, 58%);
     height: auto;
   }
   .visual-copy {
@@ -175,7 +176,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
   }
   .visual-kicker {
     display: inline-flex;
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
     padding: 7px 12px;
     color: #dbeafe;
     background: rgb(255 255 255 / 10%);
@@ -188,9 +189,9 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     backdrop-filter: blur(8px);
   }
   .visual-copy h1 {
-    margin: 0 0 var(--space-4);
+    margin: 0 0 var(--space-3);
     color: #fff;
-    font-size: clamp(2rem, 3.2vw, 3rem);
+    font-size: clamp(1.9rem, 2.8vw, 2.65rem);
     line-height: 1.16;
     letter-spacing: -0.035em;
   }
@@ -203,7 +204,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     margin: 0;
     color: rgb(226 232 240 / 90%);
     font-size: 1rem;
-    line-height: 1.75;
+    line-height: 1.65;
   }
   .visual-trust {
     display: flex;
@@ -217,9 +218,9 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
   }
   .auth-card {
     align-self: center;
-    padding: clamp(36px, 5vw, 64px);
+    padding: clamp(28px, 4vw, 48px);
     display: grid;
-    gap: 20px;
+    gap: 16px;
     min-width: 0;
   }
   .auth-card[hidden] {
@@ -270,7 +271,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
   }
   input {
     width: 100%;
-    min-height: 52px;
+    min-height: 48px;
     border: 1px solid var(--border-strong);
     border-radius: 10px;
     padding: 0 15px;
@@ -331,7 +332,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 52px;
+    min-height: 48px;
     margin-top: 2px;
     border: 0;
     border-radius: 10px;
@@ -400,6 +401,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     .auth-shell {
       grid-template-columns: minmax(0, 1fr);
       width: min(100%, 520px);
+      height: auto;
       min-height: 0;
       border-radius: 18px;
     }
