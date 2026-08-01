@@ -111,4 +111,16 @@ const latest = (await getPublishedPosts()).slice(0, 4);
   .nf-list a:hover::before {
     color: var(--color-brand-primary);
   }
+
+  @media (max-width: 640px) {
+    .notfound {
+      padding: var(--space-6) 0 var(--space-7);
+    }
+    .nf-code {
+      margin-top: var(--space-3);
+    }
+    .nf-list-title {
+      margin-top: var(--space-6);
+    }
+  }
 </style>

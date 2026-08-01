@@ -12,10 +12,12 @@ const today = new Date(
   <div class="container footer-status">
     <p class="footer-status-live">
       <span class="signal-dot" aria-hidden="true"></span>
-      Hệ thống quan sát <b>đang hoạt động</b>
+      <span class="footer-status-long">Hệ thống quan sát</span>
+      <b>đang hoạt động</b>
     </p>
     <p class="footer-status-date">
-      Cập nhật <time datetime={today.toISOString().slice(0, 10)}>{observationDate(today)}</time>
+      <span class="footer-status-long">Cập nhật</span>
+      <time datetime={today.toISOString().slice(0, 10)}>{observationDate(today)}</time>
     </p>
   </div>
 
@@ -92,13 +94,19 @@ const today = new Date(
   /* Dải trạng thái mở đầu phần chân trang — khép lại vòng với dải ở đầu site. */
   .footer-status {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-4);
+    gap: var(--space-2) var(--space-4);
     min-height: 34px;
+    padding-block: 6px;
     border-bottom: 1px solid var(--color-border-on-dark);
   }
-  .footer-status p {
+  /* Nhắm thẳng vào hai lớp thay vì dùng `.footer-status p`: bộ chọn hậu duệ có
+     độ ưu tiên cao hơn một lớp đơn, nên nó sẽ đè mất `display: none` của rule
+     thu gọn ở màn hẹp bên dưới. */
+  .footer-status-live,
+  .footer-status-date {
     display: flex;
     align-items: center;
     gap: var(--space-2);
@@ -289,11 +297,13 @@ const today = new Date(
       grid-column: 1 / -1;
     }
   }
+  /* Ở màn hẹp bỏ phần dẫn của nhãn, giữ lại cả trạng thái lẫn ngày cập nhật —
+     cả hai đều là thông tin, không phải trang trí. */
   @media (max-width: 640px) {
     .footer-status {
       min-height: 30px;
     }
-    .footer-status-date {
+    .footer-status-long {
       display: none;
     }
   }

@@ -73,6 +73,7 @@ const items = posts.map((p) => ({
   }
   .search-kicker {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--space-2);
     margin: 0 0 var(--space-3);
@@ -119,6 +120,20 @@ const items = posts.map((p) => ({
   }
   .search-empty[hidden] {
     display: none;
+  }
+
+  @media (max-width: 640px) {
+    .search-page {
+      padding-top: var(--space-5);
+    }
+    /* Đường kẻ nối và số lượng bài đẩy dòng nhãn xuống hai hàng ở màn hẹp —
+       giữ lại nhãn chính, bỏ phần trang trí. */
+    .search-kicker em {
+      display: none;
+    }
+    .search-status {
+      margin-top: var(--space-4);
+    }
   }
 </style>
 

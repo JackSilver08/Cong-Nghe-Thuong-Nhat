@@ -330,14 +330,29 @@ const plotted = zones.map((zone, index) => {
       padding-block: var(--space-6);
     }
     .radar-plot {
-      max-width: 260px;
+      max-width: 240px;
+    }
+    /* Bảy vùng nối nhau rất dễ thành một cột dài lê thê trên điện thoại:
+       siết khoảng đệm và cỡ chữ để cả bảng vẫn lướt được nhanh. */
+    .radar-row {
+      padding-block: var(--space-2);
     }
     .radar-row-head {
-      grid-template-columns: 40px minmax(0, 1fr);
-      row-gap: 2px;
+      grid-template-columns: 38px minmax(0, 1fr);
+      row-gap: 0;
+      min-height: 32px;
     }
     .radar-row-count {
       grid-column: 2;
+    }
+    .radar-row-name {
+      font-size: 1rem;
+    }
+    .radar-row .signal-bar {
+      margin-block: 6px;
+    }
+    .radar-row-lead > a {
+      font-size: 0.89rem;
     }
   }
 </style>

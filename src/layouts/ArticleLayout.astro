@@ -684,11 +684,39 @@ const jsonLd = {
     .article-actions .btn {
       flex: 1 1 auto;
     }
+    .article-signal {
+      margin-bottom: var(--space-3);
+    }
+    .article-signal-time {
+      font-size: 0.64rem;
+    }
+    .article-hero {
+      margin-block: var(--space-4);
+    }
+    .article-hero img {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 28px 100%, 0 calc(100% - 28px));
+    }
+    .article-toc {
+      margin-block: var(--space-5);
+      padding: var(--space-4);
+    }
     .back-to-top {
       right: 16px;
       bottom: max(16px, env(safe-area-inset-bottom));
       width: 48px;
       height: 48px;
+    }
+  }
+
+  /* Dưới 430px, hai nút cạnh nhau không đủ chỗ cho nhãn "Sao chép liên kết"
+     nên chữ xuống dòng giữa nút. Xếp dọc, mỗi nút một hàng. */
+  @media (max-width: 430px) {
+    .article-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .article-actions .btn {
+      width: 100%;
     }
   }
 

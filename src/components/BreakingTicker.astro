@@ -120,6 +120,30 @@ const { posts } = Astro.props;
     }
   }
 
+  /* Ở 320px, nhãn chiếm hơn nửa chiều ngang và chỉ còn ~130px cho phần chữ
+     chạy. Thu nhãn lại để tin tức mới là thứ đọc được. */
+  @media (max-width: 640px) {
+    .ticker {
+      min-height: 42px;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    .ticker-label {
+      gap: 6px;
+      padding: 0 var(--space-3);
+      font-size: 0.64rem;
+      letter-spacing: 0.08em;
+    }
+    .ticker-track {
+      gap: var(--space-5);
+    }
+    .ticker-track a {
+      font-size: 0.86rem;
+    }
+    .ticker-track a::before {
+      margin-right: var(--space-2);
+    }
+  }
+
   /* Tôn trọng prefers-reduced-motion: bỏ chạy chữ, đổi thành vùng cuộn tay. */
   @media (prefers-reduced-motion: reduce) {
     .ticker-viewport {

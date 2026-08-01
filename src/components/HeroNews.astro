@@ -475,7 +475,14 @@ const strength = signalStrength(data.popularScore, maxScore ?? data.popularScore
       grid-row: 3;
       margin-top: var(--space-5);
       aspect-ratio: 16 / 9;
+      /* Ở bố cục dọc, ảnh 16/9 rộng gần cả trang sẽ cao hơn 400px và đẩy phần
+         tóm tắt xuống dưới màn hình đầu tiên. */
+      max-height: 340px;
       clip-path: polygon(0 0, 100% 0, 100% 100%, 44px 100%, 0 calc(100% - 44px));
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 1.2rem + 4.2vw, 3.6rem);
+      -webkit-line-clamp: 4;
     }
     .hero-panel {
       grid-column: 2 / -1;
@@ -503,12 +510,17 @@ const strength = signalStrength(data.popularScore, maxScore ?? data.popularScore
     }
   }
 
-  /* ============ Điện thoại ============ */
+  /* ============ Điện thoại ============
+     Xếp chồng thôi thì chưa đủ: ở bố cục dọc, hero từng cao ~850px trên máy
+     390px, tức gần hai màn hình trước khi thấy bài thứ hai. Ở đây mọi thành
+     phần được thu lại theo tỉ lệ của màn hẹp — chữ tiêu đề co theo vw thay vì
+     đứng ở sàn clamp của desktop, ảnh đổi sang 16/10, tóm tắt còn 2 dòng và
+     dải dữ liệu chuyển thành các dòng nhãn–giá trị nằm ngang. */
   @media (max-width: 640px) {
     .hero {
       grid-template-columns: minmax(0, 1fr);
-      margin-top: var(--space-4);
-      padding-top: var(--space-4);
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
     }
     /* Cột chữ dọc chiếm chỗ quý ở màn hẹp; mã tín hiệu ở hàng trên đã đủ. */
     .hero-rail {
@@ -523,19 +535,38 @@ const strength = signalStrength(data.popularScore, maxScore ?? data.popularScore
       grid-row: auto;
     }
     .hero-topline {
-      margin-bottom: var(--space-4);
+      margin-bottom: var(--space-3);
     }
     .hero-topline-time {
-      font-size: 0.62rem;
+      font-size: 0.64rem;
+    }
+    .hero-cat {
+      margin-bottom: var(--space-3);
+    }
+    .hero-title {
+      font-size: clamp(1.85rem, 1rem + 4.4vw, 2.4rem);
+      line-height: 1.04;
+      letter-spacing: -0.032em;
+      -webkit-line-clamp: 4;
     }
     .hero-media {
       margin-top: var(--space-4);
-      aspect-ratio: 4 / 3;
-      clip-path: polygon(0 0, 100% 0, 100% 100%, 32px 100%, 0 calc(100% - 32px));
+      aspect-ratio: 16 / 10;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 28px 100%, 0 calc(100% - 28px));
+    }
+    .hero-media-tag {
+      top: var(--space-2);
+      right: var(--space-3);
     }
     .hero-panel {
       margin-top: 0;
       padding: var(--space-4);
+    }
+    .hero-excerpt {
+      margin-bottom: var(--space-3);
+      font-size: 0.97rem;
+      line-height: 1.6;
+      -webkit-line-clamp: 2;
     }
     .hero-actions {
       gap: var(--space-3);
@@ -544,13 +575,40 @@ const strength = signalStrength(data.popularScore, maxScore ?? data.popularScore
       flex: 1 1 auto;
       justify-content: center;
     }
+    /* Dải dữ liệu thành bảng thông số một cột: nhãn trái, giá trị phải.
+       Hai cột không đủ chỗ — ở 320px cả "THỜI GIAN ĐỌC" lẫn "11 phút" đều bị
+       ngắt dòng. Một cột chiếm đúng bằng chiều cao đó nhưng đọc được. */
     .hero-data {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      margin-top: var(--space-4);
+    }
+    .hero-data div {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding-block: 7px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .hero-data dt {
+      white-space: nowrap;
+    }
+    .hero-data dd {
+      margin: 0;
+      font-size: 0.92rem;
+      text-align: right;
+    }
+    .hero-data-strength dd {
+      display: flex;
+      align-items: center;
       gap: var(--space-3);
-      margin-top: var(--space-5);
+    }
+    .hero-data-strength .signal-bar {
+      width: 88px;
     }
     .hero-side {
-      margin-top: var(--space-6);
+      margin-top: var(--space-5);
     }
   }
 

@@ -628,6 +628,7 @@ a.chip:hover {
 .zone-code {
   grid-column: 1 / -1;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   font-family: var(--font-mono);
@@ -637,8 +638,11 @@ a.chip:hover {
   text-transform: uppercase;
   color: var(--color-brand-primary);
 }
+/* Đường kẻ nối chỉ là trang trí: cho phép co về 0 để hai nhãn hai đầu luôn
+   được ưu tiên chỗ trên màn hẹp. */
 .zone-code em {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   height: 1px;
   background: var(--color-border);
   font-style: normal;
