@@ -16,7 +16,7 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
         </div>
         <div class="visual-copy">
           <span class="visual-kicker">Không gian dành cho độc giả</span>
-          <h1>Công nghệ mỗi ngày,<br />dễ hiểu hơn mỗi ngày.</h1>
+          <h1><span>Công nghệ dễ hiểu,</span><span>hữu ích mỗi ngày.</span></h1>
           <p>Đăng nhập để lưu bài viết yêu thích, tham gia thảo luận và quản lý trải nghiệm đọc của bạn.</p>
         </div>
         <div class="visual-trust">
@@ -193,6 +193,10 @@ const next = Astro.url.searchParams.get('next') || '/admin/index.html';
     font-size: clamp(2rem, 3.2vw, 3rem);
     line-height: 1.16;
     letter-spacing: -0.035em;
+  }
+  .visual-copy h1 span {
+    display: block;
+    white-space: nowrap;
   }
   .visual-copy p {
     max-width: 430px;
