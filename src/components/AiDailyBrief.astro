@@ -59,11 +59,23 @@ const { posts } = Astro.props;
   .brief-bg {
     position: relative;
     overflow: hidden;
-    border-radius: var(--radius-card);
+    border-radius: 6px 32px 6px 32px;
     padding: clamp(24px, 4vw, 48px);
     color: #fff;
     background: var(--nh-dark);
     border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .brief-bg::after {
+    content: '02';
+    position: absolute;
+    right: clamp(18px, 3vw, 42px);
+    top: -0.25em;
+    color: rgba(255, 255, 255, 0.045);
+    font-family: var(--font-head);
+    font-size: clamp(7rem, 15vw, 12rem);
+    font-weight: 800;
+    line-height: 1;
+    pointer-events: none;
   }
   .brief-head {
     display: flex;
@@ -123,6 +135,8 @@ const { posts } = Astro.props;
     gap: var(--space-4);
   }
   .brief-card {
+    position: relative;
+    z-index: 1;
     min-width: 0;
     padding: var(--space-5);
     border-radius: var(--radius-card);
@@ -159,7 +173,7 @@ const { posts } = Astro.props;
   }
   .brief-card a {
     display: inline-block;
-    color: #7ef0d0;
+    color: #7ee7f6;
     font-family: var(--font-head);
     font-size: 0.92rem;
     font-weight: 600;
@@ -169,7 +183,7 @@ const { posts } = Astro.props;
     overflow-wrap: break-word;
   }
   .brief-card a:hover {
-    color: #b6f7e5;
+    color: #c8f7fc;
   }
 
   @media (max-width: 900px) {
